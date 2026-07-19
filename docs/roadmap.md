@@ -83,6 +83,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** In `AxoConfig`, store `modules.<id>.enabled` plus a free-form JSON object per module; save atomically (temp file + rename) on change; load before module registration.
 - **Done when:** toggling a module, restarting the dev client, and seeing the state persist works.
 - **Depends:** P1-01 · **Est:** 1.5 h
+- **Status:** ✅ DONE 2026-07-19 — per-module sections with typed get/set (`getModule*`/`setModule*`), atomic save; used by the HUD position system. Restart-persistence check rides along with the P1-01 runClient session.
 
 ### P1-05 · add keybind support for module toggles
 - **Do:** Using Fabric's `KeyBindingHelper`, register an optional toggle key per module (declared in the module class); default binds: Zoom=C, HUD editor=RShift (later).

@@ -70,6 +70,16 @@ public final class AxoConfig {
         return fallback;
     }
 
+    public void setModuleString(String moduleId, String key, String value) {
+        moduleSection(moduleId, true).addProperty(key, value);
+        save();
+    }
+
+    public void setModuleInt(String moduleId, String key, int value) {
+        moduleSection(moduleId, true).addProperty(key, value);
+        save();
+    }
+
     public boolean isEnabled(String moduleId, boolean fallback) {
         JsonObject section = moduleSection(moduleId, false);
         if (section == null || !section.has("enabled")) {
