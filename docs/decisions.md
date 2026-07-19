@@ -51,4 +51,4 @@ Solo-dev friendly: one clone, one issue tracker, atomic cross-cutting changes (e
 | O-4 | Code signing budget | P5-07 | ~$10/mo Azure Trusted Signing is the cheap path |
 | O-5 | Analytics stance | P5-08 | recommendation: none for now |
 | O-6 | Multi-version build strategy | P6-03 | Stonecutter vs branches — decide after M1 experience |
-| O-7 | Mojang Minecraft-API approval tracking | P0-03 | Azure app "Axo Launcher" registered 2026-07-19, client ID `77802178-1e6b-4163-b382-d4095833986e` (tenant `fddcd525-ab75-462a-941b-cbbc4baec66c`). Mojang approval form: NOT YET SUBMITTED — record submission + approval dates here, then flip `USE_AXO_CLIENT_ID` in `launcher/src/main/auth.ts`. |
+| O-7 | Mojang Minecraft-API approval tracking | P0-03 | Azure app "Axo Launcher" registered 2026-07-19, client ID `77802178-1e6b-4163-b382-d4095833986e` (tenant `fddcd525-ab75-462a-941b-cbbc4baec66c`). Azure config verified (account types + public client flows) 2026-07-19. Submission pack ready: `docs/mojang-api-request.md`. Form: NOT YET SUBMITTED — record submission + approval dates here, then flip `USE_AXO_CLIENT_ID` in `launcher/src/main/auth.ts`. |

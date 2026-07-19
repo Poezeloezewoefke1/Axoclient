@@ -32,6 +32,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Submit Mojang's Minecraft API access form for the P0-02 client ID (required for `api.minecraftservices.com` login to work for third-party launchers). Record submission date in `docs/decisions.md`.
 - **Done when:** form submitted and confirmation received; approval status tracked until granted.
 - **Depends:** P0-02 · **Est:** 30 min (plus multi-week external wait — dev continues with msmc defaults meanwhile)
+- **Status:** 🟡 READY TO SUBMIT — copy-paste submission pack in `docs/mojang-api-request.md`; owner must submit from their browser.
 
 ### P0-04 · freeze manifest schema v1
 - **Do:** Review `docs/manifest-spec.md` + `manifest/axo-manifest.json` against launcher plans; fix field gaps; tag the spec "frozen v1" in the doc header.
