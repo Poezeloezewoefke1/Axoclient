@@ -1,0 +1,318 @@
+/* Axo brand tokens — keep in sync with docs/branding.md (P0-01) and website/styles.css */
+:root {
+  --axo-blue: #38bdf8;
+  --axo-blue-dim: #0ea5e9;
+  --axo-black: #0a0a0f;
+  --axo-surface: #12121a;
+  --axo-surface-2: #1a1a24;
+  --axo-border: #26263a;
+  --axo-text: #e7e9ee;
+  --axo-text-muted: #8b90a0;
+  --axo-error: #f87171;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--axo-black);
+  color: var(--axo-text);
+  user-select: none;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+}
+
+/* ---- App shell ---- */
+
+.shell {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  width: 220px;
+  background: var(--axo-surface);
+  border-right: 1px solid var(--axo-border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+
+.logo-axo {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--axo-blue);
+}
+
+.logo-sub {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--axo-text-muted);
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-item {
+  text-align: left;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--axo-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: var(--axo-surface-2);
+  color: var(--axo-text);
+}
+
+.nav-item.active {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--axo-blue);
+}
+
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--axo-surface-2);
+  border: 1px solid var(--axo-border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.account-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--axo-blue);
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--axo-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  padding: 0 12px;
+}
+
+.link-button:hover {
+  color: var(--axo-blue);
+}
+
+.app-version {
+  font-size: 11px;
+  color: var(--axo-text-muted);
+  padding: 0 12px;
+}
+
+.content {
+  flex: 1;
+  padding: 32px 40px;
+  overflow-y: auto;
+}
+
+/* ---- Buttons ---- */
+
+.primary-button {
+  background: var(--axo-blue);
+  color: var(--axo-black);
+  border: none;
+  border-radius: 10px;
+  padding: 14px 40px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: var(--axo-blue-dim);
+}
+
+.primary-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---- Login ---- */
+
+.login-screen {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(600px 300px at 50% 0%, rgba(56, 189, 248, 0.08), transparent),
+    var(--axo-black);
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 48px 56px;
+  background: var(--axo-surface);
+  border: 1px solid var(--axo-border);
+  border-radius: 16px;
+  max-width: 420px;
+  text-align: center;
+}
+
+.login-logo {
+  margin-bottom: 0;
+}
+
+.login-tagline {
+  color: var(--axo-text-muted);
+  font-size: 14px;
+}
+
+.login-footnote {
+  color: var(--axo-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.error-text {
+  color: var(--axo-error);
+  font-size: 13px;
+}
+
+/* ---- Home ---- */
+
+.home-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.home-header h1 {
+  font-size: 26px;
+}
+
+.stale-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--axo-black);
+  background: var(--axo-text-muted);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.error-banner {
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  color: var(--axo-error);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.play-panel {
+  background: var(--axo-surface);
+  border: 1px solid var(--axo-border);
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 520px;
+}
+
+.version-row {
+  display: flex;
+  gap: 16px;
+}
+
+.version-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--axo-text-muted);
+  flex: 1;
+}
+
+.version-row select {
+  background: var(--axo-surface-2);
+  color: var(--axo-text);
+  border: 1px solid var(--axo-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.play-button {
+  align-self: flex-start;
+}
+
+.muted {
+  color: var(--axo-text-muted);
+  font-size: 13px;
+}
+
+/* ---- Settings ---- */
+
+.settings-screen h1 {
+  font-size: 26px;
+  margin-bottom: 24px;
+}
+
+.settings-group {
+  background: var(--axo-surface);
+  border: 1px solid var(--axo-border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  max-width: 520px;
+}
+
+.settings-group h2 {
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: var(--axo-blue);
+}

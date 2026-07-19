@@ -1,0 +1,21 @@
+# Windows packaging (roadmap P4-06 wires this into CI; P0-07 adds the real icon).
+appId: dev.axoclient.launcher
+productName: Axo Launcher
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**
+  - package.json
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: true
+  perMachine: false
+  deleteAppDataOnUninstall: false
+# electron-updater feed (roadmap P3-02) — must match manifest launcher.releasesRepo:
+publish:
+  provider: github
+  owner: Poezeloezewoefke1
+  repo: Claud
