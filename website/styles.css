@@ -1,0 +1,177 @@
+/* Axo brand tokens — keep in sync with docs/branding.md (P0-01) and launcher styles */
+:root {
+  --axo-blue: #38bdf8;
+  --axo-blue-dim: #0ea5e9;
+  --axo-black: #0a0a0f;
+  --axo-surface: #12121a;
+  --axo-border: #26263a;
+  --axo-text: #e7e9ee;
+  --axo-text-muted: #8b90a0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--axo-black);
+  color: var(--axo-text);
+  line-height: 1.6;
+}
+
+/* ---- Navbar ---- */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--axo-border);
+  z-index: 10;
+}
+
+.navbar-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.logo-axo {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--axo-blue);
+}
+
+.logo-sub {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--axo-text-muted);
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+
+.nav-links a {
+  color: var(--axo-text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-links a:hover {
+  color: var(--axo-blue);
+}
+
+/* ---- Hero ---- */
+
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 96px 24px 72px;
+  text-align: center;
+  background: radial-gradient(700px 340px at 50% -80px, rgba(56, 189, 248, 0.1), transparent);
+}
+
+.hero h1 {
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+
+.accent {
+  color: var(--axo-blue);
+}
+
+.hero-sub {
+  color: var(--axo-text-muted);
+  font-size: 18px;
+  margin-bottom: 36px;
+}
+
+.download-button {
+  display: inline-block;
+  background: var(--axo-blue);
+  color: var(--axo-black);
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 700;
+  padding: 16px 44px;
+  border-radius: 12px;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.download-button:hover {
+  background: var(--axo-blue-dim);
+  transform: translateY(-1px);
+}
+
+.download-meta {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--axo-text-muted);
+}
+
+/* ---- Features ---- */
+
+.features {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  background: var(--axo-surface);
+  border: 1px solid var(--axo-border);
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.feature-card h3 {
+  color: var(--axo-blue);
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  color: var(--axo-text-muted);
+  font-size: 14px;
+}
+
+/* ---- Footer ---- */
+
+.footer {
+  border-top: 1px solid var(--axo-border);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.footer p {
+  max-width: 640px;
+  margin: 0 auto;
+  color: var(--axo-text-muted);
+  font-size: 12px;
+}
