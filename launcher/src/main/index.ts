@@ -1,10 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'node:path'
 import { getManifest, getManifestInfo } from './manifest'
 import { getSession, initAuth, loginWithMicrosoft, logout, restoreSession } from './auth'
 import { SettingsStore } from './settings'
 import { launchGame } from './launch'
-import { initLogger, logLine } from './logger'
+import { initLogger, logDirectory, logLine } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
 
@@ -90,6 +90,12 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.handle('update:install', () => installUpdate())
+  ipcMain.handle('logs:open', () => {
+    const dir = logDirectory()
+    if (dir) {
+      void shell.openPath(dir)
+    }
+  })
 
   createWindow()
   initUpdater()

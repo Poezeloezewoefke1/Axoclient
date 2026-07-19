@@ -6,7 +6,7 @@ import type { AxoSettings, GameProgress } from '../shared/types'
 import { ensureJava } from './java'
 import { installFabricProfile } from './fabricProfile'
 import { syncModsFolder } from './install'
-import { logLine } from './logger'
+import { createGameLog, logLine } from './logger'
 
 /**
  * The full launch pipeline (roadmap P2-13): Java → Fabric profile →
@@ -58,8 +58,9 @@ export async function launchGame(
       detail: `${progress.type ?? ''} ${progress.task ?? 0}/${progress.total ?? 0}`.trim()
     })
   )
+  const gameLog = createGameLog()
   launcher.on('debug', (line: string) => logLine('mclc', line))
-  launcher.on('data', (line: string) => logLine('game', String(line).trimEnd()))
+  launcher.on('data', (line: string) => gameLog.append(String(line).trimEnd()))
 
   const options = {
     authorization: session.mclcAuth,
@@ -85,7 +86,8 @@ export async function launchGame(
 
   await new Promise<void>((resolve) => {
     process.on('close', (code: number | null) => {
-      logLine('game', `exited with code ${code}`)
+      gameLog.append(`--- exited with code ${code} ---`)
+      logLine('launch', `game exited with code ${code}`)
       resolve()
     })
   })

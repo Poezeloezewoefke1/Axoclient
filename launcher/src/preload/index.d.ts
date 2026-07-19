@@ -20,6 +20,7 @@ declare global {
       launch(versionId: string): Promise<void>
       onGameProgress(callback: (progress: GameProgress) => void): () => void
       installUpdate(): Promise<void>
+      openLogs(): Promise<void>
       onUpdateStatus(callback: (status: UpdateStatus) => void): () => void
     }
   }

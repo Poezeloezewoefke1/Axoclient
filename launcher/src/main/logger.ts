@@ -1,4 +1,4 @@
-import { appendFile, mkdir } from 'node:fs/promises'
+import { appendFile, mkdir, readdir, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 
 /**
@@ -11,6 +11,39 @@ let logDir: string | null = null
 
 export function initLogger(dir: string): void {
   logDir = dir
+}
+
+export function logDirectory(): string | null {
+  return logDir
+}
+
+/**
+ * Per-session game log (P5-02): one file per launch, oldest pruned so at
+ * most `keep` remain. Game stdout goes here, not into launcher.log.
+ */
+export function createGameLog(keep = 5): { path: string | null; append: (line: string) => void } {
+  const dir = logDir
+  if (!dir) {
+    return { path: null, append: () => undefined }
+  }
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const path = join(dir, `game-${stamp}.log`)
+
+  void mkdir(dir, { recursive: true })
+    .then(async () => {
+      const games = (await readdir(dir)).filter((f) => f.startsWith('game-')).sort()
+      for (const old of games.slice(0, Math.max(0, games.length - (keep - 1)))) {
+        await rm(join(dir, old), { force: true })
+      }
+    })
+    .catch(() => undefined)
+
+  return {
+    path,
+    append: (line: string) => {
+      void appendFile(path, `${line}\n`, 'utf8').catch(() => undefined)
+    }
+  }
 }
 
 export function logLine(scope: string, message: string): void {

@@ -74,8 +74,11 @@ export default function SettingsScreen(): React.JSX.Element {
       <div className="settings-group">
         <h2>About</h2>
         <p className="muted">
-          Axo Launcher — updates are checked automatically once the update system (Phase 3) ships.
+          Axo Launcher — updates are checked automatically in packaged builds.
         </p>
+        <button className="link-button" onClick={() => void window.axo.openLogs()}>
+          Open log folder
+        </button>
       </div>
     </div>
   )
