@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "axoclient",
+  "version": "${version}",
+  "name": "Axo Client",
+  "description": "Axo Client — HUD, PvP info, and quality-of-life modules for Minecraft Java Edition.",
+  "authors": ["Axo Client"],
+  "contact": {
+    "sources": "https://github.com/Poezeloezewoefke1/Claud"
+  },
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.axoclient.AxoClient"]
+  },
+  "mixins": ["axoclient.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21"
+  }
+}
