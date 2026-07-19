@@ -30,9 +30,7 @@ dependencies {
     // Mojang official mappings: no per-version mappings pin needed (decision D-007).
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    // Fabric API is intentionally absent from the scaffold (decision D-008);
-    // it is added in roadmap task P1-02 together with event/keybind wiring.
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
 processResources {
