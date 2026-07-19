@@ -46,6 +46,30 @@ public final class AxoConfig {
         return new AxoConfig(path, root);
     }
 
+    public String getModuleString(String moduleId, String key, String fallback) {
+        JsonObject section = moduleSection(moduleId, false);
+        try {
+            if (section != null && section.has(key)) {
+                return section.get(key).getAsString();
+            }
+        } catch (RuntimeException e) {
+            AxoClient.LOGGER.warn("Bad config value {}.{}, using default", moduleId, key);
+        }
+        return fallback;
+    }
+
+    public int getModuleInt(String moduleId, String key, int fallback) {
+        JsonObject section = moduleSection(moduleId, false);
+        try {
+            if (section != null && section.has(key)) {
+                return section.get(key).getAsInt();
+            }
+        } catch (RuntimeException e) {
+            AxoClient.LOGGER.warn("Bad config value {}.{}, using default", moduleId, key);
+        }
+        return fallback;
+    }
+
     public boolean isEnabled(String moduleId, boolean fallback) {
         JsonObject section = moduleSection(moduleId, false);
         if (section == null || !section.has("enabled")) {

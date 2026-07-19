@@ -1,32 +1,26 @@
 package dev.axoclient.modules.hud;
 
-import dev.axoclient.core.AxoModule;
-import dev.axoclient.core.HudRenderable;
-import dev.axoclient.core.ModuleCategory;
+import dev.axoclient.hud.HudAnchor;
+import dev.axoclient.hud.HudModule;
+import dev.axoclient.hud.HudPosition;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 
-/**
- * Player position + facing on the HUD (roadmap P1-08). Fixed position under
- * the FPS counter until the anchor system lands (P1-06).
- */
-public final class CoordinatesModule extends AxoModule implements HudRenderable {
-    private static final int AXO_BLUE = 0xFF38BDF8;
+/** Player position + facing on the HUD (roadmap P1-08), anchor-positioned. */
+public final class CoordinatesModule extends HudModule {
 
     public CoordinatesModule() {
-        super("coordinates", "Coordinates", ModuleCategory.HUD, true);
+        super("coordinates", "Coordinates", new HudPosition(HudAnchor.TOP_LEFT, 4, 16));
     }
 
     @Override
-    public void renderHud(GuiGraphics graphics) {
-        Minecraft minecraft = Minecraft.getInstance();
-        LocalPlayer player = minecraft.player;
+    protected String hudText() {
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
-            return;
+            return null;
         }
-        String text = String.format(
+        return String.format(
             Locale.ROOT,
             "%.1f / %.1f / %.1f  %s",
             player.getX(),
@@ -34,6 +28,5 @@ public final class CoordinatesModule extends AxoModule implements HudRenderable 
             player.getZ(),
             player.getDirection().toString().toUpperCase(Locale.ROOT)
         );
-        graphics.drawString(minecraft.font, text, 4, 16, AXO_BLUE, true);
     }
 }

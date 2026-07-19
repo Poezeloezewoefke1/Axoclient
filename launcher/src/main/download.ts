@@ -18,14 +18,19 @@ export interface DownloadOptions {
   timeoutMs?: number
 }
 
+/** A bare string means sha1 (the manifest's hash); Adoptium et al. use sha256. */
+export type ExpectedHash = string | { algorithm: 'sha1' | 'sha256'; value: string }
+
 export async function downloadFile(
   url: string,
   dest: string,
-  expectedSha1?: string,
+  expectedHash?: ExpectedHash,
   options: DownloadOptions = {}
 ): Promise<void> {
   const attempts = options.attempts ?? 2
   const timeoutMs = options.timeoutMs ?? 60_000
+  const expected =
+    typeof expectedHash === 'string' ? { algorithm: 'sha1' as const, value: expectedHash } : expectedHash
   let lastError: Error = new Error('download not attempted')
 
   for (let attempt = 1; attempt <= attempts; attempt++) {
@@ -35,10 +40,12 @@ export async function downloadFile(
         throw new Error(`HTTP ${response.status} for ${url}`)
       }
       const bytes = Buffer.from(await response.arrayBuffer())
-      if (expectedSha1) {
-        const actual = createHash('sha1').update(bytes).digest('hex')
-        if (actual !== expectedSha1) {
-          throw new Error(`sha1 mismatch for ${url}: expected ${expectedSha1}, got ${actual}`)
+      if (expected) {
+        const actual = createHash(expected.algorithm).update(bytes).digest('hex')
+        if (actual !== expected.value) {
+          throw new Error(
+            `${expected.algorithm} mismatch for ${url}: expected ${expected.value}, got ${actual}`
+          )
         }
       }
       await mkdir(dirname(dest), { recursive: true })

@@ -34,6 +34,10 @@ public final class ModuleManager {
         return instance;
     }
 
+    public AxoConfig config() {
+        return config;
+    }
+
     public void register(AxoModule module) {
         if (modules.putIfAbsent(module.id(), module) != null) {
             throw new IllegalArgumentException("Duplicate module id: " + module.id());

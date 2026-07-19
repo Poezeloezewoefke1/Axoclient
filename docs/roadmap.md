@@ -89,6 +89,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Create `hud/HudAnchor` (9 anchor points + pixel offset) and make HUD modules render relative to an anchor stored in their config section; replace FpsHud's hardcoded position.
 - **Done when:** changing anchor values in the config file moves the FPS counter accordingly.
 - **Depends:** P1-04 · **Est:** 2 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — `hud/HudAnchor` + `HudPosition` + `HudModule` base (config keys `hud_anchor`/`hud_x`/`hud_y`); FPS + coordinates refactored onto it; CI-compiled. In-game visual check pending a local `runClient`.
 
 ### P1-07 · add CPS counter module
 - **Do:** New `modules/hud/CpsCounterModule`: ring-buffer of click timestamps from mouse input events, render "L: n | R: n" via the HUD system.
@@ -170,6 +171,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** `src/main/java.ts`: query Adoptium API for latest Temurin JRE matching manifest `javaMajor` + win x64, download to `runtime/<major>/`, unpack, verify checksum, cache; expose progress events.
 - **Done when:** empty cache → JRE downloaded and `bin/javaw.exe` exists; second run is a no-op.
 - **Depends:** P2-03 · **Est:** 2 h · **Refs:** https://api.adoptium.net/q/swagger-ui/
+- **Status:** 🟡 CORE DONE 2026-07-19 — full flow unit-tested (query→download sha256-verified→extract→cache; cache hit uses no network; tamper rejected); real Adoptium run happens with P2-13 on Windows.
 
 ### P2-10 · implement vanilla + Fabric installation
 - **Do:** `src/main/install.ts`: via minecraft-launcher-core resolve vanilla `mcVersion` files into the install dir; fetch the Fabric loader profile JSON from `meta.fabricmc.net` for `mcVersion`+`fabricLoaderVersion` and register it as the launch profile.

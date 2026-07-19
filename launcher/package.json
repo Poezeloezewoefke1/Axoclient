@@ -17,6 +17,7 @@
     "dist": "electron-vite build && electron-builder --win --config electron-builder.yml"
   },
   "dependencies": {
+    "extract-zip": "^2.0.1",
     "minecraft-launcher-core": "^3.17.3",
     "msmc": "^4.1.0",
     "zod": "^3.25.0"
