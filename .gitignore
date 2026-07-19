@@ -1,0 +1,27 @@
+# Gradle / Java (client)
+client/.gradle/
+client/build/
+client/run/
+*.class
+
+# Node (launcher, website tooling)
+node_modules/
+launcher/dist/
+launcher/out/
+launcher/release/
+
+# Env & local config
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
