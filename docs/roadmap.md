@@ -19,6 +19,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Write `docs/branding.md`: logo brief (axolotl motif y/n), typography choice, color tokens (`--axo-blue: #38bdf8`, `--axo-black: #0a0a0f`, plus 3 neutrals), tone of voice, name usage rules ("Axo Client", "Axo").
 - **Done when:** doc exists and website + launcher CSS reference the same token values.
 - **Est:** 1 h
+- **Status:** ✅ DONE 2026-07-19 — `docs/branding.md`; logo asset itself remains open decision O-2.
 
 ### P0-02 · create Azure app registration
 - **Do:** In Azure Portal, register a public-client app "Axo Launcher": redirect URI `http://localhost` (+ msmc's default), enable device code flow, note the client ID. Store the client ID in `launcher/.env.example` (it is public, not a secret).
@@ -45,6 +46,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Add `docs/releasing.md` stub: `main` protected, feature branches, tags `launcher-vX.Y.Z` and `client-vX.Y.Z` drive CI, semver rules for each artifact.
 - **Done when:** doc exists; tag format referenced by P4-05/P4-06 workflows.
 - **Est:** 30 min
+- **Status:** ✅ DONE 2026-07-19 — `docs/releasing.md` (also covers P3-01).
 
 ### P0-07 · create app icon placeholders
 - **Do:** Produce `assets/icon.png` (1024²) + `assets/icon.ico` placeholder in brand colors; wire into `launcher/electron-builder.yml` and website favicon.
@@ -197,6 +199,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Complete `docs/releasing.md`: semver for launcher and client mod, what bumps what, manifest `id` convention (`<mc>-r<n>`), beta→stable promotion checklist.
 - **Done when:** doc answers "I fixed a launcher bug — what exactly do I do to ship it?" step by step.
 - **Depends:** P0-06 · **Est:** 1 h
+- **Status:** ✅ DONE 2026-07-19 — see `docs/releasing.md` release procedures.
 
 ### P3-02 · wire electron-updater
 - **Do:** Add electron-updater checking the `releasesRepo` GitHub Releases feed on startup (and every 4 h); config in `electron-builder.yml` (`publish: github`).
@@ -229,9 +232,10 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Depends:** P4-04 · **Est:** 45 min
 
 ### P3-08 · add manifest validation script
-- **Do:** `manifest/validate.mjs` (node + zod, reusing the launcher's schema): checks schema, unique ids, https URLs, non-placeholder sha1s (flag `--allow-placeholders` for pre-release), channels' `default` exists. Wire as npm script + CI step.
+- **Do:** `manifest/validate.mjs` (dependency-free Node, mirroring the launcher's zod schema — change both together): checks schema, unique ids, https URLs, non-placeholder sha1s (flag `--allow-placeholders` for pre-release), channels' `default` exists. Wire as a CI step.
 - **Done when:** corrupting any field makes the script exit non-zero with a pointed message.
 - **Depends:** P0-04 · **Est:** 1.5 h
+- **Status:** ✅ DONE 2026-07-19 — pass/placeholder/corruption cases all verified; runs in CI (`ci.yml`).
 
 ---
 
@@ -261,11 +265,13 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** `.github/workflows/client-release.yml`: on tag `client-v*` → JDK 21, `./gradlew build`, attach jar + sha1 file to a GitHub Release.
 - **Done when:** pushing a test tag produces a release with jar + checksum attached.
 - **Depends:** P1-01, P0-06 · **Est:** 1.5 h
+- **Status:** 🟡 DRAFTED 2026-07-19 — workflow committed; done-criteria needs a test tag after P1-01.
 
 ### P4-06 · CI: build launcher installer on tag
 - **Do:** `.github/workflows/launcher-release.yml`: on tag `launcher-v*` → Windows runner, `npm ci`, `npm run dist`, electron-builder publishes NSIS installer + update metadata (`latest.yml`) to the release.
 - **Done when:** test tag yields an installable `.exe` and `latest.yml` in the release.
 - **Depends:** P2-01, P0-06 · **Est:** 2 h
+- **Status:** 🟡 DRAFTED 2026-07-19 — workflow committed; done-criteria needs a test tag.
 
 ### P4-07 · publish first end-to-end release (v0.1.0)
 - **Do:** Execute the runbook: client-v0.1.0 tag → real sha1s into manifest (remove placeholders) → launcher-v0.1.0 tag → website deploy. Validation script must pass without `--allow-placeholders`.

@@ -1,0 +1,35 @@
+# Roadmap P4-05: tag client-vX.Y.Z -> build jar with JDK 21 -> GitHub Release
+# with jar + SHA1SUMS.txt (the sha1 goes into manifest/axo-manifest.json,
+# see docs/releasing.md).
+name: Client Release
+
+on:
+  push:
+    tags: ['client-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew build --no-daemon
+      - name: Generate SHA1 checksums
+        run: sha1sum build/libs/*.jar > build/libs/SHA1SUMS.txt
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            client/build/libs/*.jar
+            client/build/libs/SHA1SUMS.txt
+          generate_release_notes: true

@@ -35,6 +35,10 @@ Single-version start; the manifest makes further versions additive.
 Solo-dev friendly: one clone, one issue tracker, atomic cross-cutting changes (e.g. manifest schema + launcher validator in one PR).
 **Tradeoff:** CI must path-filter to avoid rebuilding everything on every push.
 
+## D-009 · Manifest validator is dependency-free Node — ACCEPTED (2026-07-19)
+`manifest/validate.mjs` uses no packages so CI and contributors validate with bare Node, no install step. The launcher's zod schema stays the runtime validator; spec changes must update both in one PR (noted in both files).
+**Tradeoff:** two schema implementations to keep in sync vs a zero-dependency CI gate.
+
 ---
 
 ## OPEN decisions (owner input needed)

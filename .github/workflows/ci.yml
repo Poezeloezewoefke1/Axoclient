@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+
+jobs:
+  manifest:
+    name: Validate manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # --allow-placeholders until the first release (P4-07); drop the flag after.
+      - run: node manifest/validate.mjs --allow-placeholders
+
+  launcher:
+    name: Launcher typecheck + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: launcher
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+      - run: npm ci
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      - run: npm run typecheck
+      - run: npm run build
+
+  client:
+    # This job IS roadmap task P1-01's signal: it resolves the Fabric toolchain
+    # with real network access. If the pins in client/gradle.properties are
+    # stale, this goes red — fix the pins per https://fabricmc.net/develop.
+    name: Client build (Fabric 1.21.11)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew build --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: axoclient-jar
+          path: client/build/libs/*.jar

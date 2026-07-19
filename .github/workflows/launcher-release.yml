@@ -1,0 +1,32 @@
+# Roadmap P4-06: tag launcher-vX.Y.Z -> Windows NSIS installer + latest.yml
+# published to a GitHub Release. latest.yml is the electron-updater feed
+# (P3-02) — never delete it from a release. See docs/releasing.md.
+name: Launcher Release
+
+on:
+  push:
+    tags: ['launcher-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: launcher
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - name: Package and publish installer
+        run: npx electron-builder --win --config electron-builder.yml --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

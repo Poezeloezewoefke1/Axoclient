@@ -59,4 +59,6 @@ npx serve .
 
 ## Status
 
-Bootstrap phase. The scaffolds build the skeleton described in the architecture doc; features land by executing roadmap tasks in order.
+Bootstrap phase. The scaffolds build the skeleton described in the architecture doc; features land by executing roadmap tasks in order (completed tasks carry a **Status** line in the roadmap).
+
+CI (`.github/workflows/ci.yml`) runs on every push: launcher typecheck + build, client Gradle build (this doubles as roadmap task P1-01's toolchain-pin verification), and manifest validation via `node manifest/validate.mjs --allow-placeholders`. Tagged releases are built by `client-release.yml` / `launcher-release.yml` — see [`docs/releasing.md`](docs/releasing.md).
