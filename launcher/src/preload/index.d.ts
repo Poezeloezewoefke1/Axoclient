@@ -21,6 +21,7 @@ declare global {
       onGameProgress(callback: (progress: GameProgress) => void): () => void
       installUpdate(): Promise<void>
       openLogs(): Promise<void>
+      repair(): Promise<{ downloaded: number; kept: number; removed: number }>
       onUpdateStatus(callback: (status: UpdateStatus) => void): () => void
     }
   }

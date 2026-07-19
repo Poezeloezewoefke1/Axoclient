@@ -17,6 +17,8 @@ export interface ChannelInfo {
 export interface ManifestInfo {
   /** True when served from the on-disk cache because fetch/validation failed. */
   stale: boolean
+  /** True when this launcher is older than the manifest's launcher.minimumVersion. */
+  forcedUpdate: boolean
   channels: Record<string, ChannelInfo>
 }
 

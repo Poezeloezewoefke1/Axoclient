@@ -1,10 +1,11 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { join } from 'node:path'
 import { getManifest, getManifestInfo } from './manifest'
+import { syncModsFolder } from './install'
 import { getSession, initAuth, loginWithMicrosoft, logout, restoreSession } from './auth'
 import { SettingsStore } from './settings'
 import { launchGame } from './launch'
-import { initLogger, logDirectory, logLine } from './logger'
+import { initLogger, logDirectory, logLine, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
 
@@ -40,6 +41,23 @@ function toSessionInfo(session: { username: string; uuid: string } | null): Sess
 }
 
 let launching = false
+
+// Crash reporter (P5-03, crash-handling.md case 1): report file + dialog,
+// then a clean exit. No auto-upload — privacy-first.
+process.on('uncaughtException', (error) => {
+  const reportPath = writeCrashReport(error)
+  try {
+    dialog.showErrorBox(
+      'Axo Launcher hit a problem',
+      `${error.message}\n\n${reportPath ? `A report was saved to:\n${reportPath}` : 'A report could not be saved.'}`
+    )
+  } finally {
+    app.exit(1)
+  }
+})
+process.on('unhandledRejection', (reason) => {
+  logLine('crash', `unhandled rejection: ${reason instanceof Error ? reason.stack : reason}`)
+})
 
 app.whenReady().then(async () => {
   initLogger(join(app.getPath('userData'), 'logs'))
@@ -90,6 +108,29 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.handle('update:install', () => installUpdate())
+  // Repair (P3-05): full re-sync of the mods folder for the channel default
+  // version — hash-mismatched files are re-downloaded, strays removed.
+  ipcMain.handle('game:repair', async () => {
+    const { manifest } = await getManifest()
+    const current = settings.get()
+    const channel = manifest.channels[current.channel] ?? Object.values(manifest.channels)[0]
+    const version = channel?.versions.find((v) => v.id === channel.default)
+    if (!version) {
+      throw new Error('No installable version found in the manifest')
+    }
+    logLine('repair', `re-syncing ${version.id}`)
+    const result = await syncModsFolder(current.installDir, version)
+    logLine(
+      'repair',
+      `done: ${result.downloaded.length} downloaded, ${result.kept.length} kept, ${result.removed.length} removed`
+    )
+    return {
+      downloaded: result.downloaded.length,
+      kept: result.kept.length,
+      removed: result.removed.length
+    }
+  })
+
   ipcMain.handle('logs:open', () => {
     const dir = logDirectory()
     if (dir) {

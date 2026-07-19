@@ -8,6 +8,19 @@ const RAM_STEP = 512
 export default function SettingsScreen(): React.JSX.Element {
   const [settings, setSettings] = useState<AxoSettings | null>(null)
   const [saving, setSaving] = useState(false)
+  const [repairState, setRepairState] = useState<string | null>(null)
+
+  const repair = (): void => {
+    setRepairState('Repairing…')
+    window.axo
+      .repair()
+      .then((r) =>
+        setRepairState(`Repaired — ${r.downloaded} restored, ${r.kept} intact, ${r.removed} removed`)
+      )
+      .catch((e: unknown) =>
+        setRepairState(e instanceof Error ? e.message : 'Repair failed — see logs.')
+      )
+  }
 
   useEffect(() => {
     void window.axo.getSettings().then(setSettings)
@@ -69,6 +82,18 @@ export default function SettingsScreen(): React.JSX.Element {
           <br />
           Moving the install directory arrives with roadmap task P5-06.
         </p>
+      </div>
+
+      <div className="settings-group">
+        <h2>Maintenance</h2>
+        <p className="muted">
+          Repair re-checks every installed file against the version manifest and restores anything
+          missing or corrupted.
+        </p>
+        <button className="link-button" onClick={repair} disabled={repairState === 'Repairing…'}>
+          Repair installation
+        </button>
+        {repairState && <p className="muted">{repairState}</p>}
       </div>
 
       <div className="settings-group">

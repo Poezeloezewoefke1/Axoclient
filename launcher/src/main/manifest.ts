@@ -2,6 +2,7 @@ import { app } from 'electron'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { z } from 'zod'
+import { compareSemver } from './semver'
 import type { ManifestInfo } from '../shared/types'
 
 /**
@@ -107,6 +108,8 @@ export async function getManifest(): Promise<{ manifest: AxoManifest; stale: boo
 /** Renderer-safe projection sent over IPC. */
 export async function getManifestInfo(): Promise<ManifestInfo> {
   const { manifest, stale } = await getManifest()
+  // Forced-update gate (P3-03): launchers older than minimumVersion must not install/launch.
+  const forcedUpdate = compareSemver(app.getVersion(), manifest.launcher.minimumVersion) < 0
   const channels: ManifestInfo['channels'] = {}
   for (const [name, channel] of Object.entries(manifest.channels)) {
     channels[name] = {
@@ -118,5 +121,5 @@ export async function getManifestInfo(): Promise<ManifestInfo> {
       }))
     }
   }
-  return { stale, channels }
+  return { stale, forcedUpdate, channels }
 }

@@ -64,6 +64,12 @@ export default function HomeScreen(): React.JSX.Element {
       </header>
 
       {manifestError && <div className="error-banner">{manifestError}</div>}
+      {manifest?.forcedUpdate && (
+        <div className="error-banner">
+          This version of Axo Launcher is too old to play. An update will install automatically —
+          or download the latest from the website.
+        </div>
+      )}
       {launchError && (
         <div className="error-banner">
           {launchError}
@@ -107,7 +113,7 @@ export default function HomeScreen(): React.JSX.Element {
 
         <button
           className="primary-button play-button"
-          disabled={!versionId || busy}
+          disabled={!versionId || busy || manifest?.forcedUpdate}
           onClick={play}
         >
           {busy && progress ? STAGE_LABELS[progress.stage] : 'Play'}

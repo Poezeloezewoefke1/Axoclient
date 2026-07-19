@@ -1,4 +1,5 @@
 import { appendFile, mkdir, readdir, rm } from 'node:fs/promises'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 /**
@@ -43,6 +44,25 @@ export function createGameLog(keep = 5): { path: string | null; append: (line: s
     append: (line: string) => {
       void appendFile(path, `${line}\n`, 'utf8').catch(() => undefined)
     }
+  }
+}
+
+/**
+ * Crash report file (P5-03). Synchronous on purpose — called while the
+ * process is dying, when async work may never flush.
+ */
+export function writeCrashReport(error: Error): string | null {
+  const dir = logDir
+  if (!dir) {
+    return null
+  }
+  try {
+    mkdirSync(dir, { recursive: true })
+    const path = join(dir, `crash-${new Date().toISOString().replace(/[:.]/g, '-')}.txt`)
+    writeFileSync(path, `${new Date().toISOString()}\n${error.stack ?? error.message}\n`, 'utf8')
+    return path
+  } catch {
+    return null
   }
 }
 

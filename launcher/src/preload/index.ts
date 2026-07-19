@@ -27,6 +27,8 @@ const api = {
   },
   installUpdate: (): Promise<void> => ipcRenderer.invoke('update:install'),
   openLogs: (): Promise<void> => ipcRenderer.invoke('logs:open'),
+  repair: (): Promise<{ downloaded: number; kept: number; removed: number }> =>
+    ipcRenderer.invoke('game:repair'),
   onUpdateStatus: (callback: (status: UpdateStatus) => void): (() => void) => {
     const listener = (_event: IpcRendererEvent, status: UpdateStatus): void => callback(status)
     ipcRenderer.on('update:status', listener)

@@ -1,5 +1,7 @@
 # Axo Manifest Specification (v1)
 
+> **Status: FROZEN v1 (2026-07-19, P0-04).** Changes within schemaVersion 1 must be additive (new optional fields only) and must update both validators in the same PR: `manifest/validate.mjs` and `launcher/src/main/manifest.ts`.
+
 `axo-manifest.json` is the contract between the launcher, the release pipeline, and the website. The launcher must treat it as the **only** source of truth about playable versions. Canonical URL once the website is deployed: `https://<site-domain>/manifest/axo-manifest.json`. Until then the launcher points at the repo raw URL (see `launcher/src/main/manifest.ts`).
 
 Versioning rule: **additive changes only** within `schemaVersion: 1` (new optional fields are fine). Breaking changes bump `schemaVersion`, and launchers refuse manifests newer than they understand while telling the user to update.

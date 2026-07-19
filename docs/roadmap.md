@@ -38,6 +38,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Review `docs/manifest-spec.md` + `manifest/axo-manifest.json` against launcher plans; fix field gaps; tag the spec "frozen v1" in the doc header.
 - **Done when:** spec marked frozen; any later change follows the additive rule.
 - **Est:** 45 min
+- **Status:** ✅ DONE 2026-07-19 — spec header marked FROZEN v1; dual-validator rule stated.
 
 ### P0-05 · set up repo tooling
 - **Do:** Add root `.gitignore` (Gradle, node, IDE), `.editorconfig` (4-space Java, 2-space TS/JSON), and a root `LICENSE` decision for our own code (recommend: source-available, e.g. PolyForm or proprietary notice — decide, don't default).
@@ -54,6 +55,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Produce `assets/icon.png` (1024²) + `assets/icon.ico` placeholder in brand colors; wire into `launcher/electron-builder.yml` and website favicon.
 - **Done when:** launcher build uses the icon; website tab shows favicon.
 - **Depends:** P0-01 · **Est:** 1 h
+- **Status:** ✅ DONE 2026-07-19 — geometric axolotl placeholder generated (assets/, launcher/build/icon.ico wired into electron-builder, website favicon). Commissioned logo stays open as O-2.
 
 ---
 
@@ -247,6 +249,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Settings→"Repair installation" (delete hash-mismatched files, full re-sync) and keep the previous client jar as `.previous` for one-click rollback if the new version crashes at boot (detect via exit code within 60 s).
 - **Done when:** corrupting a jar + Repair fixes it; simulated instant-crash triggers the rollback offer.
 - **Depends:** P3-04 · **Est:** 2 h
+- **Status:** 🟡 PARTIAL 2026-07-19 — Repair (full hash re-sync) live in Settings; .previous rollback + boot-crash detection still to do.
 
 ### P3-06 · write the release runbook
 - **Do:** Finish `docs/releasing.md` with the exact command sequence for a full release (tag client → CI builds jar → update manifest → tag launcher → CI publishes installer → deploy website).
@@ -331,6 +334,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Global main-process exception handler → write crash report file, show dialog offering to open the GitHub issues page with prefilled title (no auto-upload — privacy-first default).
 - **Done when:** thrown test exception produces report + dialog; app exits cleanly.
 - **Depends:** P5-01 · **Est:** 1 h
+- **Status:** ✅ DONE 2026-07-19 — uncaughtException → crash-<ts>.txt report + error dialog + clean exit; unhandled rejections logged.
 
 ### P5-04 · offline mode
 - **Do:** If manifest fetch fails but an installed version + cached manifest exist, allow launching with a "Playing offline — updates unavailable" notice (MS auth may still require network; reuse unexpired session if present).
@@ -370,6 +374,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Grep the client for direct Minecraft-class usage outside `mixin/` + adapter candidates; produce `docs/version-audit.md` listing each call site and its risk of breaking across MC versions.
 - **Done when:** every Minecraft-internal touchpoint is listed and classified (stable API / likely to break / mixin).
 - **Depends:** M1 complete · **Est:** 1.5 h
+- **Status:** ✅ DONE 2026-07-19 — docs/version-audit.md: ~10 touchpoints classified; only GuiGraphics warrants an adapter (P6-02 scope note included).
 
 ### P6-02 · introduce a version adapter layer
 - **Do:** For the "likely to break" list from P6-01, extract minimal interfaces (e.g. `RenderAdapter`, `InputAdapter`) in `core/compat/` with the 1.21.11 implementation as the only impl.
