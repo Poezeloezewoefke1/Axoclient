@@ -1,34 +1,29 @@
-import { app } from 'electron'
 import { join } from 'node:path'
 import { Client } from 'minecraft-launcher-core'
 import type { AxoManifest } from './manifest'
 import type { AxoSession } from './auth'
+import type { AxoSettings, GameProgress } from '../shared/types'
+import { ensureJava } from './java'
+import { installFabricProfile } from './fabricProfile'
+import { syncModsFolder } from './install'
+import { logLine } from './logger'
 
 /**
- * Game launch via minecraft-launcher-core (MCLC).
- *
- * Scaffold status: wiring only. The full pipeline is Phase 2:
- *  - P2-09: Java 21 provisioning (Adoptium) -> javaPath below
- *  - P2-10: vanilla + Fabric profile installation
- *  - P2-11/P2-12: mod + client jar sync with sha1 verification
- *  - P2-13: progress events into the renderer's Play button
- * MCLC stays isolated behind this module so it is swappable (risk R5).
+ * The full launch pipeline (roadmap P2-13): Java → Fabric profile →
+ * mod sync → minecraft-launcher-core. Every stage is idempotent, so
+ * this doubles as the client-files update check (P3-04) — a manifest
+ * bump simply changes what the sync stage downloads. MCLC stays
+ * isolated behind this module (risk R5). Resolves when the game exits.
  */
 
-export type LaunchProgress = (stage: string, detail?: string) => void
-
 type LaunchOptions = Parameters<Client['launch']>[0]
-
-/** Launcher-owned game directory — never the user's .minecraft (decision D-005). */
-export function gameRoot(): string {
-  return join(app.getPath('appData'), '.axoclient')
-}
 
 export async function launchGame(
   manifest: AxoManifest,
   versionId: string,
   session: AxoSession,
-  onProgress: LaunchProgress
+  settings: AxoSettings,
+  onProgress: (progress: GameProgress) => void
 ): Promise<void> {
   const version = Object.values(manifest.channels)
     .flatMap((channel) => channel.versions)
@@ -37,35 +32,62 @@ export async function launchGame(
     throw new Error(`Unknown version id: ${versionId}`)
   }
 
-  onProgress('preparing', `Minecraft ${version.mcVersion}, Fabric ${version.fabricLoaderVersion}`)
+  onProgress({ stage: 'preparing', detail: `Minecraft ${version.mcVersion}` })
+  logLine('launch', `pipeline start: ${version.id} for ${session.username}`)
 
-  // TODO(P2-10): install the Fabric loader profile for
-  // version.mcVersion + version.fabricLoaderVersion and pass it via
-  // options.version.custom. Until then this launches vanilla only.
-  const launcher = new Client()
+  const javaPath = await ensureJava(version.javaMajor, join(settings.installDir, 'runtime'), {
+    onProgress: (stage, detail) => onProgress({ stage: 'java', detail: detail ?? stage })
+  })
 
-  const options = {
-    // TODO(P2-05/P2-13): type narrows once the msmc -> MCLC handoff is finalized.
-    authorization: session.mclcAuth,
-    root: gameRoot(),
-    version: {
-      number: version.mcVersion,
-      type: 'release'
-    },
-    memory: {
-      // TODO(P2-04): read from the settings store.
-      max: '4G',
-      min: '1G'
-    }
-    // TODO(P2-09): javaPath from the provisioned runtime.
-  } as LaunchOptions
-
-  launcher.on('debug', (line: string) => onProgress('debug', line))
-  launcher.on('data', (line: string) => onProgress('game', line))
-  launcher.on('progress', (progress: { type?: string; task?: number; total?: number }) =>
-    onProgress('download', `${progress.type ?? ''} ${progress.task ?? 0}/${progress.total ?? 0}`)
+  const profileId = await installFabricProfile(
+    settings.installDir,
+    version.mcVersion,
+    version.fabricLoaderVersion
   )
 
-  await launcher.launch(options)
-  onProgress('launched')
+  onProgress({ stage: 'mods' })
+  await syncModsFolder(settings.installDir, version, (event) =>
+    onProgress({ stage: 'mods', detail: `${event.action} ${event.file}` })
+  )
+
+  onProgress({ stage: 'launching' })
+  const launcher = new Client()
+  launcher.on('progress', (progress: { type?: string; task?: number; total?: number }) =>
+    onProgress({
+      stage: 'downloading',
+      detail: `${progress.type ?? ''} ${progress.task ?? 0}/${progress.total ?? 0}`.trim()
+    })
+  )
+  launcher.on('debug', (line: string) => logLine('mclc', line))
+  launcher.on('data', (line: string) => logLine('game', String(line).trimEnd()))
+
+  const options = {
+    authorization: session.mclcAuth,
+    root: settings.installDir,
+    javaPath,
+    version: {
+      number: version.mcVersion,
+      type: 'release',
+      custom: profileId
+    },
+    memory: {
+      max: `${settings.ramMb}M`,
+      min: '1024M'
+    },
+    customArgs: settings.jvmArgs ? settings.jvmArgs.split(/\s+/).filter(Boolean) : undefined
+  } as LaunchOptions
+
+  const process = await launcher.launch(options)
+  if (!process) {
+    throw new Error('Game process failed to start — see launcher.log')
+  }
+  onProgress({ stage: 'running' })
+
+  await new Promise<void>((resolve) => {
+    process.on('close', (code: number | null) => {
+      logLine('game', `exited with code ${code}`)
+      resolve()
+    })
+  })
+  onProgress({ stage: 'closed' })
 }

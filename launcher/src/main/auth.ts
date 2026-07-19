@@ -1,15 +1,14 @@
 import { Auth } from 'msmc'
+import { clearRefreshToken, loadRefreshToken, saveRefreshToken } from './tokens'
+import { logLine } from './logger'
 import type { SessionInfo } from '../shared/types'
 
 /**
- * Microsoft account login via msmc's Electron popup flow.
- *
- * Scaffold status: functional for development using msmc's default Azure
- * client ID. Remaining roadmap work:
- *  - P0-03: flip USE_AXO_CLIENT_ID once Mojang approval lands
- *  - P2-06: persist the refresh token with safeStorage (encrypted at rest)
- *  - P2-07: silent refresh on startup
- *  - P2-08: full error-case test matrix
+ * Microsoft account login via msmc (roadmap P2-05..P2-08).
+ * - Login uses msmc's Electron popup flow.
+ * - The refresh token is persisted encrypted (tokens.ts) and used for a
+ *   silent restore on startup.
+ * - P0-03: flip USE_AXO_CLIENT_ID once Mojang approval lands.
  */
 
 export interface AxoSession extends SessionInfo {
@@ -42,27 +41,71 @@ function createAuthManager(): Auth {
   return new Auth('select_account')
 }
 
+interface MinecraftLike {
+  profile: { name: string; id: string } | undefined
+  mclc(): unknown
+}
+
+let tokenFile: string | null = null
 let currentSession: AxoSession | null = null
+
+export function initAuth(tokenFilePath: string): void {
+  tokenFile = tokenFilePath
+}
+
+function toSession(token: MinecraftLike): AxoSession {
+  return {
+    username: token.profile?.name ?? 'Player',
+    uuid: token.profile?.id ?? '',
+    mclcAuth: token.mclc()
+  }
+}
 
 export async function loginWithMicrosoft(): Promise<AxoSession> {
   const authManager = createAuthManager()
   const xboxManager = await authManager.launch('electron')
   const token = await xboxManager.getMinecraft()
 
-  const session: AxoSession = {
-    username: token.profile?.name ?? 'Player',
-    uuid: token.profile?.id ?? '',
-    mclcAuth: token.mclc()
+  currentSession = toSession(token)
+  if (tokenFile) {
+    await saveRefreshToken(tokenFile, xboxManager.save())
   }
-  currentSession = session
-  return session
+  logLine('auth', `signed in as ${currentSession.username}`)
+  return currentSession
+}
+
+/** Silent startup restore (P2-07). Returns null when re-login is required. */
+export async function restoreSession(): Promise<AxoSession | null> {
+  if (!tokenFile) {
+    return null
+  }
+  const stored = await loadRefreshToken(tokenFile)
+  if (!stored) {
+    return null
+  }
+  try {
+    const xboxManager = await createAuthManager().refresh(stored)
+    const token = await xboxManager.getMinecraft()
+    currentSession = toSession(token)
+    // Refresh tokens rotate — persist the newest one.
+    await saveRefreshToken(tokenFile, xboxManager.save())
+    logLine('auth', `session restored for ${currentSession.username}`)
+    return currentSession
+  } catch (error) {
+    logLine('auth', `silent refresh failed: ${error instanceof Error ? error.message : error}`)
+    await clearRefreshToken(tokenFile)
+    return null
+  }
 }
 
 export function getSession(): AxoSession | null {
   return currentSession
 }
 
-export function logout(): void {
-  // TODO(P2-06): also wipe the persisted refresh token.
+export async function logout(): Promise<void> {
   currentSession = null
+  if (tokenFile) {
+    await clearRefreshToken(tokenFile)
+  }
+  logLine('auth', 'signed out')
 }

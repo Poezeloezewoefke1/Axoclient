@@ -12,6 +12,14 @@ export async function sha1File(path: string): Promise<string> {
   return createHash('sha1').update(await readFile(path)).digest('hex')
 }
 
+export async function fetchJson(url: string, timeoutMs = 30_000): Promise<unknown> {
+  const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) })
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} for ${url}`)
+  }
+  return response.json()
+}
+
 export interface DownloadOptions {
   /** Total attempts including the first (default 2 = one retry). */
   attempts?: number

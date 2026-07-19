@@ -9,12 +9,29 @@ type Screen = 'home' | 'settings'
 export default function App(): React.JSX.Element {
   const [screen, setScreen] = useState<Screen>('home')
   const [session, setSession] = useState<SessionInfo | null>(null)
+  const [restoring, setRestoring] = useState(true)
   const [version, setVersion] = useState('')
 
   useEffect(() => {
-    void window.axo.getSession().then(setSession)
+    // Silent session restore on startup (P2-07); falls back to Login.
+    window.axo
+      .restoreSession()
+      .then(setSession)
+      .catch(() => setSession(null))
+      .finally(() => setRestoring(false))
     void window.axo.getVersion().then(setVersion)
   }, [])
+
+  if (restoring) {
+    return (
+      <div className="login-screen">
+        <div className="logo">
+          <span className="logo-axo">AXO</span>
+          <span className="logo-sub">CLIENT</span>
+        </div>
+      </div>
+    )
+  }
 
   if (!session) {
     return <LoginScreen onLoggedIn={setSession} />

@@ -25,6 +25,20 @@ export interface SessionInfo {
   uuid: string
 }
 
+export type GameStage =
+  | 'preparing'
+  | 'java'
+  | 'mods'
+  | 'downloading'
+  | 'launching'
+  | 'running'
+  | 'closed'
+
+export interface GameProgress {
+  stage: GameStage
+  detail?: string
+}
+
 export interface AxoSettings {
   /** Maximum game memory in MiB. Clamped to SETTINGS_LIMITS in the store. */
   ramMb: number

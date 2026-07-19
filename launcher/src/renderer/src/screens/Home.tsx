@@ -1,11 +1,23 @@
 import { useEffect, useState } from 'react'
-import type { ManifestInfo } from '../../../shared/types'
+import type { GameProgress, ManifestInfo } from '../../../shared/types'
+
+const STAGE_LABELS: Record<GameProgress['stage'], string> = {
+  preparing: 'Preparing…',
+  java: 'Setting up Java…',
+  mods: 'Installing mods…',
+  downloading: 'Downloading game…',
+  launching: 'Launching…',
+  running: 'Running',
+  closed: 'Play'
+}
 
 export default function HomeScreen(): React.JSX.Element {
   const [manifest, setManifest] = useState<ManifestInfo | null>(null)
   const [manifestError, setManifestError] = useState<string | null>(null)
   const [channel, setChannel] = useState('stable')
   const [versionId, setVersionId] = useState<string | null>(null)
+  const [progress, setProgress] = useState<GameProgress | null>(null)
+  const [launchError, setLaunchError] = useState<string | null>(null)
 
   useEffect(() => {
     window.axo
@@ -23,7 +35,22 @@ export default function HomeScreen(): React.JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => window.axo.onGameProgress(setProgress), [])
+
+  const busy = progress !== null && progress.stage !== 'closed'
   const versions = manifest?.channels[channel]?.versions ?? []
+
+  const play = (): void => {
+    if (!versionId) {
+      return
+    }
+    setLaunchError(null)
+    setProgress({ stage: 'preparing' })
+    window.axo.launch(versionId).catch((e: unknown) => {
+      setLaunchError(e instanceof Error ? e.message : 'Launch failed — see logs.')
+      setProgress(null)
+    })
+  }
 
   return (
     <div className="home-screen">
@@ -37,12 +64,24 @@ export default function HomeScreen(): React.JSX.Element {
       </header>
 
       {manifestError && <div className="error-banner">{manifestError}</div>}
+      {launchError && (
+        <div className="error-banner">
+          {launchError}
+          <button className="link-button" onClick={play}>
+            Retry
+          </button>
+        </div>
+      )}
 
       <div className="play-panel">
         <div className="version-row">
           <label>
             Channel
-            <select value={channel} onChange={(e) => setChannel(e.target.value)}>
+            <select
+              value={channel}
+              disabled={busy}
+              onChange={(e) => setChannel(e.target.value)}
+            >
               {Object.keys(manifest?.channels ?? { stable: null }).map((name) => (
                 <option key={name} value={name}>
                   {name}
@@ -52,7 +91,11 @@ export default function HomeScreen(): React.JSX.Element {
           </label>
           <label>
             Version
-            <select value={versionId ?? ''} onChange={(e) => setVersionId(e.target.value)}>
+            <select
+              value={versionId ?? ''}
+              disabled={busy}
+              onChange={(e) => setVersionId(e.target.value)}
+            >
               {versions.map((v) => (
                 <option key={v.id} value={v.id}>
                   Minecraft {v.mcVersion}
@@ -62,12 +105,17 @@ export default function HomeScreen(): React.JSX.Element {
           </label>
         </div>
 
-        {/* Install + launch pipeline lands in P2-09..P2-13; the button is honest about it. */}
-        <button className="primary-button play-button" disabled title="Launching arrives with roadmap tasks P2-09 to P2-13">
-          Play
+        <button
+          className="primary-button play-button"
+          disabled={!versionId || busy}
+          onClick={play}
+        >
+          {busy && progress ? STAGE_LABELS[progress.stage] : 'Play'}
         </button>
         <p className="muted">
-          {versions.find((v) => v.id === versionId)?.notes ?? 'Select a version to play.'}
+          {busy && progress?.detail
+            ? progress.detail
+            : versions.find((v) => v.id === versionId)?.notes ?? 'Select a version to play.'}
         </p>
       </div>
     </div>

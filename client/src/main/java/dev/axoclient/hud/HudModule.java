@@ -20,7 +20,11 @@ public abstract class HudModule extends AxoModule implements HudRenderable {
     private HudPosition position;
 
     protected HudModule(String id, String displayName, HudPosition defaultPosition) {
-        super(id, displayName, ModuleCategory.HUD, true);
+        this(id, displayName, ModuleCategory.HUD, defaultPosition);
+    }
+
+    protected HudModule(String id, String displayName, ModuleCategory category, HudPosition defaultPosition) {
+        super(id, displayName, category, true);
         this.defaultPosition = defaultPosition;
         this.position = defaultPosition;
     }
@@ -28,13 +32,17 @@ public abstract class HudModule extends AxoModule implements HudRenderable {
     /** The line to draw this frame, or null to draw nothing. */
     protected abstract String hudText();
 
+    protected final HudPosition position() {
+        return position;
+    }
+
     @Override
     protected void onEnable() {
         position = HudPosition.load(ModuleManager.get().config(), id(), defaultPosition);
     }
 
     @Override
-    public final void renderHud(GuiGraphics graphics) {
+    public void renderHud(GuiGraphics graphics) {
         String text = hudText();
         if (text == null) {
             return;

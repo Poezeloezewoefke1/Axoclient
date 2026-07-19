@@ -3,9 +3,16 @@ package dev.axoclient;
 import dev.axoclient.core.AxoConfig;
 import dev.axoclient.core.ModuleManager;
 import dev.axoclient.modules.hud.CoordinatesModule;
+import dev.axoclient.modules.hud.CpsCounterModule;
 import dev.axoclient.modules.hud.FpsHudModule;
+import dev.axoclient.modules.pvp.KeystrokesModule;
+import dev.axoclient.modules.qol.FullbrightModule;
+import dev.axoclient.modules.qol.ZoomModule;
+import dev.axoclient.ui.AxoSettingsScreen;
+import dev.axoclient.util.Keys;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +24,8 @@ public final class AxoClient implements ClientModInitializer {
     public static final String MOD_ID = "axoclient";
     public static final Logger LOGGER = LoggerFactory.getLogger("AxoClient");
 
+    private static boolean settingsKeyWasDown;
+
     @Override
     public void onInitializeClient() {
         AxoConfig config = AxoConfig.load();
@@ -24,9 +33,22 @@ public final class AxoClient implements ClientModInitializer {
 
         modules.register(new FpsHudModule());
         modules.register(new CoordinatesModule());
+        modules.register(new CpsCounterModule());
+        modules.register(new KeystrokesModule());
+        modules.register(new FullbrightModule());
+        modules.register(new ZoomModule());
         // New modules register here and nowhere else (see docs/architecture.md).
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> modules.tickAll());
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            modules.tickAll();
+
+            // Right Shift opens the settings screen (rebindable with P1-05).
+            boolean down = Keys.isDown(GLFW.GLFW_KEY_RIGHT_SHIFT);
+            if (down && !settingsKeyWasDown && client.screen == null) {
+                client.setScreen(new AxoSettingsScreen());
+            }
+            settingsKeyWasDown = down;
+        });
 
         LOGGER.info("Axo Client initialized with {} module(s)", modules.all().size());
     }
