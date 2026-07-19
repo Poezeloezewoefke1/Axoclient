@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import HomeScreen from './screens/Home'
 import LoginScreen from './screens/Login'
 import SettingsScreen from './screens/Settings'
-import type { SessionInfo } from '../../shared/types'
+import type { SessionInfo, UpdateStatus } from '../../shared/types'
 
 type Screen = 'home' | 'settings'
 
@@ -11,6 +11,9 @@ export default function App(): React.JSX.Element {
   const [session, setSession] = useState<SessionInfo | null>(null)
   const [restoring, setRestoring] = useState(true)
   const [version, setVersion] = useState('')
+  const [update, setUpdate] = useState<UpdateStatus | null>(null)
+
+  useEffect(() => window.axo.onUpdateStatus(setUpdate), [])
 
   useEffect(() => {
     // Silent session restore on startup (P2-07); falls back to Login.
@@ -75,6 +78,14 @@ export default function App(): React.JSX.Element {
         </div>
       </aside>
       <main className="content">
+        {update && (
+          <div className="update-banner">
+            Update {update.version} ready
+            <button className="link-button" onClick={() => void window.axo.installUpdate()}>
+              Restart to install
+            </button>
+          </div>
+        )}
         {screen === 'home' ? <HomeScreen /> : <SettingsScreen />}
       </main>
     </div>

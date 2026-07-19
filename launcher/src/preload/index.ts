@@ -1,5 +1,11 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import type { AxoSettings, GameProgress, ManifestInfo, SessionInfo } from '../shared/types'
+import type {
+  AxoSettings,
+  GameProgress,
+  ManifestInfo,
+  SessionInfo,
+  UpdateStatus
+} from '../shared/types'
 
 /** The only surface the renderer can call. Keep it small and typed. */
 const api = {
@@ -18,6 +24,12 @@ const api = {
       callback(progress)
     ipcRenderer.on('game:progress', listener)
     return () => ipcRenderer.removeListener('game:progress', listener)
+  },
+  installUpdate: (): Promise<void> => ipcRenderer.invoke('update:install'),
+  onUpdateStatus: (callback: (status: UpdateStatus) => void): (() => void) => {
+    const listener = (_event: IpcRendererEvent, status: UpdateStatus): void => callback(status)
+    ipcRenderer.on('update:status', listener)
+    return () => ipcRenderer.removeListener('update:status', listener)
   }
 }
 

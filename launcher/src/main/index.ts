@@ -5,6 +5,7 @@ import { getSession, initAuth, loginWithMicrosoft, logout, restoreSession } from
 import { SettingsStore } from './settings'
 import { launchGame } from './launch'
 import { initLogger, logLine } from './logger'
+import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
 
 function createWindow(): BrowserWindow {
@@ -88,7 +89,10 @@ app.whenReady().then(async () => {
     }
   })
 
+  ipcMain.handle('update:install', () => installUpdate())
+
   createWindow()
+  initUpdater()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

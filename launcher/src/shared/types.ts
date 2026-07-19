@@ -25,6 +25,11 @@ export interface SessionInfo {
   uuid: string
 }
 
+export interface UpdateStatus {
+  state: 'ready'
+  version: string
+}
+
 export type GameStage =
   | 'preparing'
   | 'java'

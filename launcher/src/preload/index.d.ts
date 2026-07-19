@@ -1,4 +1,10 @@
-import type { AxoSettings, GameProgress, ManifestInfo, SessionInfo } from '../shared/types'
+import type {
+  AxoSettings,
+  GameProgress,
+  ManifestInfo,
+  SessionInfo,
+  UpdateStatus
+} from '../shared/types'
 
 declare global {
   interface Window {
@@ -13,6 +19,8 @@ declare global {
       updateSettings(patch: Partial<AxoSettings>): Promise<AxoSettings>
       launch(versionId: string): Promise<void>
       onGameProgress(callback: (progress: GameProgress) => void): () => void
+      installUpdate(): Promise<void>
+      onUpdateStatus(callback: (status: UpdateStatus) => void): () => void
     }
   }
 }
