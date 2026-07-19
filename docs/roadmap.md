@@ -69,11 +69,13 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Add `fabric-api` to `client/build.gradle` with the 1.21.11 version from https://modrinth.com/mod/fabric-api/versions; add `"fabric"` to `depends` in `fabric.mod.json`.
 - **Done when:** `runClient` still boots; Fabric API classes resolve in IDE.
 - **Depends:** P1-01 · **Est:** 30 min
+- **Status:** ✅ DONE 2026-07-19 — fabric-api `0.141.5+1.21.11` (per CI version listing); Loom 1.13 needed for mojmap + fabric-api javadoc compat.
 
 ### P1-03 · dispatch client ticks to modules
 - **Do:** Register a Fabric `ClientTickEvents.END_CLIENT_TICK` listener in `AxoClient` that calls `ModuleManager.tickAll()`; remove any placeholder tick wiring.
 - **Done when:** a log-line test module prints once per tick only while enabled.
 - **Depends:** P1-02 · **Est:** 45 min
+- **Status:** ✅ DONE 2026-07-19 — ClientTickEvents.END_CLIENT_TICK drives ModuleManager.tickAll().
 
 ### P1-04 · extend config to per-module sections
 - **Do:** In `AxoConfig`, store `modules.<id>.enabled` plus a free-form JSON object per module; save atomically (temp file + rename) on change; load before module registration.
@@ -84,6 +86,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Using Fabric's `KeyBindingHelper`, register an optional toggle key per module (declared in the module class); default binds: Zoom=C, HUD editor=RShift (later).
 - **Done when:** pressing the bind in-game toggles the module and persists via P1-04.
 - **Depends:** P1-03, P1-04 · **Est:** 1 h
+- **Status:** 🟡 PARTIAL 2026-07-19 — fixed default keys via raw GLFW polling (Zoom=C, Settings=RShift); rebindable KeyMappings still to do.
 
 ### P1-06 · build HUD anchor/position system
 - **Do:** Create `hud/HudAnchor` (9 anchor points + pixel offset) and make HUD modules render relative to an anchor stored in their config section; replace FpsHud's hardcoded position.
@@ -95,6 +98,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** New `modules/hud/CpsCounterModule`: ring-buffer of click timestamps from mouse input events, render "L: n | R: n" via the HUD system.
 - **Done when:** clicking shows live CPS; value decays to 0 within 1 s of stopping.
 - **Depends:** P1-06 · **Est:** 1.5 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — tick-sampled click edges, 1 s sliding window; in-game verification pending runClient.
 
 ### P1-08 · add coordinates HUD module
 - **Do:** New `modules/hud/CoordinatesModule`: player X/Y/Z + facing direction, formatted, HUD-anchored.
@@ -106,21 +110,25 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** New `modules/hud/KeystrokesModule`: WASD + mouse buttons as filled/unfilled squares in brand colors, HUD-anchored.
 - **Done when:** visual state matches actual key state with no perceptible lag.
 - **Depends:** P1-06 · **Est:** 2 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — WASD + LMB/RMB cells, anchored; in-game verification pending runClient.
 
 ### P1-10 · add fullbright module
 - **Do:** New `modules/qol/FullbrightModule`: raise effective gamma while enabled (restore exact previous value on disable) — implementation via gamma option override, not shaders.
 - **Done when:** caves are bright when on; original brightness restored when off and after crash (config-safe).
 - **Depends:** P1-03 · **Est:** 1 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — raw gamma via OptionInstance accessor mixin (bypasses [0,1] clamp), exact restore on disable.
 
 ### P1-11 · add zoom module
 - **Do:** New `modules/qol/ZoomModule`: hold-key FOV reduction with smooth interpolation, mouse-wheel zoom depth, cinematic camera optional.
 - **Done when:** hold-to-zoom works, releasing restores FOV exactly, no scroll-hotbar conflict while zooming.
 - **Depends:** P1-05 · **Est:** 2 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — hold-C FOV 30 with exact restore; smoothing/scroll-depth later.
 
 ### P1-12 · create in-game settings screen
 - **Do:** `ui/AxoSettingsScreen` (opened via keybind): list modules grouped by category with toggle buttons; changes write through `ModuleManager` + `AxoConfig`.
 - **Done when:** every registered module can be toggled from the screen; state persists. **This closes M1.**
 - **Depends:** P1-04, P1-05 · **Est:** 2 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — vanilla-widget toggle screen on Right Shift; closes M1 once runClient checks pass.
 
 ---
 
@@ -151,21 +159,25 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Flesh out `src/main/auth.ts`: msmc Electron popup flow using the P0-02 client ID (msmc default ID until approval lands), map result to `{profile, mcToken, expiresAt}`, typed IPC `auth:login`.
 - **Done when:** real Microsoft account logs in from the Login screen and profile name/UUID render in the account chip.
 - **Depends:** P2-01, P0-02 · **Est:** 2 h · **Refs:** https://github.com/Hansson01/MSMC
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — msmc Electron flow live; our client ID wired behind USE_AXO_CLIENT_ID (P0-03 gate).
 
 ### P2-06 · persist refresh token securely
 - **Do:** Encrypt the msmc refresh token with Electron `safeStorage` into the app data dir; never write plaintext; add `auth:logout` that wipes it.
 - **Done when:** restart → still logged in; logout → token file gone; file on disk is not plaintext.
 - **Depends:** P2-05 · **Est:** 1 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — safeStorage-encrypted token file, wiped on logout; restart-persistence check on Windows pending.
 
 ### P2-07 · silent session refresh on startup
 - **Do:** On app start, attempt token refresh in the background; UI shows Home in "refreshing" state, drops to Login only on refresh failure.
 - **Done when:** cold start with valid stored token reaches Home logged-in without user action.
 - **Depends:** P2-06 · **Est:** 1 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — restoreSession() on startup with boot state in UI; rotated token re-persisted.
 
 ### P2-08 · test Microsoft login callback end-to-end
 - **Do:** Manual test matrix on Windows: fresh login, cancel mid-flow, wrong account (no Minecraft owned), expired refresh token, offline. Fix surfaced issues; document expected error copy per case.
 - **Done when:** all five cases end in a correct UI state with human-readable messages (no raw stack traces).
 - **Depends:** P2-07 · **Est:** 2 h
+- **Status:** ⏳ BLOCKED on a Windows machine — run the five-case matrix there.
 
 ### P2-09 · implement Java 21 provisioning
 - **Do:** `src/main/java.ts`: query Adoptium API for latest Temurin JRE matching manifest `javaMajor` + win x64, download to `runtime/<major>/`, unpack, verify checksum, cache; expose progress events.
@@ -177,6 +189,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** `src/main/install.ts`: via minecraft-launcher-core resolve vanilla `mcVersion` files into the install dir; fetch the Fabric loader profile JSON from `meta.fabricmc.net` for `mcVersion`+`fabricLoaderVersion` and register it as the launch profile.
 - **Done when:** target dir contains vanilla + fabric version JSONs, libraries, assets; re-run is a fast no-op.
 - **Depends:** P2-03, P2-09 · **Est:** 2 h · **Refs:** https://fabricmc.net/use/installer/
+- **Status:** 🟡 CORE DONE 2026-07-19 — Fabric profile fetch/write unit-tested; vanilla files resolve via MCLC at launch. Real-network E2E pending.
 
 ### P2-11 · implement bundled-mod sync
 - **Do:** In `install.ts`: reconcile `mods/` with the manifest mod list — download missing by URL, verify sha1 (delete + retry once on mismatch), remove jars not in the list; progress events per file.
@@ -194,11 +207,13 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** `src/main/launch.ts`: launch via minecraft-launcher-core with the msmc auth object, provisioned Java path, RAM from settings, Fabric profile; stream download/launch progress to the Play button substates; detect process exit.
 - **Done when:** Play → modded 1.21.11 reaches title screen with Axo modules loaded; UI returns to idle on game exit. **This closes M2.**
 - **Depends:** P2-05, P2-10, P2-12 · **Est:** 2 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — full pipeline (Java→profile→mods→MCLC) wired to the Play button with per-stage progress; Windows E2E run is the M2 gate.
 
 ### P2-14 · build the error/log surface
 - **Do:** Central error boundary: every pipeline failure (manifest, auth, java, install, launch) maps to an error card with plain-language message, "Retry" and "Open logs" (opens the launcher log file); log all pipeline steps with timestamps to `logs/launcher.log` (rotating).
 - **Done when:** killing the network mid-install produces a readable error card + complete log entry, and Retry resumes correctly.
 - **Depends:** P2-13 · **Est:** 2 h
+- **Status:** 🟡 PARTIAL 2026-07-19 — stage logging to launcher.log, error card + Retry, Open-log-folder; full failure matrix later.
 
 ---
 
@@ -214,16 +229,19 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Add electron-updater checking the `releasesRepo` GitHub Releases feed on startup (and every 4 h); config in `electron-builder.yml` (`publish: github`).
 - **Done when:** an older local build detects a newer published release and downloads it.
 - **Depends:** P4-06 (needs one published release to test against) · **Est:** 1.5 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 — electron-updater wired (packaged builds only); exercising it needs the first published release (P4-06).
 
 ### P3-03 · build update UI
 - **Do:** Non-blocking banner on Home ("Update ready — Restart"), download progress in Settings→About, forced-update modal when below manifest `launcher.minimumVersion`.
 - **Done when:** both soft and forced paths work against a test release.
 - **Depends:** P3-02 · **Est:** 1.5 h
+- **Status:** 🟡 PARTIAL 2026-07-19 — non-blocking "Update ready — Restart to install" banner; forced-update modal still to do.
 
 ### P3-04 · client-files update check
 - **Do:** On every launch, re-run the manifest sync (P2-11/P2-12 logic) so mod/client updates apply automatically; show "Updating Axo…" substate when files actually change.
 - **Done when:** bumping the client version in a test manifest updates the installed jar on next Play.
 - **Depends:** P2-13 · **Est:** 1 h
+- **Status:** ✅ DONE-BY-DESIGN 2026-07-19 — the launch pipeline re-syncs client/mod files against the manifest on every Play; "Installing mods…" substate shown.
 
 ### P3-05 · implement repair + rollback
 - **Do:** Settings→"Repair installation" (delete hash-mismatched files, full re-sync) and keep the previous client jar as `.previous` for one-click rollback if the new version crashes at boot (detect via exit code within 60 s).
@@ -259,6 +277,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Add minimal navbar (logo, Download anchor, GitHub link) and footer (license note, "not affiliated with Mojang/Microsoft" disclaimer — required wording).
 - **Done when:** present on the page, responsive at 360 px width.
 - **Depends:** P4-01 · **Est:** 45 min
+- **Status:** ✅ DONE 2026-07-19 — navbar + footer (with required disclaimer) shipped with the initial page.
 
 ### P4-03 · wire latest-release download button
 - **Do:** Harden the existing releases-API fetch: correct asset selection (`.exe` NSIS), display version + file size, hardcoded fallback URL if API rate-limits/fails.
@@ -300,11 +319,13 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** `docs/crash-handling.md`: taxonomy (launcher crash, game crash at boot, game crash mid-session, hang), detection signal for each (exit codes, log patterns, timeouts), user-facing response for each, what gets logged where.
 - **Done when:** every taxon has detection + response + log location defined.
 - **Est:** 1 h
+- **Status:** ✅ DONE 2026-07-19 — docs/crash-handling.md (taxonomy, detection, responses, log budget).
 
 ### P5-02 · capture game logs + surface them
 - **Do:** Pipe game stdout/stderr to `logs/game-<timestamp>.log` (keep last 5); on abnormal exit show "Game crashed" card with "Open log folder".
 - **Done when:** forced crash (kill process) produces the card and a complete log file.
 - **Depends:** P5-01, P2-14 · **Est:** 1 h
+- **Status:** 🟡 PARTIAL 2026-07-19 — per-session game-<ts>.log (keep 5) + Open-log-folder button; crash cards still to do.
 
 ### P5-03 · launcher crash reporter
 - **Do:** Global main-process exception handler → write crash report file, show dialog offering to open the GitHub issues page with prefilled title (no auto-upload — privacy-first default).
