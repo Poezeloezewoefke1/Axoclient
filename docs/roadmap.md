@@ -26,6 +26,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Done when:** client ID recorded; app shows in Azure portal with correct platform config.
 - **Depends:** none — **do this first; P0-03 has external lead time**
 - **Est:** 45 min · **Refs:** https://minecraft.wiki/w/Microsoft_authentication
+- **Status:** ✅ DONE 2026-07-19 — client ID `77802178-1e6b-4163-b382-d4095833986e`, wired (inactive until P0-03) in `launcher/src/main/auth.ts`.
 
 ### P0-03 · request Minecraft API access approval for the Azure app
 - **Do:** Submit Mojang's Minecraft API access form for the P0-02 client ID (required for `api.minecraftservices.com` login to work for third-party launchers). Record submission date in `docs/decisions.md`.
