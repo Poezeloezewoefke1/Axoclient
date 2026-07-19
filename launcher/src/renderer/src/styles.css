@@ -316,3 +316,46 @@ nav {
   margin-bottom: 8px;
   color: var(--axo-blue);
 }
+
+.saving-note {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--axo-text-muted);
+  margin-left: 10px;
+}
+
+.settings-group input[type='range'] {
+  width: 100%;
+  margin-top: 12px;
+  accent-color: var(--axo-blue);
+}
+
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--axo-text-muted);
+  margin-bottom: 12px;
+}
+
+.field-label input {
+  background: var(--axo-surface-2);
+  color: var(--axo-text);
+  border: 1px solid var(--axo-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.settings-group code {
+  color: var(--axo-text);
+  background: var(--axo-surface-2);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+}

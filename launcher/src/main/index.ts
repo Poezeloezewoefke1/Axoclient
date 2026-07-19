@@ -2,7 +2,8 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'node:path'
 import { getManifestInfo } from './manifest'
 import { getSession, loginWithMicrosoft, logout } from './auth'
-import type { SessionInfo } from '../shared/types'
+import { SettingsStore } from './settings'
+import type { AxoSettings, SessionInfo } from '../shared/types'
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -34,13 +35,25 @@ function toSessionInfo(session: { username: string; uuid: string } | null): Sess
   return session ? { username: session.username, uuid: session.uuid } : null
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  const settings = new SettingsStore(join(app.getPath('userData'), 'settings.json'), {
+    ramMb: 4096,
+    channel: 'stable',
+    installDir: join(app.getPath('appData'), '.axoclient'),
+    jvmArgs: ''
+  })
+  await settings.load()
+
   ipcMain.handle('app:version', () => app.getVersion())
   ipcMain.handle('manifest:get', () => getManifestInfo())
   ipcMain.handle('auth:status', () => toSessionInfo(getSession()))
   ipcMain.handle('auth:login', async () => toSessionInfo(await loginWithMicrosoft()))
   ipcMain.handle('auth:logout', () => logout())
-  // game:launch IPC lands with the full pipeline in P2-13 (see launch.ts).
+  ipcMain.handle('settings:get', () => settings.get())
+  ipcMain.handle('settings:update', (_event, patch: Partial<AxoSettings>) =>
+    settings.update(patch)
+  )
+  // game:launch IPC lands with the full pipeline in P2-13 (see launch.ts, install.ts).
 
   createWindow()
 

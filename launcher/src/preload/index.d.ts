@@ -1,4 +1,4 @@
-import type { ManifestInfo, SessionInfo } from '../shared/types'
+import type { AxoSettings, ManifestInfo, SessionInfo } from '../shared/types'
 
 declare global {
   interface Window {
@@ -8,6 +8,8 @@ declare global {
       getSession(): Promise<SessionInfo | null>
       login(): Promise<SessionInfo>
       logout(): Promise<void>
+      getSettings(): Promise<AxoSettings>
+      updateSettings(patch: Partial<AxoSettings>): Promise<AxoSettings>
     }
   }
 }

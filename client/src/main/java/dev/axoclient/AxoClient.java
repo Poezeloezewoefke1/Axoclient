@@ -2,6 +2,7 @@ package dev.axoclient;
 
 import dev.axoclient.core.AxoConfig;
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.modules.hud.CoordinatesModule;
 import dev.axoclient.modules.hud.FpsHudModule;
 import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public final class AxoClient implements ClientModInitializer {
         ModuleManager modules = ModuleManager.init(config);
 
         modules.register(new FpsHudModule());
+        modules.register(new CoordinatesModule());
         // New modules register here and nowhere else (see docs/architecture.md).
         // Tick dispatch via Fabric API events lands in roadmap task P1-03.
 

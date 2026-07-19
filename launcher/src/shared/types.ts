@@ -24,3 +24,14 @@ export interface SessionInfo {
   username: string
   uuid: string
 }
+
+export interface AxoSettings {
+  /** Maximum game memory in MiB. Clamped to SETTINGS_LIMITS in the store. */
+  ramMb: number
+  /** Manifest channel to install from. */
+  channel: string
+  /** Game install directory (launcher-owned, decision D-005). */
+  installDir: string
+  /** Extra JVM arguments, space-separated. Empty = none. */
+  jvmArgs: string
+}

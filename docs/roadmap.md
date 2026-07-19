@@ -63,6 +63,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** On a dev machine with JDK 21 + internet, check pins in `client/gradle.properties` against https://fabricmc.net/develop (Loom, Loader), then run `./gradlew build` and `./gradlew runClient`.
 - **Done when:** build green; dev client reaches title screen; corrected pins committed.
 - **Est:** 45 min · **Refs:** https://docs.fabricmc.net/develop/getting-started/launching-the-game
+- **Status:** 🟡 BUILD VERIFIED 2026-07-19 — CI's client job compiles green with the committed pins (Loader 0.17.3, Loom 1.11-SNAPSHOT, mojmap); the `runClient` title-screen check still needs a local machine.
 
 ### P1-02 · add Fabric API dependency
 - **Do:** Add `fabric-api` to `client/build.gradle` with the 1.21.11 version from https://modrinth.com/mod/fabric-api/versions; add `"fabric"` to `depends` in `fabric.mod.json`.
@@ -98,6 +99,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** New `modules/hud/CoordinatesModule`: player X/Y/Z + facing direction, formatted, HUD-anchored.
 - **Done when:** values match F3 screen while moving.
 - **Depends:** P1-06 · **Est:** 45 min
+- **Status:** 🟡 IMPLEMENTED 2026-07-19 (fixed position; CI-compiled) — re-anchor + in-game value check when P1-06 lands.
 
 ### P1-09 · add keystrokes display module
 - **Do:** New `modules/hud/KeystrokesModule`: WASD + mouse buttons as filled/unfilled squares in brand colors, HUD-anchored.
@@ -139,9 +141,10 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Depends:** P2-01 · **Est:** 2 h
 
 ### P2-04 · add persistent settings store
-- **Do:** Add `electron-store`-backed `src/main/settings.ts`: install dir (default `%APPDATA%/.axoclient`), RAM MB, channel, JVM args; expose typed IPC get/set; render basic Settings screen fields.
+- **Do:** Add `src/main/settings.ts` (plain JSON, atomic writes — no electron-store dependency): install dir (default `%APPDATA%/.axoclient`), RAM MB, channel, JVM args; expose typed IPC get/set; render basic Settings screen fields.
 - **Done when:** settings survive app restart; renderer reads/writes only via IPC.
 - **Depends:** P2-01 · **Est:** 1.5 h
+- **Status:** ✅ DONE 2026-07-19 — store unit-tested (defaults, clamping, corrupt-file recovery); RAM slider + JVM args live on the Settings screen.
 
 ### P2-05 · implement Microsoft login with msmc
 - **Do:** Flesh out `src/main/auth.ts`: msmc Electron popup flow using the P0-02 client ID (msmc default ID until approval lands), map result to `{profile, mcToken, expiresAt}`, typed IPC `auth:login`.
@@ -177,11 +180,13 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** In `install.ts`: reconcile `mods/` with the manifest mod list — download missing by URL, verify sha1 (delete + retry once on mismatch), remove jars not in the list; progress events per file.
 - **Done when:** deleting a random mod jar and relaunching restores it; a stray jar dropped in `mods/` is removed.
 - **Depends:** P2-10 · **Est:** 1.5 h
+- **Status:** 🟡 CORE DONE 2026-07-19 — `download.ts`/`sync.ts`/`install.ts` unit-tested (mismatch-retry, idempotency, stray-removal against a local HTTP server); end-to-end run against real Modrinth URLs happens with P2-13 on Windows.
 
 ### P2-12 · download the Axo client jar
 - **Do:** Same sync treatment for the `client` artifact from the manifest (GitHub Release asset URL + sha1) into `mods/` (it is itself a Fabric mod).
 - **Done when:** client jar lands with verified hash; version pin changes trigger re-download.
 - **Depends:** P2-11 · **Est:** 45 min
+- **Status:** 🟡 CORE DONE 2026-07-19 — client jar included in `desiredModFiles` with versioned naming (unit-tested); real-release verification at P4-07.
 
 ### P2-13 · wire game launch with progress UI
 - **Do:** `src/main/launch.ts`: launch via minecraft-launcher-core with the msmc auth object, provisioned Java path, RAM from settings, Fabric profile; stream download/launch progress to the Play button substates; detect process exit.

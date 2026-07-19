@@ -44,6 +44,7 @@ cd launcher
 npm install
 npm run dev        # dev window with hot reload
 npm run typecheck  # strict TS check
+npm test           # unit tests (vitest)
 npm run build      # production bundle
 npm run dist       # Windows NSIS installer (run on Windows)
 ```
