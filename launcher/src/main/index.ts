@@ -40,6 +40,28 @@ function toSessionInfo(session: { username: string; uuid: string } | null): Sess
   return session ? { username: session.username, uuid: session.uuid } : null
 }
 
+/** Pipeline errors mapped to actionable copy (P2-14); originals go to launcher.log. */
+function friendlyError(error: unknown): Error {
+  const message = error instanceof Error ? error.message : String(error)
+  if (/ENOTFOUND|EAI_AGAIN|ETIMEDOUT|ECONNR|fetch failed|network/i.test(message)) {
+    return new Error('No internet connection — check your network and press Retry.')
+  }
+  if (/sha1 mismatch|sha256 mismatch/i.test(message)) {
+    return new Error(
+      'A downloaded file failed verification. Retry, or use Repair installation in Settings.'
+    )
+  }
+  if (/HTTP 404/.test(message)) {
+    return new Error(
+      'A required file is not available online yet — the version manifest may be ahead of its release.'
+    )
+  }
+  if (/HTTP (4|5)\d\d/.test(message)) {
+    return new Error('A download server is having trouble — wait a minute and press Retry.')
+  }
+  return error instanceof Error ? error : new Error(message)
+}
+
 let launching = false
 
 // Crash reporter (P5-03, crash-handling.md case 1): report file + dialog,
@@ -102,7 +124,7 @@ app.whenReady().then(async () => {
       await launchGame(manifest, versionId, session, settings.get(), report)
     } catch (error) {
       logLine('launch', `failed: ${error instanceof Error ? error.message : error}`)
-      throw error
+      throw friendlyError(error)
     } finally {
       launching = false
     }

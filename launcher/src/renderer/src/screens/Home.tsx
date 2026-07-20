@@ -35,7 +35,20 @@ export default function HomeScreen(): React.JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => window.axo.onGameProgress(setProgress), [])
+  useEffect(
+    () =>
+      window.axo.onGameProgress((p) => {
+        setProgress(p)
+        if (p.stage === 'closed' && p.detail?.startsWith('crash')) {
+          setLaunchError(
+            p.detail === 'crash-boot'
+              ? 'Minecraft crashed while starting. Check the game logs (Settings → Open log folder) — if it keeps happening, use Repair installation.'
+              : 'Minecraft crashed. Check the game logs via Settings → Open log folder.'
+          )
+        }
+      }),
+    []
+  )
 
   const busy = progress !== null && progress.stage !== 'closed'
   const versions = manifest?.channels[channel]?.versions ?? []

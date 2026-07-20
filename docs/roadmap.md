@@ -216,7 +216,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Central error boundary: every pipeline failure (manifest, auth, java, install, launch) maps to an error card with plain-language message, "Retry" and "Open logs" (opens the launcher log file); log all pipeline steps with timestamps to `logs/launcher.log` (rotating).
 - **Done when:** killing the network mid-install produces a readable error card + complete log entry, and Retry resumes correctly.
 - **Depends:** P2-13 · **Est:** 2 h
-- **Status:** 🟡 PARTIAL 2026-07-19 — stage logging to launcher.log, error card + Retry, Open-log-folder; full failure matrix later.
+- **Status:** ✅ DONE 2026-07-20 — friendly error mapping (offline/hash/404/5xx), crash cards with boot-crash repair hint, force-close, stage logging, Open-log-folder.
 
 ---
 
@@ -346,6 +346,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** First launch: 2-step modal — RAM slider with sane default (half of system RAM, cap 8 GB) and install location confirm; write to settings.
 - **Done when:** fresh profile sees onboarding once; values land in settings store.
 - **Depends:** P2-04 · **Est:** 1.5 h
+- **Status:** ✅ DONE 2026-07-20 — first-run modal (RAM slider + install dir) persisted via the onboarded setting.
 
 ### P5-06 · full JVM/RAM settings screen
 - **Do:** Settings: RAM slider, custom JVM args (with reset), custom Java path override (bypasses P2-09), install dir move (with file migration + progress).
@@ -366,6 +367,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** In-game screen where HUD modules render as draggable boxes; drag writes anchor+offset to config; snap-to-anchor guides.
 - **Done when:** dragging the FPS counter to a corner persists across restarts.
 - **Depends:** P1-06, P1-12 · **Est:** 2 h
+- **Status:** 🟡 DONE (v1) 2026-07-20 — button-based HudLayoutScreen (anchor cycle + offset nudges, live apply); drag editing remains a possible upgrade.
 
 ---
 

@@ -95,14 +95,21 @@ export async function launchGame(
   }
   currentProcess = process
   onProgress({ stage: 'running' })
+  const startedAt = Date.now()
+  const BOOT_CRASH_WINDOW_MS = 60_000
 
-  await new Promise<void>((resolve) => {
+  const exitDetail = await new Promise<string | undefined>((resolve) => {
     process.on('close', (code: number | null) => {
       gameLog.append(`--- exited with code ${code} ---`)
       logLine('launch', `game exited with code ${code}`)
       currentProcess = null
-      resolve()
+      if (code !== null && code !== 0) {
+        // crash-handling.md cases 4/5: boot crashes get the repair hint.
+        resolve(Date.now() - startedAt < BOOT_CRASH_WINDOW_MS ? 'crash-boot' : 'crash')
+      } else {
+        resolve(undefined)
+      }
     })
   })
-  onProgress({ stage: 'closed' })
+  onProgress({ stage: 'closed', detail: exitDetail })
 }
