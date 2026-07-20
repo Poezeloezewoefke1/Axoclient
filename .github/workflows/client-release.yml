@@ -25,7 +25,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew build --no-daemon
       - name: Generate SHA1 checksums
-        run: sha1sum build/libs/*.jar > build/libs/SHA1SUMS.txt
+        run: sha1sum build/libs/*.jar | tee build/libs/SHA1SUMS.txt
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:

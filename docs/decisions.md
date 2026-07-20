@@ -46,7 +46,7 @@ Solo-dev friendly: one clone, one issue tracker, atomic cross-cutting changes (e
 | ID | Decision | Blocking task | Notes |
 |---|---|---|---|
 | O-1 | License for our own code | P0-05 | recommend source-available (PolyForm Shield/Strict) or proprietary; MIT means forks can rebrand your client |
-| O-2 | Final branding: logo, exact palette, typography | P0-01, P4-01 | axolotl motif is available and on-theme |
+| O-2 | Final branding: logo, exact palette, typography | P0-01, P4-01 | Owner proposed using the Minecraft Dungeons axolotl GIF (2026-07-20) — declined: Mojang-owned artwork, violates asset guidelines + risk R7 and endangers the P0-03 API approval. Original "floating axolotl" mark v2 (assets/icon.png) adopted as interim; commissioned logo still open. |
 | O-3 | Domain name | P4-04 | subdomain (axo.pages.dev) is fine for MVP |
 | O-4 | Code signing budget | P5-07 | ~$10/mo Azure Trusted Signing is the cheap path |
 | O-5 | Analytics stance | P5-08 | recommendation: none for now |

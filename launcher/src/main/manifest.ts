@@ -10,11 +10,15 @@ import type { ManifestInfo } from '../shared/types'
  * Falls back to the last cached valid manifest when the network or
  * validation fails, flagging the result as stale.
  *
+ * NOTE: raw.githubusercontent.com only serves public repos — the GitHub
+ * repository must be public for this fetch (and release-asset downloads)
+ * to work outside authenticated browsers.
  * TODO(P3-07): point at the website URL once deployed
- * (https://<site-domain>/manifest/axo-manifest.json).
+ * (https://<site-domain>/manifest/axo-manifest.json) and switch the ref
+ * to main once the branch merges.
  */
 const MANIFEST_URL =
-  'https://raw.githubusercontent.com/Poezeloezewoefke1/Claud/main/manifest/axo-manifest.json'
+  'https://raw.githubusercontent.com/Poezeloezewoefke1/Claud/claude/axo-client-architecture-ih525q/manifest/axo-manifest.json'
 
 const FETCH_TIMEOUT_MS = 10_000
 

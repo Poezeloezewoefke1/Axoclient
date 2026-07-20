@@ -57,6 +57,13 @@ jobs:
         run: curl -s https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/maven-metadata.xml | grep -o '<version>[^<]*1\.21\.11[^<]*</version>' | tail -5 || true
       - name: loom versions (pin helper)
         run: curl -s https://maven.fabricmc.net/net/fabricmc/fabric-loom/maven-metadata.xml | grep -o '<version>[^<]*</version>' | grep -v SNAPSHOT | tail -8 || true
+      - name: modrinth pins for 1.21.11 (manifest helper)
+        run: |
+          for slug in fabric-api sodium lithium; do
+            echo "=== $slug ==="
+            curl -s "https://api.modrinth.com/v2/project/$slug/version?game_versions=%5B%221.21.11%22%5D&loaders=%5B%22fabric%22%5D" \
+              | jq -c '.[0] | {id, version_number, file: (.files[0] | {url, sha1: .hashes.sha1, size})}' || true
+          done
       - run: ./gradlew build --no-daemon
       - uses: actions/upload-artifact@v4
         with:
