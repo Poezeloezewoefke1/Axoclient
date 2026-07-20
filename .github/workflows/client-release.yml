@@ -6,6 +6,13 @@ name: Client Release
 on:
   push:
     tags: ['client-v*']
+  # Manual dispatch: used when the release is cut from an environment that
+  # cannot push tags (e.g. a remote session); creates the tag via the release.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. client-v0.1.0)'
+        required: true
 
 permissions:
   contents: write
@@ -29,6 +36,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           files: |
             client/build/libs/*.jar
             client/build/libs/SHA1SUMS.txt
