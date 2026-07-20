@@ -57,8 +57,19 @@ export async function launchGame(
   )
 
   onProgress({ stage: 'mods' })
-  await syncModsFolder(settings.installDir, version, (event) =>
-    onProgress({ stage: 'mods', detail: `${event.action} ${event.file}` })
+  await syncModsFolder(
+    settings.installDir,
+    version,
+    (event) => onProgress({ stage: 'mods', detail: `${event.action} ${event.file}` }),
+    (p) =>
+      onProgress({
+        stage: 'mods',
+        detail: p.file,
+        received: p.received,
+        total: p.total,
+        bytesPerSecond: p.bytesPerSecond,
+        etaSeconds: p.etaSeconds
+      })
   )
 
   onProgress({ stage: 'launching' })

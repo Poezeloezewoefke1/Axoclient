@@ -355,6 +355,35 @@ nav {
   align-self: flex-start;
 }
 
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--axo-surface-2);
+  border: 1px solid var(--axo-border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--axo-blue-dim), var(--axo-blue));
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--axo-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .muted {
   color: var(--axo-text-muted);
   font-size: 13px;

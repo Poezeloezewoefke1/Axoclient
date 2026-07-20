@@ -20,14 +20,52 @@ export async function fetchJson(url: string, timeoutMs = 30_000): Promise<unknow
   return response.json()
 }
 
+/** Streamed progress for a single file: received / total bytes so far. */
+export interface FileProgress {
+  received: number
+  /** Total size from Content-Length, or undefined when the server omits it. */
+  total: number | undefined
+}
+
 export interface DownloadOptions {
   /** Total attempts including the first (default 2 = one retry). */
   attempts?: number
   timeoutMs?: number
+  /** Called as bytes arrive (throttled by the caller if needed). */
+  onProgress?: (progress: FileProgress) => void
 }
 
 /** A bare string means sha1 (the manifest's hash); Adoptium et al. use sha256. */
 export type ExpectedHash = string | { algorithm: 'sha1' | 'sha256'; value: string }
+
+/** Read a fetch body stream into one buffer, reporting cumulative progress. */
+async function drainBody(
+  response: Response,
+  total: number | undefined,
+  onProgress?: (p: FileProgress) => void
+): Promise<Buffer> {
+  const body = response.body
+  if (!body) {
+    // No stream available — fall back to a single buffered read.
+    const bytes = Buffer.from(await response.arrayBuffer())
+    onProgress?.({ received: bytes.length, total: total ?? bytes.length })
+    return bytes
+  }
+  const reader = body.getReader()
+  const chunks: Buffer[] = []
+  let received = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) {
+      break
+    }
+    const chunk = Buffer.from(value)
+    chunks.push(chunk)
+    received += chunk.length
+    onProgress?.({ received, total })
+  }
+  return Buffer.concat(chunks)
+}
 
 export async function downloadFile(
   url: string,
@@ -47,7 +85,9 @@ export async function downloadFile(
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} for ${url}`)
       }
-      const bytes = Buffer.from(await response.arrayBuffer())
+      const lenHeader = response.headers.get('content-length')
+      const total = lenHeader ? Number(lenHeader) : undefined
+      const bytes = await drainBody(response, total, options.onProgress)
       if (expected) {
         const actual = createHash(expected.algorithm).update(bytes).digest('hex')
         if (actual !== expected.value) {

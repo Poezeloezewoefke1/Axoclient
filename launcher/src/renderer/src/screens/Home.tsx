@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { GameProgress, ManifestInfo } from '../../../shared/types'
+import { formatBytes, formatDuration, formatSpeed } from '../../../shared/format'
 
 const STAGE_LABELS: Record<GameProgress['stage'], string> = {
   preparing: 'Preparing…',
@@ -131,6 +132,32 @@ export default function HomeScreen(): React.JSX.Element {
         >
           {busy && progress ? STAGE_LABELS[progress.stage] : 'Play'}
         </button>
+        {busy && progress && progress.received !== undefined && (
+          <div className="progress">
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{
+                  width:
+                    progress.total && progress.total > 0
+                      ? `${Math.min(100, (progress.received / progress.total) * 100)}%`
+                      : '100%'
+                }}
+              />
+            </div>
+            <div className="progress-stats">
+              <span>
+                {formatBytes(progress.received)}
+                {progress.total ? ` / ${formatBytes(progress.total)}` : ''}
+              </span>
+              <span>
+                {[formatSpeed(progress.bytesPerSecond ?? 0), formatDuration(progress.etaSeconds ?? null)]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </span>
+            </div>
+          </div>
+        )}
         {progress?.stage === 'running' && (
           <button
             className="link-button"

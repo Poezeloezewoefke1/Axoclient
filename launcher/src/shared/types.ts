@@ -44,6 +44,11 @@ export type GameStage =
 export interface GameProgress {
   stage: GameStage
   detail?: string
+  /** Transfer stats, present while a file is downloading (mods/java/game). */
+  received?: number
+  total?: number
+  bytesPerSecond?: number
+  etaSeconds?: number | null
 }
 
 export interface AxoSettings {

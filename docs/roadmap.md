@@ -211,6 +211,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Done when:** Play → modded 1.21.11 reaches title screen with Axo modules loaded; UI returns to idle on game exit. **This closes M2.**
 - **Depends:** P2-05, P2-10, P2-12 · **Est:** 2 h
 - **Status:** 🟡 IMPLEMENTED 2026-07-19 — full pipeline (Java→profile→mods→MCLC) wired to the Play button with per-stage progress; Windows E2E run is the M2 gate.
+- **Update 2026-07-20:** streamed download progress now reports live bytes, speed, and ETA with a progress bar (RateTracker + format helpers, unit-tested).
 
 ### P2-14 · build the error/log surface
 - **Do:** Central error boundary: every pipeline failure (manifest, auth, java, install, launch) maps to an error card with plain-language message, "Retry" and "Open logs" (opens the launcher log file); log all pipeline steps with timestamps to `logs/launcher.log` (rotating).

@@ -59,6 +59,20 @@ describe('downloadFile', () => {
     expect(await readFile(dest)).toEqual(FILES['/mod-a.jar'])
   })
 
+  it('reports streaming progress up to the full size', async () => {
+    const dest = join(dir, 'p.jar')
+    const seen: number[] = []
+    await downloadFile(`${baseUrl}/mod-a.jar`, dest, sha1(FILES['/mod-a.jar']), {
+      onProgress: (p) => seen.push(p.received)
+    })
+    expect(seen.length).toBeGreaterThan(0)
+    expect(seen[seen.length - 1]).toBe(FILES['/mod-a.jar'].length)
+    // received is monotonically non-decreasing
+    for (let i = 1; i < seen.length; i++) {
+      expect(seen[i]).toBeGreaterThanOrEqual(seen[i - 1])
+    }
+  })
+
   it('retries once after a hash mismatch and succeeds', async () => {
     flakyRemaining = 1
     const dest = join(dir, 'flaky.jar')

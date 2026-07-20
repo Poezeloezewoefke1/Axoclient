@@ -1,6 +1,12 @@
 import { join } from 'node:path'
 import type { AxoManifest } from './manifest'
-import { syncDirectory, type DesiredFile, type SyncEvent, type SyncResult } from './sync'
+import {
+  syncDirectory,
+  type DesiredFile,
+  type SyncEvent,
+  type SyncProgress,
+  type SyncResult
+} from './sync'
 
 /**
  * Install-pipeline pieces that are pure manifest→filesystem mapping.
@@ -29,7 +35,8 @@ export function desiredModFiles(version: ManifestVersion): DesiredFile[] {
 export async function syncModsFolder(
   gameRoot: string,
   version: ManifestVersion,
-  onEvent?: (event: SyncEvent) => void
+  onEvent?: (event: SyncEvent) => void,
+  onProgress?: (progress: SyncProgress) => void
 ): Promise<SyncResult> {
-  return syncDirectory(join(gameRoot, 'mods'), desiredModFiles(version), onEvent)
+  return syncDirectory(join(gameRoot, 'mods'), desiredModFiles(version), onEvent, onProgress)
 }

@@ -1,6 +1,7 @@
 import { mkdir, readdir, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { downloadFile, sha1File } from './download'
+import { RateTracker } from './progress'
 
 /**
  * Reconciles a launcher-owned directory with a desired file list
@@ -21,6 +22,15 @@ export interface SyncEvent {
   action: 'download' | 'keep' | 'remove'
 }
 
+/** Live transfer stats for the file currently downloading. */
+export interface SyncProgress {
+  file: string
+  received: number
+  total: number | undefined
+  bytesPerSecond: number
+  etaSeconds: number | null
+}
+
 export interface SyncResult {
   downloaded: string[]
   kept: string[]
@@ -30,7 +40,8 @@ export interface SyncResult {
 export async function syncDirectory(
   dir: string,
   desired: DesiredFile[],
-  onEvent?: (event: SyncEvent) => void
+  onEvent?: (event: SyncEvent) => void,
+  onProgress?: (progress: SyncProgress) => void
 ): Promise<SyncResult> {
   await mkdir(dir, { recursive: true })
   const result: SyncResult = { downloaded: [], kept: [], removed: [] }
@@ -45,7 +56,22 @@ export async function syncDirectory(
     }
     if (needsDownload) {
       onEvent?.({ file: file.fileName, action: 'download' })
-      await downloadFile(file.url, path, file.sha1)
+      const tracker = new RateTracker()
+      await downloadFile(file.url, path, file.sha1, {
+        onProgress: onProgress
+          ? (p) => {
+              const now = Date.now()
+              tracker.update(p.received, now)
+              onProgress({
+                file: file.fileName,
+                received: p.received,
+                total: p.total,
+                bytesPerSecond: tracker.bytesPerSecond(),
+                etaSeconds: tracker.etaSeconds(p.total)
+              })
+            }
+          : undefined
+      })
       result.downloaded.push(file.fileName)
     } else {
       onEvent?.({ file: file.fileName, action: 'keep' })
