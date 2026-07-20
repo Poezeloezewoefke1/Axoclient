@@ -42,8 +42,12 @@ jobs:
         run: |
           for i in 1 2 3 4 5; do
             if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              # Also covers leftover drafts with this tag: upload fresh assets,
+              # then publish (a draft stays invisible until --draft=false).
               gh release upload "$TAG" build/libs/*.jar build/libs/SHA1SUMS.txt \
-                --clobber --repo "$GITHUB_REPOSITORY" && exit 0
+                --clobber --repo "$GITHUB_REPOSITORY" \
+                && gh release edit "$TAG" --draft=false --repo "$GITHUB_REPOSITORY" \
+                && exit 0
             else
               gh release create "$TAG" build/libs/*.jar build/libs/SHA1SUMS.txt \
                 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
