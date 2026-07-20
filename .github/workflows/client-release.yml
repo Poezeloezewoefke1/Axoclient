@@ -33,13 +33,24 @@ jobs:
       - run: ./gradlew build --no-daemon
       - name: Generate SHA1 checksums
         run: sha1sum build/libs/*.jar | tee build/libs/SHA1SUMS.txt
-      # gh CLI instead of a release action: clearer errors in the log and no
-      # third-party dependency (the action variant failed opaquely twice).
+      # gh CLI with retries: GitHub's releases API returns intermittent 503s;
+      # resume with upload-only if the release was created but assets failed.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
-          gh release create "$TAG" build/libs/*.jar build/libs/SHA1SUMS.txt \
-            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "$TAG" --generate-notes
+          for i in 1 2 3 4 5; do
+            if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              gh release upload "$TAG" build/libs/*.jar build/libs/SHA1SUMS.txt \
+                --clobber --repo "$GITHUB_REPOSITORY" && exit 0
+            else
+              gh release create "$TAG" build/libs/*.jar build/libs/SHA1SUMS.txt \
+                --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+                --title "$TAG" --generate-notes && exit 0
+            fi
+            echo "attempt $i failed - retrying in 30s"
+            sleep 30
+          done
+          echo "release failed after 5 attempts (likely GitHub API outage)"
+          exit 1
