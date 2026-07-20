@@ -55,4 +55,6 @@ export interface AxoSettings {
   installDir: string
   /** Extra JVM arguments, space-separated. Empty = none. */
   jvmArgs: string
+  /** True once the first-run onboarding has been completed (P5-05). */
+  onboarded: boolean
 }

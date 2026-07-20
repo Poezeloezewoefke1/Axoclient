@@ -9,7 +9,8 @@ const DEFAULTS: AxoSettings = {
   ramMb: 4096,
   channel: 'stable',
   installDir: 'C:/fake/.axoclient',
-  jvmArgs: ''
+  jvmArgs: '',
+  onboarded: false
 }
 
 describe('SettingsStore', () => {

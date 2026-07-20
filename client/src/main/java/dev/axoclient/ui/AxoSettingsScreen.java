@@ -31,8 +31,13 @@ public final class AxoSettingsScreen extends Screen {
             y += 24;
         }
         this.addRenderableWidget(
+            Button.builder(Component.literal("Edit HUD layout"), button ->
+                this.minecraft.setScreen(new HudLayoutScreen())
+            ).bounds(this.width / 2 - 100, y + 8, 200, 20).build()
+        );
+        this.addRenderableWidget(
             Button.builder(Component.literal("Done"), button -> this.onClose())
-                .bounds(this.width / 2 - 100, y + 8, 200, 20)
+                .bounds(this.width / 2 - 100, y + 32, 200, 20)
                 .build()
         );
     }

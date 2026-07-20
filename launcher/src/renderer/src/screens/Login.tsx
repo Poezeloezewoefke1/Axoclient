@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import logoUrl from '../assets/logo.png'
 import type { SessionInfo } from '../../../shared/types'
 
 interface Props {
@@ -25,6 +26,7 @@ export default function LoginScreen({ onLoggedIn }: Props): React.JSX.Element {
   return (
     <div className="login-screen">
       <div className="login-card">
+        <img src={logoUrl} alt="" className="login-mark" />
         <div className="logo login-logo">
           <span className="logo-axo">AXO</span>
           <span className="logo-sub">CLIENT</span>

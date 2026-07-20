@@ -19,6 +19,7 @@ const api = {
   updateSettings: (patch: Partial<AxoSettings>): Promise<AxoSettings> =>
     ipcRenderer.invoke('settings:update', patch),
   launch: (versionId: string): Promise<void> => ipcRenderer.invoke('game:launch', versionId),
+  forceClose: (): Promise<boolean> => ipcRenderer.invoke('game:forceClose'),
   onGameProgress: (callback: (progress: GameProgress) => void): (() => void) => {
     const listener = (_event: IpcRendererEvent, progress: GameProgress): void =>
       callback(progress)

@@ -60,7 +60,8 @@ export class SettingsStore {
         typeof source.installDir === 'string' && source.installDir.length > 0
           ? source.installDir
           : this.defaults.installDir,
-      jvmArgs: typeof source.jvmArgs === 'string' ? source.jvmArgs : this.defaults.jvmArgs
+      jvmArgs: typeof source.jvmArgs === 'string' ? source.jvmArgs : this.defaults.jvmArgs,
+      onboarded: typeof source.onboarded === 'boolean' ? source.onboarded : this.defaults.onboarded
     }
   }
 

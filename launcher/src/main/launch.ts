@@ -18,6 +18,17 @@ import { createGameLog, logLine } from './logger'
 
 type LaunchOptions = Parameters<Client['launch']>[0]
 
+let currentProcess: { kill: (signal?: NodeJS.Signals | number) => boolean } | null = null
+
+/** Force-close the running game (crash-handling.md case 6). Returns false when nothing runs. */
+export function forceCloseGame(): boolean {
+  if (!currentProcess) {
+    return false
+  }
+  logLine('launch', 'force-closing game process')
+  return currentProcess.kill('SIGKILL')
+}
+
 export async function launchGame(
   manifest: AxoManifest,
   versionId: string,
@@ -82,12 +93,14 @@ export async function launchGame(
   if (!process) {
     throw new Error('Game process failed to start — see launcher.log')
   }
+  currentProcess = process
   onProgress({ stage: 'running' })
 
   await new Promise<void>((resolve) => {
     process.on('close', (code: number | null) => {
       gameLog.append(`--- exited with code ${code} ---`)
       logLine('launch', `game exited with code ${code}`)
+      currentProcess = null
       resolve()
     })
   })

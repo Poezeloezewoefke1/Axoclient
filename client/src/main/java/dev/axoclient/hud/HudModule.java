@@ -36,9 +36,14 @@ public abstract class HudModule extends AxoModule implements HudRenderable {
         return position;
     }
 
+    /** Re-reads hud_anchor/hud_x/hud_y from config (used by the HUD layout screen). */
+    public final void reloadPosition() {
+        position = HudPosition.load(ModuleManager.get().config(), id(), defaultPosition);
+    }
+
     @Override
     protected void onEnable() {
-        position = HudPosition.load(ModuleManager.get().config(), id(), defaultPosition);
+        reloadPosition();
     }
 
     @Override

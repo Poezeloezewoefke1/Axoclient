@@ -4,7 +4,7 @@ import { getManifest, getManifestInfo } from './manifest'
 import { syncModsFolder } from './install'
 import { getSession, initAuth, loginWithMicrosoft, logout, restoreSession } from './auth'
 import { SettingsStore } from './settings'
-import { launchGame } from './launch'
+import { forceCloseGame, launchGame } from './launch'
 import { initLogger, logDirectory, logLine, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
@@ -68,7 +68,8 @@ app.whenReady().then(async () => {
     ramMb: 4096,
     channel: 'stable',
     installDir: join(app.getPath('appData'), '.axoclient'),
-    jvmArgs: ''
+    jvmArgs: '',
+    onboarded: false
   })
   await settings.load()
 
@@ -130,6 +131,8 @@ app.whenReady().then(async () => {
       removed: result.removed.length
     }
   })
+
+  ipcMain.handle('game:forceClose', () => forceCloseGame())
 
   ipcMain.handle('logs:open', () => {
     const dir = logDirectory()

@@ -18,6 +18,7 @@ declare global {
       getSettings(): Promise<AxoSettings>
       updateSettings(patch: Partial<AxoSettings>): Promise<AxoSettings>
       launch(versionId: string): Promise<void>
+      forceClose(): Promise<boolean>
       onGameProgress(callback: (progress: GameProgress) => void): () => void
       installUpdate(): Promise<void>
       openLogs(): Promise<void>

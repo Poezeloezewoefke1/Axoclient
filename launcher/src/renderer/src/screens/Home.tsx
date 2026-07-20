@@ -118,6 +118,18 @@ export default function HomeScreen(): React.JSX.Element {
         >
           {busy && progress ? STAGE_LABELS[progress.stage] : 'Play'}
         </button>
+        {progress?.stage === 'running' && (
+          <button
+            className="link-button"
+            onClick={() => {
+              if (window.confirm('Force close Minecraft? Unsaved progress will be lost.')) {
+                void window.axo.forceClose()
+              }
+            }}
+          >
+            Force close game
+          </button>
+        )}
         <p className="muted">
           {busy && progress?.detail
             ? progress.detail

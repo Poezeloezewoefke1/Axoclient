@@ -33,11 +33,13 @@ jobs:
       - run: ./gradlew build --no-daemon
       - name: Generate SHA1 checksums
         run: sha1sum build/libs/*.jar | tee build/libs/SHA1SUMS.txt
+      # gh CLI instead of a release action: clearer errors in the log and no
+      # third-party dependency (the action variant failed opaquely twice).
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
-          files: |
-            client/build/libs/*.jar
-            client/build/libs/SHA1SUMS.txt
-          generate_release_notes: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          gh release create "$TAG" build/libs/*.jar build/libs/SHA1SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$TAG" --generate-notes

@@ -52,6 +52,18 @@ body {
   gap: 6px;
 }
 
+.logo-mark {
+  width: 26px;
+  height: 26px;
+  align-self: center;
+}
+
+.hero-mark {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 18px;
+}
+
 .logo-axo {
   font-size: 20px;
   font-weight: 800;

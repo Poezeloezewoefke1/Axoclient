@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import logoUrl from './assets/logo.png'
 import HomeScreen from './screens/Home'
 import LoginScreen from './screens/Login'
 import SettingsScreen from './screens/Settings'
-import type { SessionInfo, UpdateStatus } from '../../shared/types'
+import type { AxoSettings, SessionInfo, UpdateStatus } from '../../shared/types'
 
 type Screen = 'home' | 'settings'
 
@@ -12,8 +13,18 @@ export default function App(): React.JSX.Element {
   const [restoring, setRestoring] = useState(true)
   const [version, setVersion] = useState('')
   const [update, setUpdate] = useState<UpdateStatus | null>(null)
+  const [onboarding, setOnboarding] = useState<AxoSettings | null>(null)
 
   useEffect(() => window.axo.onUpdateStatus(setUpdate), [])
+
+  useEffect(() => {
+    // First-run onboarding (P5-05): shown once, then persisted away.
+    void window.axo.getSettings().then((s) => {
+      if (!s.onboarded) {
+        setOnboarding(s)
+      }
+    })
+  }, [])
 
   useEffect(() => {
     // Silent session restore on startup (P2-07); falls back to Login.
@@ -44,6 +55,7 @@ export default function App(): React.JSX.Element {
     <div className="shell">
       <aside className="sidebar">
         <div className="logo">
+          <img src={logoUrl} alt="" className="logo-mark" />
           <span className="logo-axo">AXO</span>
           <span className="logo-sub">CLIENT</span>
         </div>
@@ -77,6 +89,39 @@ export default function App(): React.JSX.Element {
           <div className="app-version">v{version}</div>
         </div>
       </aside>
+      {onboarding && (
+        <div className="modal-backdrop">
+          <div className="modal-card">
+            <img src={logoUrl} alt="" className="login-mark" />
+            <h2>Welcome to Axo Client</h2>
+            <p className="muted">
+              How much memory should Minecraft get? You can change this later in Settings.
+            </p>
+            <p className="muted">{(onboarding.ramMb / 1024).toFixed(1)} GB</p>
+            <input
+              type="range"
+              min={1024}
+              max={16384}
+              step={512}
+              value={onboarding.ramMb}
+              onChange={(e) => setOnboarding({ ...onboarding, ramMb: Number(e.target.value) })}
+            />
+            <p className="muted">
+              Game files install to <code>{onboarding.installDir}</code>
+            </p>
+            <button
+              className="primary-button"
+              onClick={() => {
+                void window.axo
+                  .updateSettings({ ramMb: onboarding.ramMb, onboarded: true })
+                  .then(() => setOnboarding(null))
+              }}
+            >
+              Let&apos;s go
+            </button>
+          </div>
+        </div>
+      )}
       <main className="content">
         {update && (
           <div className="update-banner">
