@@ -310,6 +310,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Execute the runbook: client-v0.1.0 tag → real sha1s into manifest (remove placeholders) → launcher-v0.1.0 tag → website deploy. Validation script must pass without `--allow-placeholders`.
 - **Done when:** manifest at the public URL references only real, hash-verified artifacts.
 - **Depends:** P3-06, P3-07, P3-08, P4-05, P4-06 · **Est:** 1.5 h
+- **Status:** 🟡 PARTIAL 2026-07-20 — client release live, manifest fully real (strict validation green, CI now strict). Remaining: repo public, Pages deploy green, launcher-v0.1.0 installer (needs P2-01 Windows run first).
 
 ### P4-08 · fresh-machine install test
 - **Do:** On a clean Windows VM: website → download → install → login → Play → in-game with modules. Note every rough edge in a findings list; file follow-up tasks.

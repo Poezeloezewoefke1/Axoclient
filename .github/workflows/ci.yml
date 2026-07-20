@@ -14,8 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # --allow-placeholders until the first release (P4-07); drop the flag after.
-      - run: node manifest/validate.mjs --allow-placeholders
+      # Strict validation: the first release is live, no placeholders allowed.
+      - run: node manifest/validate.mjs
 
   launcher:
     name: Launcher typecheck + build

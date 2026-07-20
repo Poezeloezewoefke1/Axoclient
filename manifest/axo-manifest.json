@@ -1,8 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-20T00:30:00Z",
-  "_comment": "Mod entries are real (Modrinth CDN, sha1-verified). The client artifact keeps an all-zero placeholder sha1 until the client-v0.1.0 release publishes (see docs/first-run-checklist.md step 0) — update it from that release's SHA1SUMS.txt, then drop --allow-placeholders in CI.",
-  "generatedAt_note": "bump generatedAt whenever versions change",
+  "generatedAt": "2026-07-20T12:50:00Z",
+  "_comment": "Live manifest for Axo Client. Mods come from Modrinth CDN; the client jar from GitHub Releases. All hashes are real \u2014 validate strictly with manifest/validate.mjs.",
   "launcher": {
     "minimumVersion": "0.1.0",
     "releasesRepo": "Poezeloezewoefke1/Claud"
@@ -20,7 +19,8 @@
           "client": {
             "version": "0.1.0",
             "url": "https://github.com/Poezeloezewoefke1/Claud/releases/download/client-v0.1.0/axoclient-0.1.0.jar",
-            "sha1": "0000000000000000000000000000000000000000"
+            "sha1": "b31515aedc371f6b43731bc7a51d4319a3845911",
+            "size": 29925
           },
           "mods": [
             {

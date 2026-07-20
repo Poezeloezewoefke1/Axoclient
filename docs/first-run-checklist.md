@@ -6,11 +6,7 @@ Work through this top-to-bottom. Anything that fails: copy the error + the relev
 
 - [ ] **Make the GitHub repo public** (Settings → General → Danger Zone → Change visibility). Without this, the launcher's manifest fetch and release downloads 404 for unauthenticated requests — nothing remote will work.
 - [ ] After going public, check the **Deploy Website** action ran green — the download page then lives at https://poezeloezewoefke1.github.io/Claud/ (re-run it from the Actions tab if it failed while the repo was private).
-- [ ] **Finish the client-v0.1.0 release** (two automated attempts failed at the "Create GitHub Release" step; a broken draft may be left over):
-  1. Releases page → delete any draft named `client-v0.1.0`.
-  2. Actions tab → "Client Release" workflow → **Run workflow** → tag `client-v0.1.0`.
-  3. If it fails again, open the red "Create GitHub Release" step and send me the error text.
-  4. When it succeeds: copy the sha1 from the run's "Generate SHA1 checksums" step (or the release's `SHA1SUMS.txt`) into `manifest/axo-manifest.json` → `client.sha1` — or just send it to me.
+- [ ] ~~Finish the client-v0.1.0 release~~ **DONE** — `client-v0.1.0` is published with `axoclient-0.1.0.jar`, and the manifest carries its real sha1. Optional tidy-up: the Releases page still shows one leftover *draft* from a failed attempt — delete it (it is invisible to users either way).
 - [ ] Install **JDK 21** (Temurin: https://adoptium.net) and **Node 20+** (https://nodejs.org).
 - [ ] `git clone` the repo and check out branch `claude/axo-client-architecture-ih525q`.
 
@@ -47,7 +43,6 @@ npm run dev
 ## 3. The big one: Play (closes M2 — roadmap P2-13)
 
 - [ ] Press **Play**. Expected stage order: Preparing → Setting up Java (Temurin 21 download, first time only) → Installing mods (Fabric API, Sodium, Lithium from Modrinth + the Axo client jar from the GitHub release) → Downloading game → Launching → Minecraft opens with Axo modules active.
-- [ ] Note: until step 0's release + sha1 update are done, the "Installing mods" stage will fail on the Axo client jar (hash/404) with an error card — that is the designed fail-loud behavior, and the three Modrinth mods will already have installed.
 - [ ] Quit the game — launcher returns to idle; `logs/game-*.log` exists.
 - [ ] Press Play again — warm start, no re-downloads, much faster.
 - [ ] Settings → "Repair installation" → reports files intact.
