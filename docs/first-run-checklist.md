@@ -5,6 +5,11 @@ Work through this top-to-bottom. Anything that fails: copy the error + the relev
 ## 0. One-time prerequisites
 
 - [ ] **Make the GitHub repo public** (Settings → General → Danger Zone → Change visibility). Without this, the launcher's manifest fetch and release downloads 404 for unauthenticated requests — nothing remote will work.
+- [ ] **Finish the client-v0.1.0 release** (two automated attempts failed at the "Create GitHub Release" step; a broken draft may be left over):
+  1. Releases page → delete any draft named `client-v0.1.0`.
+  2. Actions tab → "Client Release" workflow → **Run workflow** → tag `client-v0.1.0`.
+  3. If it fails again, open the red "Create GitHub Release" step and send me the error text.
+  4. When it succeeds: copy the sha1 from the run's "Generate SHA1 checksums" step (or the release's `SHA1SUMS.txt`) into `manifest/axo-manifest.json` → `client.sha1` — or just send it to me.
 - [ ] Install **JDK 21** (Temurin: https://adoptium.net) and **Node 20+** (https://nodejs.org).
 - [ ] `git clone` the repo and check out branch `claude/axo-client-architecture-ih525q`.
 
@@ -41,6 +46,7 @@ npm run dev
 ## 3. The big one: Play (closes M2 — roadmap P2-13)
 
 - [ ] Press **Play**. Expected stage order: Preparing → Setting up Java (Temurin 21 download, first time only) → Installing mods (Fabric API, Sodium, Lithium from Modrinth + the Axo client jar from the GitHub release) → Downloading game → Launching → Minecraft opens with Axo modules active.
+- [ ] Note: until step 0's release + sha1 update are done, the "Installing mods" stage will fail on the Axo client jar (hash/404) with an error card — that is the designed fail-loud behavior, and the three Modrinth mods will already have installed.
 - [ ] Quit the game — launcher returns to idle; `logs/game-*.log` exists.
 - [ ] Press Play again — warm start, no re-downloads, much faster.
 - [ ] Settings → "Repair installation" → reports files intact.

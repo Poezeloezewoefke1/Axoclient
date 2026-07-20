@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-19T00:00:00Z",
-  "_comment": "PRE-RELEASE manifest. All-zero sha1 values and PLACEHOLDER tokens are stand-ins until the first release (roadmap P4-07). Validate with manifest/validate.mjs (P3-08) using --allow-placeholders until then. fabricLoaderVersion must be confirmed against https://meta.fabricmc.net/v2/versions/loader/1.21.11 in task P1-01.",
+  "generatedAt": "2026-07-20T00:30:00Z",
+  "_comment": "Mod entries are real (Modrinth CDN, sha1-verified). The client artifact keeps an all-zero placeholder sha1 until the client-v0.1.0 release publishes (see docs/first-run-checklist.md step 0) — update it from that release's SHA1SUMS.txt, then drop --allow-placeholders in CI.",
+  "generatedAt_note": "bump generatedAt whenever versions change",
   "launcher": {
     "minimumVersion": "0.1.0",
     "releasesRepo": "Poezeloezewoefke1/Claud"
@@ -26,30 +27,33 @@
               "id": "fabric-api",
               "source": "modrinth",
               "modrinthProject": "P7dR8mSH",
-              "modrinthVersion": "PLACEHOLDER",
-              "version": "PLACEHOLDER",
-              "url": "https://cdn.modrinth.com/data/P7dR8mSH/versions/PLACEHOLDER/fabric-api-PLACEHOLDER.jar",
-              "sha1": "0000000000000000000000000000000000000000",
+              "modrinthVersion": "zGF3drOQ",
+              "version": "0.141.5+1.21.11",
+              "url": "https://cdn.modrinth.com/data/P7dR8mSH/versions/zGF3drOQ/fabric-api-0.141.5%2B1.21.11.jar",
+              "sha1": "f56956fc14c6e1af380e80fce7e9cfd4db050eef",
+              "size": 2425434,
               "required": true
             },
             {
               "id": "sodium",
               "source": "modrinth",
               "modrinthProject": "AANobbMI",
-              "modrinthVersion": "PLACEHOLDER",
-              "version": "PLACEHOLDER",
-              "url": "https://cdn.modrinth.com/data/AANobbMI/versions/PLACEHOLDER/sodium-fabric-PLACEHOLDER.jar",
-              "sha1": "0000000000000000000000000000000000000000",
+              "modrinthVersion": "Ny3XyYle",
+              "version": "0.8.13+mc1.21.11",
+              "url": "https://cdn.modrinth.com/data/AANobbMI/versions/Ny3XyYle/sodium-fabric-0.8.13%2Bmc1.21.11.jar",
+              "sha1": "e757883c4959582bed8b057c1f830cb84f325567",
+              "size": 1907864,
               "required": true
             },
             {
               "id": "lithium",
               "source": "modrinth",
               "modrinthProject": "gvQqBUqZ",
-              "modrinthVersion": "PLACEHOLDER",
-              "version": "PLACEHOLDER",
-              "url": "https://cdn.modrinth.com/data/gvQqBUqZ/versions/PLACEHOLDER/lithium-fabric-PLACEHOLDER.jar",
-              "sha1": "0000000000000000000000000000000000000000",
+              "modrinthVersion": "Ow7wA0kG",
+              "version": "0.21.4+mc1.21.11",
+              "url": "https://cdn.modrinth.com/data/gvQqBUqZ/versions/Ow7wA0kG/lithium-fabric-0.21.4%2Bmc1.21.11.jar",
+              "sha1": "203bdcb26e97b3217b045e1182651a7d7b6462ec",
+              "size": 900462,
               "required": true
             }
           ]
