@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { z } from 'zod'
 import { compareSemver } from './semver'
+import { FALLBACK_MANIFEST } from './fallbackManifest'
 import type { ManifestInfo } from '../shared/types'
 
 /**
@@ -108,9 +109,16 @@ export async function getManifest(): Promise<{ manifest: AxoManifest; stale: boo
     await writeCache(manifest).catch(() => undefined)
     return { manifest, stale: false }
   } catch (error) {
+    // Network/validation failed: fall back to cache, then to the manifest
+    // baked into the build (survives a private repo or a fully offline
+    // first run so the launcher still opens with a usable version list).
     const cached = await readCache()
     if (cached) {
       return { manifest: cached, stale: true }
+    }
+    const bundled = manifestSchema.safeParse(FALLBACK_MANIFEST)
+    if (bundled.success) {
+      return { manifest: bundled.data, stale: true }
     }
     throw error
   }

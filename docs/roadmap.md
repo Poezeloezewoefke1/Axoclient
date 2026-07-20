@@ -276,6 +276,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Apply `docs/branding.md` tokens to `website/`: final copy (hero line, three feature blurbs), OG/meta tags, favicon.
 - **Done when:** page matches branding doc; Lighthouse a11y ≥ 95.
 - **Depends:** P0-01 · **Est:** 1.5 h
+- **Status:** ✅ DONE 2026-07-20 — full multi-page site rebuilt (Home, Features, Download, Install, Changelog, FAQ) with modern responsive design, glassmorphic nav, scroll animations, and brand tokens; renders verified in Chromium.
 
 ### P4-02 · create website navbar + footer
 - **Do:** Add minimal navbar (logo, Download anchor, GitHub link) and footer (license note, "not affiliated with Mojang/Microsoft" disclaimer — required wording).
@@ -287,6 +288,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Harden the existing releases-API fetch: correct asset selection (`.exe` NSIS), display version + file size, hardcoded fallback URL if API rate-limits/fails.
 - **Done when:** button always yields a working download, with and without API availability.
 - **Depends:** P4-06 (real release to point at) · **Est:** 1 h
+- **Status:** ✅ DONE 2026-07-20 — download buttons resolve the latest Windows installer from the Releases API (size + tag shown) with a static releases-page fallback.
 
 ### P4-04 · deploy the website
 - **Do:** Create Cloudflare Pages project (or GitHub Pages if simpler) building from `website/` on push to main; decide domain (subdomain fine for now) and record in `docs/decisions.md`.

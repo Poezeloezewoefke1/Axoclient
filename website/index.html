@@ -3,69 +3,129 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Axo Client — a clean Minecraft client for Windows</title>
-    <meta
-      name="description"
-      content="Axo Client: a clean, fast Minecraft Java Edition client with HUD, PvP info, and quality-of-life modules. Free download for Windows."
-    />
-    <link rel="stylesheet" href="styles.css" />
+    <title>Axo Client — a clean, fast Minecraft client</title>
+    <meta name="description" content="A clean, high-performance client for Minecraft: Java Edition with balanced PvP tools, bundled performance mods, and a one-click launcher. Free for Windows." />
+    <meta property="og:title" content="Axo Client — a clean, fast Minecraft client" />
+    <meta property="og:description" content="A clean, high-performance client for Minecraft: Java Edition with balanced PvP tools, bundled performance mods, and a one-click launcher. Free for Windows." />
+    <meta property="og:type" content="website" />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>document.documentElement.classList.add('js');</script>
   </head>
   <body>
     <nav class="navbar">
       <div class="navbar-inner">
-        <span class="logo"><img src="logo.png" alt="" class="logo-mark" /><span class="logo-axo">AXO</span><span class="logo-sub">CLIENT</span></span>
-        <div class="nav-links">
-          <a href="#download">Download</a>
-          <a href="https://github.com/Poezeloezewoefke1/Claud" rel="noopener">GitHub</a>
+        <a class="brand" href="index.html">
+          <img src="logo.png" alt="" />
+          <span class="brand-axo">AXO</span><span class="brand-sub">CLIENT</span>
+        </a>
+        <div class="nav-cta">
+          <div class="nav-links" id="navLinks">
+          <a href="index.html" class="active">Home</a>
+          <a href="features.html">Features</a>
+          <a href="download.html">Download</a>
+          <a href="install.html">Install</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="faq.html">FAQ</a>
+          <a href="download.html" class="btn btn-primary btn-sm nav-mobile-cta" style="margin-top:6px">Download</a>
+          </div>
+          <a href="download.html" class="btn btn-primary btn-sm nav-desktop-cta">Download</a>
+          <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
         </div>
       </div>
     </nav>
 
-    <header class="hero" id="download">
-      <img src="logo.png" alt="Axo Client logo" class="hero-mark" />
-      <h1>Minecraft, <span class="accent">sharpened.</span></h1>
-      <p class="hero-sub">
-        A clean, fast client for Minecraft Java Edition — balanced PvP tools, smooth performance,
-        and the quality-of-life features you actually use.
-      </p>
-      <a class="download-button" id="download-button" href="#" data-fallback>
-        Download for Windows
-      </a>
-      <p class="download-meta" id="download-meta">Minecraft 1.21.11 · Fabric-based · Free</p>
+    <header class="hero">
+      <div class="container">
+        <img src="logo.png" alt="Axo Client logo" class="hero-mark" />
+        <span class="pill"><span class="dot"></span>Now available for Minecraft 1.21.11</span>
+        <h1>Minecraft,<br /><span class="accent">sharpened.</span></h1>
+        <p class="hero-sub">
+          Axo Client is a clean, high-performance client for Minecraft: Java Edition.
+          Balanced PvP tools, bundled performance mods, and a launcher that installs
+          everything for you — sign in and press play.
+        </p>
+        <div class="hero-actions">
+          <a href="download.html" class="btn btn-primary btn-lg">Download for Windows</a>
+          <a href="features.html" class="btn btn-ghost btn-lg">Explore features</a>
+        </div>
+        <p class="hero-meta">Free • Fabric-based • Windows • Open updates</p>
+      </div>
     </header>
 
-    <section class="features">
-      <div class="feature-card">
-        <h3>Balanced PvP</h3>
-        <p>
-          CPS counter, keystrokes, and crisp hit feedback — competitive information without
-          crossing the fair-play line. Allowed-on-servers is a feature.
-        </p>
+    <section class="section">
+      <div class="container center">
+        <span class="eyebrow reveal">Why Axo</span>
+        <h2 class="section-title reveal">Everything you need, nothing you don't</h2>
+        <p class="section-sub reveal">A focused feature set that respects fair play — the same line the big clients draw.</p>
+        <div class="grid grid-3">
+          <div class="card reveal">
+            <div class="card-icon">⚔️</div>
+            <h3>Balanced PvP</h3>
+            <p>CPS counter, keystrokes, and crisp combat info — competitive awareness without crossing into cheating. Allowed on servers, by design.</p>
+          </div>
+          <div class="card reveal">
+            <div class="card-icon">⚡</div>
+            <h3>Performance built in</h3>
+            <p>Ships with Sodium and Lithium tuned per Minecraft version and installed for you. Higher FPS, smoother frames, zero mod-folder wrangling.</p>
+          </div>
+          <div class="card reveal">
+            <div class="card-icon">✨</div>
+            <h3>Quality of life</h3>
+            <p>Fullbright, zoom, a fully movable HUD, and an in-game settings screen. Tune it once and it just remembers.</p>
+          </div>
+        </div>
       </div>
-      <div class="feature-card">
-        <h3>Performance built in</h3>
-        <p>
-          Ships with proven Fabric performance mods installed for you, tuned per Minecraft
-          version. No mod-folder maintenance, ever.
-        </p>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container center">
+        <span class="eyebrow reveal">How it works</span>
+        <h2 class="section-title reveal">Playing takes three steps</h2>
+        <div class="steps" style="text-align:left;max-width:760px;margin-left:auto;margin-right:auto">
+          <div class="step reveal"><h3>Download &amp; install</h3><p>Grab the Windows installer and run it. No Java setup, no manual mods — the launcher handles everything.</p></div>
+          <div class="step reveal"><h3>Sign in with Microsoft</h3><p>Log in with your normal Minecraft account. Your session is encrypted and stays signed in.</p></div>
+          <div class="step reveal"><h3>Press play</h3><p>Axo provisions Java, Fabric, and the mods, verifies every file, and launches the game with Axo running.</p></div>
+        </div>
       </div>
-      <div class="feature-card">
-        <h3>Zero-friction updates</h3>
-        <p>
-          Sign in with Microsoft, press Play. The launcher installs the right Java, the right
-          Fabric, the right mods — and keeps them current automatically.
-        </p>
+    </section>
+
+    <section class="section-tight">
+      <div class="container">
+        <div class="cta-band reveal">
+          <h2>Ready to play?</h2>
+          <p>Download Axo Client and be in a modded world in minutes.</p>
+          <a href="download.html" class="btn btn-primary btn-lg">Get Axo Client</a>
+        </div>
       </div>
     </section>
 
     <footer class="footer">
-      <p>
-        Axo Client is not an official Minecraft product and is not affiliated with, or approved by,
-        Mojang or Microsoft. Requires an owned copy of Minecraft: Java Edition.
-      </p>
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a class="brand" href="index.html">
+              <img src="logo.png" alt="" />
+              <span class="brand-axo">AXO</span><span class="brand-sub">CLIENT</span>
+            </a>
+            <p>A clean, fast client for Minecraft: Java Edition — balanced PvP tools, real performance, and the quality-of-life features you actually use.</p>
+          </div>
+          <div class="footer-col">
+            <h4>Product</h4>
+            <a href="index.html">Home</a><a href="features.html">Features</a><a href="download.html">Download</a><a href="install.html">Install</a><a href="changelog.html">Changelog</a><a href="faq.html">FAQ</a>
+          </div>
+          <div class="footer-col">
+            <h4>Project</h4>
+            <a href="https://github.com/Poezeloezewoefke1/Claud" rel="noopener">GitHub</a>
+            <a href="https://github.com/Poezeloezewoefke1/Claud/releases" rel="noopener">Releases</a>
+            <a href="https://github.com/Poezeloezewoefke1/Claud/issues" rel="noopener">Report a bug</a>
+          </div>
+        </div>
+        <div class="footer-legal">
+          © <span data-year>2026</span> Axo Client. Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft. Requires an owned copy of Minecraft: Java Edition. Minecraft is a trademark of Mojang Synergies AB.
+        </div>
+      </div>
     </footer>
-
     <script src="app.js"></script>
   </body>
 </html>
