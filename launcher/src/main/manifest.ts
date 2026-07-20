@@ -13,12 +13,13 @@ import type { ManifestInfo } from '../shared/types'
  * NOTE: raw.githubusercontent.com only serves public repos — the GitHub
  * repository must be public for this fetch (and release-asset downloads)
  * to work outside authenticated browsers.
- * TODO(P3-07): point at the website URL once deployed
- * (https://<site-domain>/manifest/axo-manifest.json) and switch the ref
- * to main once the branch merges.
+ * URLs are tried in order: the GitHub Pages site (canonical, P3-07),
+ * then the repo raw URL as a fallback; switch refs to main on merge.
  */
-const MANIFEST_URL =
+const MANIFEST_URLS = [
+  'https://poezeloezewoefke1.github.io/Claud/manifest/axo-manifest.json',
   'https://raw.githubusercontent.com/Poezeloezewoefke1/Claud/claude/axo-client-architecture-ih525q/manifest/axo-manifest.json'
+]
 
 const FETCH_TIMEOUT_MS = 10_000
 
@@ -72,13 +73,19 @@ function cachePath(): string {
 }
 
 async function fetchRemote(): Promise<AxoManifest> {
-  const response = await fetch(MANIFEST_URL, {
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
-  })
-  if (!response.ok) {
-    throw new Error(`Manifest fetch failed: HTTP ${response.status}`)
+  let lastError: Error = new Error('no manifest URL configured')
+  for (const url of MANIFEST_URLS) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
+      if (!response.ok) {
+        throw new Error(`Manifest fetch failed: HTTP ${response.status} (${url})`)
+      }
+      return manifestSchema.parse(await response.json())
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error))
+    }
   }
-  return manifestSchema.parse(await response.json())
+  throw lastError
 }
 
 async function readCache(): Promise<AxoManifest | null> {

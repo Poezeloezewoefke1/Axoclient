@@ -5,6 +5,7 @@ Work through this top-to-bottom. Anything that fails: copy the error + the relev
 ## 0. One-time prerequisites
 
 - [ ] **Make the GitHub repo public** (Settings → General → Danger Zone → Change visibility). Without this, the launcher's manifest fetch and release downloads 404 for unauthenticated requests — nothing remote will work.
+- [ ] After going public, check the **Deploy Website** action ran green — the download page then lives at https://poezeloezewoefke1.github.io/Claud/ (re-run it from the Actions tab if it failed while the repo was private).
 - [ ] **Finish the client-v0.1.0 release** (two automated attempts failed at the "Create GitHub Release" step; a broken draft may be left over):
   1. Releases page → delete any draft named `client-v0.1.0`.
   2. Actions tab → "Client Release" workflow → **Run workflow** → tag `client-v0.1.0`.

@@ -292,6 +292,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Create Cloudflare Pages project (or GitHub Pages if simpler) building from `website/` on push to main; decide domain (subdomain fine for now) and record in `docs/decisions.md`.
 - **Done when:** public URL serves the page + `/manifest/axo-manifest.json` with correct content-type.
 - **Depends:** P4-01 · **Est:** 1 h
+- **Status:** 🟡 IMPLEMENTED 2026-07-20 — GitHub Pages workflow deploys website/ + manifest on push (pages.yml); goes live once the repo is public. Launcher prefers the Pages manifest URL with raw fallback.
 
 ### P4-05 · CI: build client jar on tag
 - **Do:** `.github/workflows/client-release.yml`: on tag `client-v*` → JDK 21, `./gradlew build`, attach jar + sha1 file to a GitHub Release.
