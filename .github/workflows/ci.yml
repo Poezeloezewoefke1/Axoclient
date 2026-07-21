@@ -65,6 +65,19 @@ jobs:
               | jq -c '.[0] | {id, version_number, file: (.files[0] | {url, sha1: .hashes.sha1, size})}' || true
           done
       - run: ./gradlew build --no-daemon
+      - name: Dump Screen/GuiEventListener signatures (diagnostic)
+        if: always()
+        run: |
+          JAR=$(find ~/.gradle -name "*.jar" 2>/dev/null | while read j; do
+            if unzip -l "$j" 2>/dev/null | grep -q "net/minecraft/client/gui/screens/Screen.class"; then echo "$j"; break; fi
+          done)
+          echo "jar with Screen.class: $JAR"
+          if [ -n "$JAR" ]; then
+            echo "===== Screen ====="
+            javap -p -classpath "$JAR" net.minecraft.client.gui.screens.Screen 2>/dev/null | grep -iE "mouse|keyPressed|charTyped|public .*render|isPauseScreen" || true
+            echo "===== GuiEventListener ====="
+            javap -p -classpath "$JAR" net.minecraft.client.gui.components.events.GuiEventListener 2>/dev/null | grep -iE "mouse|key|char" || true
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: axoclient-jar
