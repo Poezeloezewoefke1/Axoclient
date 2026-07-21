@@ -36,6 +36,28 @@ public abstract class HudModule extends AxoModule implements HudRenderable {
         return position;
     }
 
+    /** Current placement — read by the HUD editor to draw the drag handle. */
+    public final HudPosition currentPosition() {
+        return position;
+    }
+
+    /** Non-null preview label for the HUD editor (falls back to the module name). */
+    public String editorLabel() {
+        String text = hudText();
+        return text != null ? text : displayName();
+    }
+
+    /** Applies a new placement live and persists it (used by the HUD editor). */
+    public final void moveTo(HudPosition next) {
+        this.position = next;
+        next.save(ModuleManager.get().config(), id());
+    }
+
+    /** Restores the built-in default placement (HUD editor "reset"). */
+    public final void resetPosition() {
+        moveTo(defaultPosition);
+    }
+
     /** Re-reads hud_anchor/hud_x/hud_y from config (used by the HUD layout screen). */
     public final void reloadPosition() {
         position = HudPosition.load(ModuleManager.get().config(), id(), defaultPosition);

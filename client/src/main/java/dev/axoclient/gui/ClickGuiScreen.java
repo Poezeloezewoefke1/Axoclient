@@ -12,6 +12,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
@@ -121,8 +122,14 @@ public final class ClickGuiScreen extends Screen {
         GuiRender.outline(g, tx, TOPBAR_Y, 44, 16, theme.outline);
         GuiRender.centered(g, theme.dark ? "Dark" : "Light", tx + 22, TOPBAR_Y + 4, theme.text);
 
+        // HUD editor button
+        int hx = tx + 54;
+        GuiRender.rect(g, hx, TOPBAR_Y, 42, 16, theme.panel);
+        GuiRender.outline(g, hx, TOPBAR_Y, 42, 16, theme.outline);
+        GuiRender.centered(g, "HUD", hx + 21, TOPBAR_Y + 4, theme.text);
+
         // Accent swatches
-        int ax = tx + 54;
+        int ax = hx + 52;
         for (int i = 0; i < Themes.ACCENT_SWATCHES.length; i++) {
             int x = ax + i * (SWATCH + 4);
             int c = Themes.ACCENT_SWATCHES[i];
@@ -187,8 +194,15 @@ public final class ClickGuiScreen extends Screen {
             return true;
         }
 
+        // HUD editor button
+        int hx = tx + 54;
+        if (GuiRender.inside(mx, my, hx, TOPBAR_Y, 42, 16)) {
+            Minecraft.getInstance().setScreen(new HudEditorScreen());
+            return true;
+        }
+
         // Accent swatches
-        int ax = tx + 54;
+        int ax = hx + 52;
         for (int i = 0; i < Themes.ACCENT_SWATCHES.length; i++) {
             int x = ax + i * (SWATCH + 4);
             if (GuiRender.inside(mx, my, x, TOPBAR_Y + 1, SWATCH, SWATCH)) {
