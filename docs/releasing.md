@@ -42,6 +42,15 @@ Axo *distribution* versions (what users pick in the launcher) are manifest `Vers
 3. CI (Windows runner) typechecks, builds, and publishes the NSIS installer **and `latest.yml`** to a GitHub Release — `latest.yml` is what electron-updater consumes (P3-02); never delete it from a release.
 4. If the new launcher is a required upgrade, raise `launcher.minimumVersion` in the manifest in a follow-up PR.
 
+> **Producing the first `.exe`.** The tag push (step 2) is the trigger. If you
+> can't push a tag from your environment, either (a) run the **Launcher
+> Release** workflow from the repo's **Actions** tab (the `workflow_dispatch`
+> button — available once this workflow is on `main`), or (b) create the tag
+> via GitHub's **Releases → Draft a new release → choose a new tag** UI. The
+> resulting `.exe` (`Axo Launcher Setup X.Y.Z.exe`) is attached to a GitHub
+> Release. For anyone other than the repo owner to download it, the repo must
+> be **public**.
+
 ### Promotion & rollback
 
 - New Minecraft versions or risky changes land in the `beta` channel first (added in P6-04); promotion to `stable` is a manifest edit moving/copying the Version entry.

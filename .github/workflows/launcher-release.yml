@@ -6,6 +6,9 @@ name: Launcher Release
 on:
   push:
     tags: ['launcher-v*']
+  # Manual trigger from the Actions tab (once this workflow is on the default
+  # branch) — lets you build the Windows installer without pushing a tag.
+  workflow_dispatch:
 
 permissions:
   contents: write
