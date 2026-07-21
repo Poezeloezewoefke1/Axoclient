@@ -67,7 +67,7 @@ public final class UpdateChecker {
                 return;
             }
             Release release = latest.get();
-            if (!isNewer(release.version(), current)) {
+            if (!Versions.isNewer(release.version(), current)) {
                 AxoClient.LOGGER.info("Axo Client is up to date ({})", current);
                 return;
             }
@@ -199,36 +199,6 @@ public final class UpdateChecker {
             }
         }
         return Optional.empty();
-    }
-
-    /** True when {@code candidate} is a strictly higher dotted version than {@code current}. */
-    static boolean isNewer(String candidate, String current) {
-        int[] a = parseVersion(candidate);
-        int[] b = parseVersion(current);
-        int len = Math.max(a.length, b.length);
-        for (int i = 0; i < len; i++) {
-            int av = i < a.length ? a[i] : 0;
-            int bv = i < b.length ? b[i] : 0;
-            if (av != bv) {
-                return av > bv;
-            }
-        }
-        return false;
-    }
-
-    private static int[] parseVersion(String version) {
-        // Numeric dotted parts only; drop any build/pre-release suffix (e.g. "1.2.0+build").
-        String core = version.split("[-+]", 2)[0];
-        String[] parts = core.split("\\.");
-        int[] out = new int[parts.length];
-        for (int i = 0; i < parts.length; i++) {
-            try {
-                out[i] = Integer.parseInt(parts[i].trim());
-            } catch (NumberFormatException e) {
-                out[i] = 0;
-            }
-        }
-        return out;
     }
 
     private record Release(String version, String url, String sha1) {
