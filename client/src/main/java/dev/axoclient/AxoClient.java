@@ -10,6 +10,7 @@ import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ZoomModule;
 import dev.axoclient.gui.ClickGuiScreen;
 import dev.axoclient.input.Keybinds;
+import dev.axoclient.update.UpdateChecker;
 import dev.axoclient.util.Keys;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -39,6 +40,9 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new FullbrightModule());
         modules.register(new ZoomModule());
         // New modules register here and nowhere else (see docs/architecture.md).
+
+        // In-game update check: notifies if the manifest advertises a newer build.
+        UpdateChecker.runAsync(config);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             modules.tickAll();
