@@ -31,9 +31,15 @@ export interface DownloadOptions {
   /** Total attempts including the first (default 2 = one retry). */
   attempts?: number
   timeoutMs?: number
+  /** Base backoff before the first retry; doubles each attempt (default 500ms). */
+  retryDelayMs?: number
   /** Called as bytes arrive (throttled by the caller if needed). */
   onProgress?: (progress: FileProgress) => void
+  /** Observability hook fired before each backoff sleep (used by tests/UI). */
+  onRetry?: (info: { attempt: number; delayMs: number; error: Error }) => void
 }
+
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** A bare string means sha1 (the manifest's hash); Adoptium et al. use sha256. */
 export type ExpectedHash = string | { algorithm: 'sha1' | 'sha256'; value: string }
@@ -75,6 +81,7 @@ export async function downloadFile(
 ): Promise<void> {
   const attempts = options.attempts ?? 2
   const timeoutMs = options.timeoutMs ?? 60_000
+  const retryDelayMs = options.retryDelayMs ?? 500
   const expected =
     typeof expectedHash === 'string' ? { algorithm: 'sha1' as const, value: expectedHash } : expectedHash
   let lastError: Error = new Error('download not attempted')
@@ -104,6 +111,13 @@ export async function downloadFile(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
       await rm(`${dest}.part`, { force: true })
+      if (attempt < attempts) {
+        // Exponential backoff so transient 503s / rate limits get room to
+        // recover instead of hammering the CDN with instant retries.
+        const delayMs = retryDelayMs * 2 ** (attempt - 1)
+        options.onRetry?.({ attempt, delayMs, error: lastError })
+        await sleep(delayMs)
+      }
     }
   }
   throw lastError

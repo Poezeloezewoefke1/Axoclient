@@ -61,7 +61,14 @@ export async function launchGame(
   await syncModsFolder(
     settings.installDir,
     version,
-    (event) => onProgress({ stage: 'mods', detail: `${event.action} ${event.file}` }),
+    (event) =>
+      onProgress({
+        stage: 'mods',
+        detail:
+          event.action === 'retry'
+            ? `retrying ${event.file} (attempt ${event.attempt} failed, waiting ${event.delayMs}ms)`
+            : `${event.action} ${event.file}`
+      }),
     (p) =>
       onProgress({
         stage: 'mods',

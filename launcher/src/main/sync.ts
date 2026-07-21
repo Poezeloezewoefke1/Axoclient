@@ -19,7 +19,10 @@ export interface DesiredFile {
 
 export interface SyncEvent {
   file: string
-  action: 'download' | 'keep' | 'remove'
+  action: 'download' | 'keep' | 'remove' | 'retry'
+  /** Present on 'retry': which attempt just failed and the backoff before the next. */
+  attempt?: number
+  delayMs?: number
 }
 
 /** Live transfer stats for the file currently downloading. */
@@ -58,6 +61,13 @@ export async function syncDirectory(
       onEvent?.({ file: file.fileName, action: 'download' })
       const tracker = new RateTracker()
       await downloadFile(file.url, path, file.sha1, {
+        onRetry: (info) =>
+          onEvent?.({
+            file: file.fileName,
+            action: 'retry',
+            attempt: info.attempt,
+            delayMs: info.delayMs
+          }),
         onProgress: onProgress
           ? (p) => {
               const now = Date.now()
