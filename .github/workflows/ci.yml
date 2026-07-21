@@ -65,7 +65,7 @@ jobs:
               | jq -c '.[0] | {id, version_number, file: (.files[0] | {url, sha1: .hashes.sha1, size})}' || true
           done
       - run: ./gradlew build --no-daemon
-      - name: Dump Screen/GuiEventListener signatures (diagnostic)
+      - name: Dump MouseButtonInfo signature (diagnostic)
         if: always()
         run: |
           JAR=$(find ~/.gradle -name "*.jar" 2>/dev/null | while read j; do
@@ -73,13 +73,8 @@ jobs:
           done)
           echo "jar with Screen.class: $JAR"
           if [ -n "$JAR" ]; then
-            for cls in \
-              net.minecraft.client.input.MouseButtonEvent \
-              net.minecraft.client.input.KeyEvent \
-              net.minecraft.client.input.CharacterEvent; do
-              echo "===== $cls ====="
-              javap -p -classpath "$JAR" "$cls" 2>/dev/null || echo "(not found)"
-            done
+            echo "===== net.minecraft.client.input.MouseButtonInfo ====="
+            javap -p -classpath "$JAR" net.minecraft.client.input.MouseButtonInfo 2>/dev/null || echo "(not found)"
           fi
       - uses: actions/upload-artifact@v4
         with:

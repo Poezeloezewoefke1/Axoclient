@@ -14,6 +14,9 @@ import java.util.Locale;
 import java.util.Map;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -166,7 +169,10 @@ public final class ClickGuiScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mx = event.x();
+        double my = event.y();
+        int button = event.buttonInfo().button();
         // Search box
         if (GuiRender.inside(mx, my, 12, TOPBAR_Y, 170, 16)) {
             searchFocused = true;
@@ -215,22 +221,24 @@ public final class ClickGuiScreen extends Screen {
                 ry += ROW_H;
             }
         }
-        return super.mouseClicked(mx, my, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (dragging != null) {
+            double mx = event.x();
+            double my = event.y();
             int[] pos = panelPos.get(dragging);
             pos[0] = Math.max(0, Math.min(this.width - PANEL_W, (int) mx - dragOffX));
             pos[1] = Math.max(28, Math.min(this.height - 24, (int) my - dragOffY));
             return true;
         }
-        return super.mouseDragged(mx, my, button, dx, dy);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         if (dragging != null) {
             int[] pos = panelPos.get(dragging);
             ModuleManager.get().config().setModuleInt(key(dragging), "x", pos[0]);
@@ -238,11 +246,12 @@ public final class ClickGuiScreen extends Screen {
             dragging = null;
             return true;
         }
-        return super.mouseReleased(mx, my, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
         if (awaitingBind != null) {
             Keybinds.setKey(awaitingBind, keyCode == GLFW.GLFW_KEY_ESCAPE ? -1 : keyCode);
             awaitingBind = null;
@@ -260,16 +269,16 @@ public final class ClickGuiScreen extends Screen {
                 return true;
             }
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean charTyped(char chr, int modifiers) {
-        if (searchFocused && chr >= ' ') {
-            search += chr;
+    public boolean charTyped(CharacterEvent event) {
+        if (searchFocused && event.codepoint() >= ' ') {
+            search += event.codepointAsString();
             return true;
         }
-        return super.charTyped(chr, modifiers);
+        return super.charTyped(event);
     }
 
     @Override
