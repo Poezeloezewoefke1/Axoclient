@@ -138,7 +138,9 @@ export default function App(): React.JSX.Element {
             </button>
           </div>
         )}
-        {screen === 'home' && <HomeScreen />}
+        {screen === 'home' && (
+          <HomeScreen onGoToVersions={() => setScreen('versions')} username={session.username} />
+        )}
         {screen === 'versions' && <VersionsScreen />}
         {screen === 'settings' && <SettingsScreen />}
       </main>

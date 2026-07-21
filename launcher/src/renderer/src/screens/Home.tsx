@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import type { GameProgress, ManifestInfo } from '../../../shared/types'
+import { useCallback, useEffect, useState } from 'react'
+import type { GameProgress, ManifestInfo, VersionStatus } from '../../../shared/types'
 import { formatBytes, formatDuration, formatSpeed } from '../../../shared/format'
 
 const STAGE_LABELS: Record<GameProgress['stage'], string> = {
@@ -12,13 +12,35 @@ const STAGE_LABELS: Record<GameProgress['stage'], string> = {
   closed: 'Play'
 }
 
-export default function HomeScreen(): React.JSX.Element {
+const STATE_LABEL: Record<VersionStatus['state'], string> = {
+  installed: 'Installed',
+  partial: 'Needs repair',
+  'not-installed': 'Not installed'
+}
+
+export default function HomeScreen({
+  onGoToVersions,
+  username
+}: {
+  onGoToVersions: () => void
+  username: string
+}): React.JSX.Element {
   const [manifest, setManifest] = useState<ManifestInfo | null>(null)
   const [manifestError, setManifestError] = useState<string | null>(null)
   const [channel, setChannel] = useState('stable')
   const [versionId, setVersionId] = useState<string | null>(null)
   const [progress, setProgress] = useState<GameProgress | null>(null)
   const [launchError, setLaunchError] = useState<string | null>(null)
+  const [statuses, setStatuses] = useState<VersionStatus[] | null>(null)
+  const [repairMsg, setRepairMsg] = useState<string | null>(null)
+  const [repairing, setRepairing] = useState(false)
+
+  const refreshStatuses = useCallback(() => {
+    window.axo
+      .listVersions()
+      .then(setStatuses)
+      .catch(() => undefined)
+  }, [])
 
   useEffect(() => {
     window.axo
@@ -33,6 +55,7 @@ export default function HomeScreen(): React.JSX.Element {
       .catch((e: unknown) => {
         setManifestError(e instanceof Error ? e.message : 'Could not load version list.')
       })
+    refreshStatuses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -40,19 +63,24 @@ export default function HomeScreen(): React.JSX.Element {
     () =>
       window.axo.onGameProgress((p) => {
         setProgress(p)
+        if (p.stage === 'closed') {
+          refreshStatuses()
+        }
         if (p.stage === 'closed' && p.detail?.startsWith('crash')) {
           setLaunchError(
             p.detail === 'crash-boot'
-              ? 'Minecraft crashed while starting. Check the game logs (Settings → Open log folder) — if it keeps happening, use Repair installation.'
-              : 'Minecraft crashed. Check the game logs via Settings → Open log folder.'
+              ? 'Minecraft crashed while starting. Check the game logs (Open logs below) — if it keeps happening, use Repair.'
+              : 'Minecraft crashed. Check the game logs via Open logs below.'
           )
         }
       }),
-    []
+    [refreshStatuses]
   )
 
   const busy = progress !== null && progress.stage !== 'closed'
   const versions = manifest?.channels[channel]?.versions ?? []
+  const selectedStatus = statuses?.find((s) => s.id === versionId) ?? null
+  const needsInstall = selectedStatus === null || selectedStatus.state !== 'installed'
 
   const play = (): void => {
     if (!versionId) {
@@ -66,10 +94,30 @@ export default function HomeScreen(): React.JSX.Element {
     })
   }
 
+  const repair = (): void => {
+    setRepairing(true)
+    setRepairMsg('Repairing…')
+    window.axo
+      .repair()
+      .then((r) =>
+        setRepairMsg(`Repaired — ${r.downloaded} restored, ${r.kept} intact, ${r.removed} removed`)
+      )
+      .catch((e: unknown) => setRepairMsg(e instanceof Error ? e.message : 'Repair failed — see logs.'))
+      .finally(() => {
+        setRepairing(false)
+        refreshStatuses()
+      })
+  }
+
+  const playLabel = busy && progress ? STAGE_LABELS[progress.stage] : needsInstall ? 'Install & Play' : 'Play'
+
   return (
     <div className="home-screen">
       <header className="home-header">
-        <h1>Ready to play</h1>
+        <div>
+          <p className="home-greeting">Welcome back, {username}</p>
+          <h1>Ready to play</h1>
+        </div>
         {manifest?.stale && (
           <span className="stale-badge" title="Showing cached version list — network unavailable">
             offline data
@@ -97,11 +145,7 @@ export default function HomeScreen(): React.JSX.Element {
         <div className="version-row">
           <label>
             Channel
-            <select
-              value={channel}
-              disabled={busy}
-              onChange={(e) => setChannel(e.target.value)}
-            >
+            <select value={channel} disabled={busy} onChange={(e) => setChannel(e.target.value)}>
               {Object.keys(manifest?.channels ?? { stable: null }).map((name) => (
                 <option key={name} value={name}>
                   {name}
@@ -123,6 +167,11 @@ export default function HomeScreen(): React.JSX.Element {
               ))}
             </select>
           </label>
+          {selectedStatus && (
+            <span className={`state-badge state-${selectedStatus.state}`}>
+              {STATE_LABEL[selectedStatus.state]}
+            </span>
+          )}
         </div>
 
         <button
@@ -130,8 +179,9 @@ export default function HomeScreen(): React.JSX.Element {
           disabled={!versionId || busy || manifest?.forcedUpdate}
           onClick={play}
         >
-          {busy && progress ? STAGE_LABELS[progress.stage] : 'Play'}
+          {playLabel}
         </button>
+
         {busy && progress && progress.received !== undefined && (
           <div className="progress">
             <div className="progress-bar">
@@ -158,6 +208,7 @@ export default function HomeScreen(): React.JSX.Element {
             </div>
           </div>
         )}
+
         {progress?.stage === 'running' && (
           <button
             className="link-button"
@@ -170,12 +221,26 @@ export default function HomeScreen(): React.JSX.Element {
             Force close game
           </button>
         )}
+
         <p className="muted">
           {busy && progress?.detail
             ? progress.detail
             : versions.find((v) => v.id === versionId)?.notes ?? 'Select a version to play.'}
         </p>
       </div>
+
+      <div className="quick-actions">
+        <button className="btn-secondary" onClick={repair} disabled={busy || repairing}>
+          {repairing ? 'Repairing…' : 'Repair install'}
+        </button>
+        <button className="btn-secondary" onClick={() => void window.axo.openLogs()}>
+          Open logs
+        </button>
+        <button className="btn-secondary" onClick={onGoToVersions} disabled={busy}>
+          Manage versions
+        </button>
+      </div>
+      {repairMsg && <p className="muted repair-msg">{repairMsg}</p>}
     </div>
   )
 }
