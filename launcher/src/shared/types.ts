@@ -32,6 +32,19 @@ export interface UpdateStatus {
   version: string
 }
 
+export type VersionState = 'installed' | 'partial' | 'not-installed'
+
+export interface VersionStatus {
+  id: string
+  mcVersion: string
+  channel: string
+  state: VersionState
+  presentFiles: number
+  expectedFiles: number
+  missing: string[]
+  corrupted: string[]
+}
+
 export type GameStage =
   | 'preparing'
   | 'java'

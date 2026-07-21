@@ -5,6 +5,7 @@ import { syncModsFolder } from './install'
 import { getSession, initAuth, loginWithMicrosoft, logout, restoreSession } from './auth'
 import { SettingsStore } from './settings'
 import { forceCloseGame, launchGame } from './launch'
+import { deleteVersion, listVersions } from './versions'
 import { initLogger, logDirectory, logLine, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
@@ -155,6 +156,51 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.handle('game:forceClose', () => forceCloseGame())
+
+  // ---- Version management ----
+  ipcMain.handle('versions:list', async () => {
+    const { manifest } = await getManifest()
+    return listVersions(settings.get().installDir, manifest)
+  })
+
+  ipcMain.handle('versions:install', async (event, versionId: string) => {
+    const { manifest } = await getManifest()
+    const version = Object.values(manifest.channels)
+      .flatMap((c) => c.versions)
+      .find((v) => v.id === versionId)
+    if (!version) {
+      throw friendlyError(new Error(`Unknown version id: ${versionId}`))
+    }
+    const sender = BrowserWindow.fromWebContents(event.sender)
+    logLine('versions', `installing ${versionId}`)
+    try {
+      const result = await syncModsFolder(
+        settings.get().installDir,
+        version,
+        undefined,
+        (p) =>
+          sender?.webContents.send('game:progress', {
+            stage: 'mods',
+            detail: p.file,
+            received: p.received,
+            total: p.total,
+            bytesPerSecond: p.bytesPerSecond,
+            etaSeconds: p.etaSeconds
+          })
+      )
+      sender?.webContents.send('game:progress', { stage: 'closed' })
+      return { downloaded: result.downloaded.length, kept: result.kept.length, removed: result.removed.length }
+    } catch (error) {
+      sender?.webContents.send('game:progress', { stage: 'closed' })
+      logLine('versions', `install failed: ${error instanceof Error ? error.message : error}`)
+      throw friendlyError(error)
+    }
+  })
+
+  ipcMain.handle('versions:delete', async (_event, versionId: string) => {
+    logLine('versions', `deleting ${versionId}`)
+    await deleteVersion(settings.get().installDir, versionId)
+  })
 
   ipcMain.handle('logs:open', () => {
     const dir = logDirectory()

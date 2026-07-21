@@ -1,5 +1,5 @@
-import { join } from 'node:path'
 import type { AxoManifest } from './manifest'
+import { instanceModsDir } from './paths'
 import {
   syncDirectory,
   type DesiredFile,
@@ -32,11 +32,17 @@ export function desiredModFiles(version: ManifestVersion): DesiredFile[] {
   return files
 }
 
+/** Sync a version's mods into its own instance folder (per-version isolation). */
 export async function syncModsFolder(
-  gameRoot: string,
+  installDir: string,
   version: ManifestVersion,
   onEvent?: (event: SyncEvent) => void,
   onProgress?: (progress: SyncProgress) => void
 ): Promise<SyncResult> {
-  return syncDirectory(join(gameRoot, 'mods'), desiredModFiles(version), onEvent, onProgress)
+  return syncDirectory(
+    instanceModsDir(installDir, version.id),
+    desiredModFiles(version),
+    onEvent,
+    onProgress
+  )
 }

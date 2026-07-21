@@ -376,6 +376,8 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 
 ---
 
+> **Launcher multi-version management (2026-07-20):** implemented per-version instance directories (shared vanilla files under root, isolated `mods/`+saves per version via MCLC `overrides.gameDirectory`). A Versions screen lists every manifest version with a live installed/partial/not-installed state, file counts, and Install / Update-Repair / Delete actions. `versions.ts` (detect, verify-by-hash, delete) is unit-tested; the launch and install pipeline now install into the instance folder.
+
 ## Phase 6 — Multi-version groundwork (6 tasks) → M4
 
 ### P6-01 · audit client code for version coupling

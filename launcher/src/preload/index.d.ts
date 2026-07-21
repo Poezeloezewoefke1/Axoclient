@@ -3,8 +3,11 @@ import type {
   GameProgress,
   ManifestInfo,
   SessionInfo,
-  UpdateStatus
+  UpdateStatus,
+  VersionStatus
 } from '../shared/types'
+
+type SyncCounts = { downloaded: number; kept: number; removed: number }
 
 declare global {
   interface Window {
@@ -22,7 +25,10 @@ declare global {
       onGameProgress(callback: (progress: GameProgress) => void): () => void
       installUpdate(): Promise<void>
       openLogs(): Promise<void>
-      repair(): Promise<{ downloaded: number; kept: number; removed: number }>
+      repair(): Promise<SyncCounts>
+      listVersions(): Promise<VersionStatus[]>
+      installVersion(versionId: string): Promise<SyncCounts>
+      deleteVersion(versionId: string): Promise<void>
       onUpdateStatus(callback: (status: UpdateStatus) => void): () => void
     }
   }

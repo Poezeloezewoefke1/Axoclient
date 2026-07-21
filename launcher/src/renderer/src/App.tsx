@@ -3,9 +3,10 @@ import logoUrl from './assets/logo.png'
 import HomeScreen from './screens/Home'
 import LoginScreen from './screens/Login'
 import SettingsScreen from './screens/Settings'
+import VersionsScreen from './screens/Versions'
 import type { AxoSettings, SessionInfo, UpdateStatus } from '../../shared/types'
 
-type Screen = 'home' | 'settings'
+type Screen = 'home' | 'versions' | 'settings'
 
 export default function App(): React.JSX.Element {
   const [screen, setScreen] = useState<Screen>('home')
@@ -65,6 +66,12 @@ export default function App(): React.JSX.Element {
             onClick={() => setScreen('home')}
           >
             Play
+          </button>
+          <button
+            className={screen === 'versions' ? 'nav-item active' : 'nav-item'}
+            onClick={() => setScreen('versions')}
+          >
+            Versions
           </button>
           <button
             className={screen === 'settings' ? 'nav-item active' : 'nav-item'}
@@ -131,7 +138,9 @@ export default function App(): React.JSX.Element {
             </button>
           </div>
         )}
-        {screen === 'home' ? <HomeScreen /> : <SettingsScreen />}
+        {screen === 'home' && <HomeScreen />}
+        {screen === 'versions' && <VersionsScreen />}
+        {screen === 'settings' && <SettingsScreen />}
       </main>
     </div>
   )

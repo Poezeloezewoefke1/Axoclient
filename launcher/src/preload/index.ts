@@ -4,8 +4,11 @@ import type {
   GameProgress,
   ManifestInfo,
   SessionInfo,
-  UpdateStatus
+  UpdateStatus,
+  VersionStatus
 } from '../shared/types'
+
+type SyncCounts = { downloaded: number; kept: number; removed: number }
 
 /** The only surface the renderer can call. Keep it small and typed. */
 const api = {
@@ -28,8 +31,12 @@ const api = {
   },
   installUpdate: (): Promise<void> => ipcRenderer.invoke('update:install'),
   openLogs: (): Promise<void> => ipcRenderer.invoke('logs:open'),
-  repair: (): Promise<{ downloaded: number; kept: number; removed: number }> =>
-    ipcRenderer.invoke('game:repair'),
+  repair: (): Promise<SyncCounts> => ipcRenderer.invoke('game:repair'),
+  listVersions: (): Promise<VersionStatus[]> => ipcRenderer.invoke('versions:list'),
+  installVersion: (versionId: string): Promise<SyncCounts> =>
+    ipcRenderer.invoke('versions:install', versionId),
+  deleteVersion: (versionId: string): Promise<void> =>
+    ipcRenderer.invoke('versions:delete', versionId),
   onUpdateStatus: (callback: (status: UpdateStatus) => void): (() => void) => {
     const listener = (_event: IpcRendererEvent, status: UpdateStatus): void => callback(status)
     ipcRenderer.on('update:status', listener)

@@ -6,6 +6,7 @@ import type { AxoSettings, GameProgress } from '../shared/types'
 import { ensureJava } from './java'
 import { installFabricProfile } from './fabricProfile'
 import { syncModsFolder } from './install'
+import { instanceDir } from './paths'
 import { createGameLog, logLine } from './logger'
 
 /**
@@ -96,6 +97,11 @@ export async function launchGame(
     memory: {
       max: `${settings.ramMb}M`,
       min: '1024M'
+    },
+    // Per-version game dir so each version's mods and saves stay isolated,
+    // while libraries/assets/versions remain shared under root.
+    overrides: {
+      gameDirectory: instanceDir(settings.installDir, version.id)
     },
     customArgs: settings.jvmArgs ? settings.jvmArgs.split(/\s+/).filter(Boolean) : undefined
   } as LaunchOptions

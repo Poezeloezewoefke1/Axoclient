@@ -396,6 +396,122 @@ nav {
   margin-bottom: 24px;
 }
 
+/* ---- Versions screen ---- */
+
+.versions-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.versions-head h1 {
+  font-size: 26px;
+}
+
+.version-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.version-row-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--axo-surface);
+  border: 1px solid var(--axo-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.version-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.version-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.version-sub {
+  font-size: 12.5px;
+  margin-top: 4px;
+}
+
+.version-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.state-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--axo-border);
+}
+
+.state-installed {
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.state-partial {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.state-not-installed {
+  color: var(--axo-text-muted);
+}
+
+.btn-secondary {
+  background: var(--axo-blue);
+  color: var(--axo-black);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--axo-blue-dim);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.link-button.danger {
+  color: var(--axo-error);
+}
+
+.note-box {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--axo-text-muted);
+  background: var(--axo-surface);
+  border: 1px solid var(--axo-border-soft, var(--axo-border));
+  border-left: 3px solid var(--axo-blue);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
 .settings-group {
   background: var(--axo-surface);
   border: 1px solid var(--axo-border);
