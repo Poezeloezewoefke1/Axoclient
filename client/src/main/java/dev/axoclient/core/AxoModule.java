@@ -45,4 +45,9 @@ public abstract class AxoModule {
     /** Called once per client tick while enabled (wired in roadmap task P1-03). */
     public void onTick() {
     }
+
+    /** Default GLFW toggle key, or -1 for none. Overridable; users can rebind. */
+    public int defaultToggleKey() {
+        return -1;
+    }
 }

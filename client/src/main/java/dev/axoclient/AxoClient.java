@@ -8,7 +8,8 @@ import dev.axoclient.modules.hud.FpsHudModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
 import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ZoomModule;
-import dev.axoclient.ui.AxoSettingsScreen;
+import dev.axoclient.gui.ClickGuiScreen;
+import dev.axoclient.input.Keybinds;
 import dev.axoclient.util.Keys;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -41,11 +42,12 @@ public final class AxoClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             modules.tickAll();
+            Keybinds.tick();
 
-            // Right Shift opens the settings screen (rebindable with P1-05).
+            // Right Shift opens the ClickGUI.
             boolean down = Keys.isDown(GLFW.GLFW_KEY_RIGHT_SHIFT);
             if (down && !settingsKeyWasDown && client.screen == null) {
-                client.setScreen(new AxoSettingsScreen());
+                client.setScreen(new ClickGuiScreen());
             }
             settingsKeyWasDown = down;
         });

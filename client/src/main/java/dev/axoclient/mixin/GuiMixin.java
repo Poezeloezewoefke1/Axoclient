@@ -1,6 +1,7 @@
 package dev.axoclient.mixin;
 
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.gui.notify.Notifications;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
@@ -20,5 +21,6 @@ public abstract class GuiMixin {
     @Inject(method = "render", at = @At("TAIL"))
     private void axoclient$renderHud(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         ModuleManager.get().renderHud(graphics);
+        Notifications.render(graphics, graphics.guiWidth());
     }
 }

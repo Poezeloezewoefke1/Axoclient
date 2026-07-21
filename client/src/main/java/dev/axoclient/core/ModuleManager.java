@@ -72,6 +72,11 @@ public final class ModuleManager {
             module.onDisable();
         }
         config.setEnabled(module.id(), state);
+        dev.axoclient.gui.notify.Notifications.push(
+            module.displayName() + (state ? " enabled" : " disabled"),
+            state ? dev.axoclient.gui.notify.Notification.Type.SUCCESS
+                  : dev.axoclient.gui.notify.Notification.Type.INFO
+        );
     }
 
     public void toggle(AxoModule module) {

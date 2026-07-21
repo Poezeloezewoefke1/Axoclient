@@ -70,12 +70,29 @@ public final class AxoConfig {
         return fallback;
     }
 
+    public boolean getModuleBool(String moduleId, String key, boolean fallback) {
+        JsonObject section = moduleSection(moduleId, false);
+        try {
+            if (section != null && section.has(key)) {
+                return section.get(key).getAsBoolean();
+            }
+        } catch (RuntimeException e) {
+            AxoClient.LOGGER.warn("Bad config value {}.{}, using default", moduleId, key);
+        }
+        return fallback;
+    }
+
     public void setModuleString(String moduleId, String key, String value) {
         moduleSection(moduleId, true).addProperty(key, value);
         save();
     }
 
     public void setModuleInt(String moduleId, String key, int value) {
+        moduleSection(moduleId, true).addProperty(key, value);
+        save();
+    }
+
+    public void setModuleBool(String moduleId, String key, boolean value) {
         moduleSection(moduleId, true).addProperty(key, value);
         save();
     }
