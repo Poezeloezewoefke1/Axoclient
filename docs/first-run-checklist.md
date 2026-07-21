@@ -5,7 +5,7 @@ Work through this top-to-bottom. Anything that fails: copy the error + the relev
 ## 0. One-time prerequisites
 
 - [ ] **Make the GitHub repo public** (Settings → General → Danger Zone → Change visibility). Without this, the launcher's manifest fetch and release downloads 404 for unauthenticated requests — nothing remote will work.
-- [ ] After going public, check the **Deploy Website** action ran green — the download page then lives at https://poezeloezewoefke1.github.io/Claud/ (re-run it from the Actions tab if it failed while the repo was private).
+- [ ] After going public, check the **Deploy Website** action ran green — the download page then lives at https://poezeloezewoefke1.github.io/Axoclient/ (re-run it from the Actions tab if it failed while the repo was private).
 - [ ] ~~Finish the client-v0.1.0 release~~ **DONE** — `client-v0.1.0` is published with `axoclient-0.1.0.jar`, and the manifest carries its real sha1. Optional tidy-up: the Releases page still shows one leftover *draft* from a failed attempt — delete it (it is invisible to users either way).
 - [ ] Install **JDK 21** (Temurin: https://adoptium.net) and **Node 20+** (https://nodejs.org).
 - [ ] `git clone` the repo and check out branch `claude/axo-client-architecture-ih525q`.

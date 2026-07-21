@@ -6,7 +6,7 @@
   "description": "Axo Client — HUD, PvP info, and quality-of-life modules for Minecraft Java Edition.",
   "authors": ["Axo Client"],
   "contact": {
-    "sources": "https://github.com/Poezeloezewoefke1/Claud"
+    "sources": "https://github.com/Poezeloezewoefke1/Axoclient"
   },
   "license": "All-Rights-Reserved",
   "environment": "client",

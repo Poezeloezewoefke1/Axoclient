@@ -18,8 +18,8 @@ import type { ManifestInfo } from '../shared/types'
  * then the repo raw URL as a fallback; switch refs to main on merge.
  */
 const MANIFEST_URLS = [
-  'https://poezeloezewoefke1.github.io/Claud/manifest/axo-manifest.json',
-  'https://raw.githubusercontent.com/Poezeloezewoefke1/Claud/claude/axo-client-architecture-ih525q/manifest/axo-manifest.json'
+  'https://poezeloezewoefke1.github.io/Axoclient/manifest/axo-manifest.json',
+  'https://raw.githubusercontent.com/Poezeloezewoefke1/Axoclient/claude/axo-client-architecture-ih525q/manifest/axo-manifest.json'
 ]
 
 const FETCH_TIMEOUT_MS = 10_000

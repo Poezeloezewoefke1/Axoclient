@@ -19,4 +19,4 @@ nsis:
 publish:
   provider: github
   owner: Poezeloezewoefke1
-  repo: Claud
+  repo: Axoclient

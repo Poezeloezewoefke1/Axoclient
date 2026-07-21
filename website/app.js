@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var REPO = 'Poezeloezewoefke1/Claud';
+  var REPO = 'Poezeloezewoefke1/Axoclient';
   var FALLBACK_URL = 'https://github.com/' + REPO + '/releases/latest';
 
   /* ---- Mobile nav toggle ---- */

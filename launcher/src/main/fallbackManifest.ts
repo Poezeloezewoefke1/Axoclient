@@ -11,7 +11,7 @@ export const FALLBACK_MANIFEST: unknown = {
   generatedAt: '2026-07-20T12:50:00Z',
   launcher: {
     minimumVersion: '0.1.0',
-    releasesRepo: 'Poezeloezewoefke1/Claud'
+    releasesRepo: 'Poezeloezewoefke1/Axoclient'
   },
   channels: {
     stable: {
@@ -25,7 +25,7 @@ export const FALLBACK_MANIFEST: unknown = {
           notes: 'First Axo Client release for Minecraft 1.21.11',
           client: {
             version: '0.1.0',
-            url: 'https://github.com/Poezeloezewoefke1/Claud/releases/download/client-v0.1.0/axoclient-0.1.0.jar',
+            url: 'https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.1.0/axoclient-0.1.0.jar',
             sha1: 'b31515aedc371f6b43731bc7a51d4319a3845911',
             size: 29925
           },

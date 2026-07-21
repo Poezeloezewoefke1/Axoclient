@@ -37,8 +37,8 @@ import net.minecraft.client.Minecraft;
 public final class UpdateChecker {
     // Kept in sync with the launcher's MANIFEST_URLS (Pages first, raw branch fallback).
     private static final String[] MANIFEST_URLS = {
-        "https://poezeloezewoefke1.github.io/Claud/manifest/axo-manifest.json",
-        "https://raw.githubusercontent.com/Poezeloezewoefke1/Claud/"
+        "https://poezeloezewoefke1.github.io/Axoclient/manifest/axo-manifest.json",
+        "https://raw.githubusercontent.com/Poezeloezewoefke1/Axoclient/"
             + "claude/axo-client-architecture-ih525q/manifest/axo-manifest.json"
     };
     private static final String CHANNEL = "stable";
