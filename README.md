@@ -33,6 +33,10 @@ cd client
 ./gradlew runClient  # launches a dev instance of Minecraft 1.21.11
 ```
 
+In-game controls and the full feature list live in
+[`docs/client-features.md`](docs/client-features.md) — start with **Right
+Shift** to open the ClickGUI.
+
 > Version pins in `client/gradle.properties` (Loom, Fabric Loader) were written without network access to Fabric's servers — verify them against https://fabricmc.net/develop before the first build (roadmap task P1-01).
 
 ### Launcher (`launcher/`)
