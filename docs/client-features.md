@@ -64,6 +64,16 @@ Toggling a module raises a small animated toast in the top-right corner
 (green for enabled, neutral for disabled). Any module can raise one via
 `Notifications.push(...)`.
 
+## In-game updates
+
+On startup the client checks the version manifest (the same one the launcher
+uses) and, if a newer build exists, **downloads it into
+`<gameDir>/axoclient-updates/`** and raises a notification. A running mod jar
+can't replace itself, so the update applies on your next launch — the
+launcher re-syncs the mods folder automatically, or you can drop the staged
+jar into `mods/` yourself. Disable via the `update.check` / `update.download`
+config keys.
+
 ## Where settings live
 
 All of the above persists to `config/axoclient.json` in your instance folder
