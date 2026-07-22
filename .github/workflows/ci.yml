@@ -73,14 +73,10 @@ jobs:
           done)
           echo "MC jar: $JAR"
           if [ -n "$JAR" ]; then
-            echo "===== raw ResourceLocation class paths ====="
-            unzip -l "$JAR" | grep -i "resourcelocation" | grep "\.class" | head
-            echo "===== ClientAsset ====="
-            javap -p -classpath "$JAR" net.minecraft.core.ClientAsset 2>/dev/null | head -30
-            echo "===== ClientAsset.Texture ====="
-            javap -p -classpath "$JAR" 'net.minecraft.core.ClientAsset$Texture' 2>/dev/null | head -30
-            echo "===== PlayerSkin.Patch ====="
-            javap -p -classpath "$JAR" 'net.minecraft.world.entity.player.PlayerSkin$Patch' 2>/dev/null | head -30
+            echo "===== ClientAsset.ResourceTexture ====="
+            javap -p -classpath "$JAR" 'net.minecraft.core.ClientAsset$ResourceTexture' 2>/dev/null | head -30
+            echo "===== Identifier factory methods ====="
+            javap -p -classpath "$JAR" net.minecraft.resources.Identifier 2>/dev/null | grep -iE "public static|withPath|withDefaultNamespace" | head -20
           fi
       - uses: actions/upload-artifact@v4
         with:
