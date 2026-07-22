@@ -73,14 +73,14 @@ jobs:
           done)
           echo "MC jar: $JAR"
           if [ -n "$JAR" ]; then
-            RL=$(unzip -l "$JAR" | grep -oE "net/minecraft/[a-zA-Z0-9/]*ResourceLocation.class" | head -1 | sed 's#/#.#g; s#.class##')
-            PS=$(unzip -l "$JAR" | grep -oE "net/minecraft/[a-zA-Z0-9/]*PlayerSkin.class" | head -1 | sed 's#/#.#g; s#.class##')
-            echo "===== ResourceLocation FQN: $RL ====="
-            javap -p -classpath "$JAR" "$RL" 2>/dev/null | grep -iE "fromNamespace|public .*ResourceLocation|parse|withDefault" | head -20
-            echo "===== PlayerSkin FQN: $PS ====="
-            javap -p -classpath "$JAR" "$PS" 2>/dev/null | head -30
-            echo "===== AbstractClientPlayer skin/cape methods ====="
-            javap -p -classpath "$JAR" net.minecraft.client.player.AbstractClientPlayer 2>/dev/null | grep -iE "skin|cape|cloak" || echo "(no matches)"
+            echo "===== raw ResourceLocation class paths ====="
+            unzip -l "$JAR" | grep -i "resourcelocation" | grep "\.class" | head
+            echo "===== ClientAsset ====="
+            javap -p -classpath "$JAR" net.minecraft.core.ClientAsset 2>/dev/null | head -30
+            echo "===== ClientAsset.Texture ====="
+            javap -p -classpath "$JAR" 'net.minecraft.core.ClientAsset$Texture' 2>/dev/null | head -30
+            echo "===== PlayerSkin.Patch ====="
+            javap -p -classpath "$JAR" 'net.minecraft.world.entity.player.PlayerSkin$Patch' 2>/dev/null | head -30
           fi
       - uses: actions/upload-artifact@v4
         with:
