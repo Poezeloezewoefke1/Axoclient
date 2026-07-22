@@ -1,13 +1,14 @@
 import { Auth } from 'msmc'
 import { clearRefreshToken, loadRefreshToken, saveRefreshToken } from './tokens'
 import { logLine } from './logger'
-import type { SessionInfo } from '../shared/types'
+import type { AccountInfo, SessionInfo } from '../shared/types'
 
 /**
- * Microsoft account login via msmc (roadmap P2-05..P2-08).
- * - Login uses msmc's Electron popup flow.
- * - The refresh token is persisted encrypted (tokens.ts) and used for a
- *   silent restore on startup.
+ * Microsoft account login via msmc (roadmap P2-05..P2-08), with multi-account
+ * support. Each account's refresh token is kept in an encrypted store; one
+ * account is "active" (the one that launches). Switching accounts refreshes
+ * that account's token silently (no popup); adding an account runs msmc's
+ * Electron login popup.
  * - P0-03: flip USE_AXO_CLIENT_ID once Mojang approval lands.
  */
 
@@ -16,6 +17,18 @@ export interface AxoSession extends SessionInfo {
   mclcAuth: unknown
   /** Minecraft access token — used for skin changes. Never send to the renderer. */
   accessToken: string
+}
+
+interface StoredAccount {
+  uuid: string
+  username: string
+  /** msmc refresh token (xboxManager.save()). Encrypted at rest. */
+  refresh: string
+}
+
+interface AccountStore {
+  activeUuid: string | null
+  accounts: StoredAccount[]
 }
 
 /**
@@ -50,11 +63,43 @@ interface MinecraftLike {
   mcToken?: string
 }
 
-let tokenFile: string | null = null
+let storeFile: string | null = null
+let store: AccountStore = { activeUuid: null, accounts: [] }
+let loaded = false
 let currentSession: AxoSession | null = null
 
-export function initAuth(tokenFilePath: string): void {
-  tokenFile = tokenFilePath
+export function initAuth(filePath: string): void {
+  storeFile = filePath
+  loaded = false
+  store = { activeUuid: null, accounts: [] }
+}
+
+async function ensureLoaded(): Promise<void> {
+  if (loaded) {
+    return
+  }
+  loaded = true
+  if (!storeFile) {
+    return
+  }
+  const raw = await loadRefreshToken(storeFile)
+  if (!raw) {
+    return
+  }
+  try {
+    const parsed = JSON.parse(raw) as AccountStore
+    if (parsed && Array.isArray(parsed.accounts)) {
+      store = { activeUuid: parsed.activeUuid ?? null, accounts: parsed.accounts }
+    }
+  } catch {
+    // Corrupt/legacy store — start fresh; the user signs in again.
+  }
+}
+
+async function persist(): Promise<void> {
+  if (storeFile) {
+    await saveRefreshToken(storeFile, JSON.stringify(store))
+  }
 }
 
 function toSession(token: MinecraftLike): AxoSession {
@@ -66,51 +111,121 @@ function toSession(token: MinecraftLike): AxoSession {
   }
 }
 
+function upsert(uuid: string, username: string, refresh: string): void {
+  const existing = store.accounts.find((a) => a.uuid === uuid)
+  if (existing) {
+    existing.username = username
+    existing.refresh = refresh
+  } else {
+    store.accounts.push({ uuid, username, refresh })
+  }
+  store.activeUuid = uuid
+}
+
+/** Add a new account via the Microsoft popup, and make it active. */
 export async function loginWithMicrosoft(): Promise<AxoSession> {
+  await ensureLoaded()
   const authManager = createAuthManager()
   const xboxManager = await authManager.launch('electron')
   const token = await xboxManager.getMinecraft()
 
   currentSession = toSession(token)
-  if (tokenFile) {
-    await saveRefreshToken(tokenFile, xboxManager.save())
-  }
+  upsert(currentSession.uuid, currentSession.username, xboxManager.save())
+  await persist()
   logLine('auth', `signed in as ${currentSession.username}`)
   return currentSession
 }
 
-/** Silent startup restore (P2-07). Returns null when re-login is required. */
-export async function restoreSession(): Promise<AxoSession | null> {
-  if (!tokenFile) {
-    return null
+/** Silent refresh of a stored account by uuid; updates the rotated token. */
+async function activate(uuid: string): Promise<AxoSession> {
+  const account = store.accounts.find((a) => a.uuid === uuid)
+  if (!account) {
+    throw new Error('Account not found — sign in again.')
   }
-  const stored = await loadRefreshToken(tokenFile)
-  if (!stored) {
+  const xboxManager = await createAuthManager().refresh(account.refresh)
+  const token = await xboxManager.getMinecraft()
+  currentSession = toSession(token)
+  // Refresh tokens rotate — persist the newest one and keep names fresh.
+  upsert(currentSession.uuid, currentSession.username, xboxManager.save())
+  await persist()
+  return currentSession
+}
+
+/** Silent startup restore (P2-07) of the active account. */
+export async function restoreSession(): Promise<AxoSession | null> {
+  await ensureLoaded()
+  if (!store.activeUuid) {
     return null
   }
   try {
-    const xboxManager = await createAuthManager().refresh(stored)
-    const token = await xboxManager.getMinecraft()
-    currentSession = toSession(token)
-    // Refresh tokens rotate — persist the newest one.
-    await saveRefreshToken(tokenFile, xboxManager.save())
-    logLine('auth', `session restored for ${currentSession.username}`)
-    return currentSession
+    const session = await activate(store.activeUuid)
+    logLine('auth', `session restored for ${session.username}`)
+    return session
   } catch (error) {
     logLine('auth', `silent refresh failed: ${error instanceof Error ? error.message : error}`)
-    await clearRefreshToken(tokenFile)
     return null
   }
+}
+
+/** Switch the active account (silent refresh, no popup). */
+export async function selectAccount(uuid: string): Promise<AxoSession> {
+  await ensureLoaded()
+  const session = await activate(uuid)
+  logLine('auth', `switched to ${session.username}`)
+  return session
+}
+
+export async function listAccounts(): Promise<AccountInfo[]> {
+  await ensureLoaded()
+  return store.accounts.map((a) => ({
+    username: a.username,
+    uuid: a.uuid,
+    active: a.uuid === store.activeUuid
+  }))
+}
+
+/**
+ * Remove an account from the store. If it was the active one, fall back to
+ * another stored account (silent refresh); returns the resulting session.
+ */
+export async function removeAccount(uuid: string): Promise<AxoSession | null> {
+  await ensureLoaded()
+  const wasActive = store.activeUuid === uuid
+  store.accounts = store.accounts.filter((a) => a.uuid !== uuid)
+  if (!wasActive) {
+    await persist()
+    return currentSession
+  }
+  currentSession = null
+  store.activeUuid = null
+  const next = store.accounts[0]
+  if (next) {
+    try {
+      const session = await activate(next.uuid)
+      return session
+    } catch {
+      // Fall through: nothing usable left; user signs in again.
+    }
+  }
+  await persist()
+  return currentSession
 }
 
 export function getSession(): AxoSession | null {
   return currentSession
 }
 
-export async function logout(): Promise<void> {
-  currentSession = null
-  if (tokenFile) {
-    await clearRefreshToken(tokenFile)
+/** "Sign out": remove the active account, falling back to the next if any. */
+export async function logout(): Promise<SessionInfo | null> {
+  await ensureLoaded()
+  if (!store.activeUuid) {
+    currentSession = null
+    if (storeFile) {
+      await clearRefreshToken(storeFile)
+    }
+    return null
   }
+  const next = await removeAccount(store.activeUuid)
   logLine('auth', 'signed out')
+  return next ? { username: next.username, uuid: next.uuid } : null
 }

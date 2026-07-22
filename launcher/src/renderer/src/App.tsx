@@ -7,7 +7,7 @@ import LoginScreen from './screens/Login'
 import SettingsScreen from './screens/Settings'
 import SkinsScreen from './screens/Skins'
 import VersionsScreen from './screens/Versions'
-import type { AxoSettings, SessionInfo, SkinInfo, UpdateStatus } from '../../shared/types'
+import type { AccountInfo, AxoSettings, SessionInfo, SkinInfo, UpdateStatus } from '../../shared/types'
 
 type Screen = 'play' | 'skins' | 'versions' | 'settings'
 
@@ -27,12 +27,21 @@ export default function App(): React.JSX.Element {
   const [onboarding, setOnboarding] = useState<AxoSettings | null>(null)
   const [skin, setSkin] = useState<SkinInfo | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [accounts, setAccounts] = useState<AccountInfo[]>([])
+  const [accountBusy, setAccountBusy] = useState(false)
 
   const refreshSkin = useCallback(() => {
     void window.axo
       .getSkin()
       .then(setSkin)
       .catch(() => setSkin(null))
+  }, [])
+
+  const loadAccounts = useCallback(() => {
+    void window.axo
+      .listAccounts()
+      .then(setAccounts)
+      .catch(() => setAccounts([]))
   }, [])
 
   useEffect(() => window.axo.onUpdateStatus(setUpdate), [])
@@ -59,10 +68,52 @@ export default function App(): React.JSX.Element {
   useEffect(() => {
     if (session) {
       refreshSkin()
+      loadAccounts()
     } else {
       setSkin(null)
+      setAccounts([])
     }
-  }, [session, refreshSkin])
+  }, [session, refreshSkin, loadAccounts])
+
+  const switchAccount = (uuid: string): void => {
+    setAccountBusy(true)
+    window.axo
+      .selectAccount(uuid)
+      .then((s) => {
+        if (s) {
+          setSession(s)
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        setAccountBusy(false)
+        setMenuOpen(false)
+      })
+  }
+
+  const addAccount = (): void => {
+    setAccountBusy(true)
+    window.axo
+      .login()
+      .then((s) => setSession(s))
+      .catch(() => undefined)
+      .finally(() => {
+        setAccountBusy(false)
+        setMenuOpen(false)
+      })
+  }
+
+  const removeAccount = (uuid: string): void => {
+    setAccountBusy(true)
+    window.axo
+      .removeAccount(uuid)
+      .then((s) => setSession(s))
+      .catch(() => undefined)
+      .finally(() => {
+        setAccountBusy(false)
+        loadAccounts()
+      })
+  }
 
   if (restoring) {
     return (
@@ -126,14 +177,49 @@ export default function App(): React.JSX.Element {
                   <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
                   <div className="account-menu">
                     <div className="account-menu-head">
-                      <div className="account-menu-name">{session.username}</div>
-                      <div className="muted account-menu-sub">Signed in with Microsoft</div>
+                      <div className="account-menu-name">Accounts</div>
+                      <div className="muted account-menu-sub">Switch or add a Microsoft account</div>
+                    </div>
+                    <div className="account-list">
+                      {accounts.map((a) => (
+                        <div
+                          key={a.uuid}
+                          className={a.active ? 'account-row active' : 'account-row'}
+                        >
+                          <button
+                            className="account-row-main"
+                            disabled={accountBusy || a.active}
+                            onClick={() => switchAccount(a.uuid)}
+                          >
+                            <span className="account-row-dot" />
+                            <span className="account-row-name">{a.username}</span>
+                            {a.active && <span className="account-badge">Playing</span>}
+                          </button>
+                          <button
+                            className="account-row-remove"
+                            disabled={accountBusy}
+                            title="Remove account"
+                            onClick={() => removeAccount(a.uuid)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
                     </div>
                     <button
                       className="account-menu-item"
+                      disabled={accountBusy}
+                      onClick={addAccount}
+                    >
+                      <span className="account-add-plus">+</span>
+                      {accountBusy ? 'Working…' : 'Add account'}
+                    </button>
+                    <button
+                      className="account-menu-item danger"
+                      disabled={accountBusy}
                       onClick={() => {
                         setMenuOpen(false)
-                        void window.axo.logout().then(() => setSession(null))
+                        void window.axo.logout().then((s) => setSession(s))
                       }}
                     >
                       <IconLogout size={16} />

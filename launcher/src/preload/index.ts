@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import type {
+  AccountInfo,
   AxoSettings,
   GameProgress,
   ManifestInfo,
@@ -18,7 +19,12 @@ const api = {
   getSession: (): Promise<SessionInfo | null> => ipcRenderer.invoke('auth:status'),
   restoreSession: (): Promise<SessionInfo | null> => ipcRenderer.invoke('auth:restore'),
   login: (): Promise<SessionInfo> => ipcRenderer.invoke('auth:login'),
-  logout: (): Promise<void> => ipcRenderer.invoke('auth:logout'),
+  logout: (): Promise<SessionInfo | null> => ipcRenderer.invoke('auth:logout'),
+  listAccounts: (): Promise<AccountInfo[]> => ipcRenderer.invoke('accounts:list'),
+  selectAccount: (uuid: string): Promise<SessionInfo | null> =>
+    ipcRenderer.invoke('accounts:select', uuid),
+  removeAccount: (uuid: string): Promise<SessionInfo | null> =>
+    ipcRenderer.invoke('accounts:remove', uuid),
   getSettings: (): Promise<AxoSettings> => ipcRenderer.invoke('settings:get'),
   updateSettings: (patch: Partial<AxoSettings>): Promise<AxoSettings> =>
     ipcRenderer.invoke('settings:update', patch),

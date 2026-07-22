@@ -27,6 +27,13 @@ export interface SessionInfo {
   uuid: string
 }
 
+export interface AccountInfo {
+  username: string
+  uuid: string
+  /** True for the account currently signed in and used to launch. */
+  active: boolean
+}
+
 export interface SkinInfo {
   /** data:image/png;base64,… of the 64×64 skin texture, or null if none. */
   dataUrl: string | null

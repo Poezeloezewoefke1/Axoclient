@@ -2,7 +2,16 @@ import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { join } from 'node:path'
 import { getManifest, getManifestInfo } from './manifest'
 import { syncModsFolder } from './install'
-import { getSession, initAuth, loginWithMicrosoft, logout, restoreSession } from './auth'
+import {
+  getSession,
+  initAuth,
+  listAccounts,
+  loginWithMicrosoft,
+  logout,
+  removeAccount,
+  restoreSession,
+  selectAccount
+} from './auth'
 import { SettingsStore } from './settings'
 import { forceCloseGame, launchGame } from './launch'
 import { deleteVersion, listVersions } from './versions'
@@ -85,7 +94,7 @@ process.on('unhandledRejection', (reason) => {
 
 app.whenReady().then(async () => {
   initLogger(join(app.getPath('userData'), 'logs'))
-  initAuth(join(app.getPath('userData'), 'auth.token'))
+  initAuth(join(app.getPath('userData'), 'accounts.dat'))
   logLine('app', `Axo Launcher ${app.getVersion()} starting`)
 
   const settings = new SettingsStore(join(app.getPath('userData'), 'settings.json'), {
@@ -102,7 +111,14 @@ app.whenReady().then(async () => {
   ipcMain.handle('auth:status', () => toSessionInfo(getSession()))
   ipcMain.handle('auth:restore', async () => toSessionInfo(await restoreSession()))
   ipcMain.handle('auth:login', async () => toSessionInfo(await loginWithMicrosoft()))
-  ipcMain.handle('auth:logout', () => logout())
+  ipcMain.handle('auth:logout', async () => await logout())
+  ipcMain.handle('accounts:list', () => listAccounts())
+  ipcMain.handle('accounts:select', async (_event, uuid: string) =>
+    toSessionInfo(await selectAccount(uuid))
+  )
+  ipcMain.handle('accounts:remove', async (_event, uuid: string) =>
+    toSessionInfo(await removeAccount(uuid))
+  )
   ipcMain.handle('settings:get', () => settings.get())
   ipcMain.handle('settings:update', (_event, patch: Partial<AxoSettings>) =>
     settings.update(patch)

@@ -225,9 +225,113 @@ body {
   text-align: left;
 }
 
-.account-menu-item:hover {
+.account-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.account-menu-item.danger:hover {
   background: rgba(248, 113, 113, 0.12);
   color: var(--axo-error);
+}
+
+.account-menu-item:not(.danger):hover {
+  background: var(--axo-surface-3);
+  color: var(--axo-blue);
+}
+
+.account-add-plus {
+  font-size: 16px;
+  font-weight: 800;
+  width: 16px;
+  text-align: center;
+}
+
+.account-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 220px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--axo-border);
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+}
+
+.account-row-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 11px 14px;
+  border: none;
+  background: transparent;
+  color: var(--axo-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.account-row-main:disabled {
+  cursor: default;
+}
+
+.account-row-main:not(:disabled):hover {
+  background: var(--axo-surface-3);
+}
+
+.account-row-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--axo-border);
+  flex-shrink: 0;
+}
+
+.account-row.active .account-row-dot {
+  background: var(--axo-green);
+}
+
+.account-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--axo-green);
+  background: rgba(74, 222, 128, 0.12);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.account-row-remove {
+  width: 34px;
+  align-self: stretch;
+  border: none;
+  background: transparent;
+  color: var(--axo-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.account-row-remove:hover:not(:disabled) {
+  color: var(--axo-error);
+}
+
+.account-row-remove:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .content {

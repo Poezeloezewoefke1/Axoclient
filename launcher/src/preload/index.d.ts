@@ -1,4 +1,5 @@
 import type {
+  AccountInfo,
   AxoSettings,
   GameProgress,
   ManifestInfo,
@@ -18,7 +19,10 @@ declare global {
       getSession(): Promise<SessionInfo | null>
       restoreSession(): Promise<SessionInfo | null>
       login(): Promise<SessionInfo>
-      logout(): Promise<void>
+      logout(): Promise<SessionInfo | null>
+      listAccounts(): Promise<AccountInfo[]>
+      selectAccount(uuid: string): Promise<SessionInfo | null>
+      removeAccount(uuid: string): Promise<SessionInfo | null>
       getSettings(): Promise<AxoSettings>
       updateSettings(patch: Partial<AxoSettings>): Promise<AxoSettings>
       launch(versionId: string): Promise<void>
