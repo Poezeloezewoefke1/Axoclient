@@ -20,6 +20,3 @@ publish:
   provider: github
   owner: Poezeloezewoefke1
   repo: Axoclient
-  # Publish the release immediately instead of leaving it as a draft, so the
-  # installer + latest.yml are downloadable as soon as the build finishes.
-  releaseType: release
