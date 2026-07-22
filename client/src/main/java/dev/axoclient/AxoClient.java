@@ -63,7 +63,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new ParticleCosmeticModule("cloud_trail", "Cloud Trail", ParticleTypes.CLOUD, 2, 0.1));
         modules.register(new ParticleCosmeticModule("crit_aura", "Crit Aura", ParticleTypes.CRIT, 1, 1.0));
         modules.register(new ParticleCosmeticModule("portal_trail", "Portal Trail", ParticleTypes.PORTAL, 1, 0.5));
-        modules.register(new ParticleCosmeticModule("dragon_trail", "Dragon Breath", ParticleTypes.DRAGON_BREATH, 1, 0.3));
+        modules.register(new ParticleCosmeticModule("witch_trail", "Witch Trail", ParticleTypes.WITCH, 1, 0.3));
         modules.register(new ParticleCosmeticModule("happy_aura", "Happy Aura", ParticleTypes.HAPPY_VILLAGER, 2, 1.0));
         modules.register(new ParticleCosmeticModule("note_aura", "Note Aura", ParticleTypes.NOTE, 3, 1.2));
         modules.register(new ParticleCosmeticModule("splash_trail", "Splash Trail", ParticleTypes.SPLASH, 1, 0.1));
