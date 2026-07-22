@@ -14,6 +14,8 @@ import type { SessionInfo } from '../shared/types'
 export interface AxoSession extends SessionInfo {
   /** Auth payload in the shape minecraft-launcher-core expects. Never send to the renderer. */
   mclcAuth: unknown
+  /** Minecraft access token — used for skin changes. Never send to the renderer. */
+  accessToken: string
 }
 
 /**
@@ -44,6 +46,8 @@ function createAuthManager(): Auth {
 interface MinecraftLike {
   profile: { name: string; id: string } | undefined
   mclc(): unknown
+  /** msmc exposes the raw Minecraft access token here. */
+  mcToken?: string
 }
 
 let tokenFile: string | null = null
@@ -57,7 +61,8 @@ function toSession(token: MinecraftLike): AxoSession {
   return {
     username: token.profile?.name ?? 'Player',
     uuid: token.profile?.id ?? '',
-    mclcAuth: token.mclc()
+    mclcAuth: token.mclc(),
+    accessToken: token.mcToken ?? ''
   }
 }
 

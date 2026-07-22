@@ -27,6 +27,13 @@ export interface SessionInfo {
   uuid: string
 }
 
+export interface SkinInfo {
+  /** data:image/png;base64,… of the 64×64 skin texture, or null if none. */
+  dataUrl: string | null
+  /** True for the 3px-arm "slim"/Alex model. */
+  slim: boolean
+}
+
 export interface UpdateStatus {
   state: 'ready'
   version: string

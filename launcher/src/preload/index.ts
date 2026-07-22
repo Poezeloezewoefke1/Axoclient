@@ -4,6 +4,7 @@ import type {
   GameProgress,
   ManifestInfo,
   SessionInfo,
+  SkinInfo,
   UpdateStatus,
   VersionStatus
 } from '../shared/types'
@@ -31,6 +32,9 @@ const api = {
   },
   installUpdate: (): Promise<void> => ipcRenderer.invoke('update:install'),
   openLogs: (): Promise<void> => ipcRenderer.invoke('logs:open'),
+  getSkin: (): Promise<SkinInfo> => ipcRenderer.invoke('skin:get'),
+  applySkin: (variant: 'classic' | 'slim'): Promise<string | null> =>
+    ipcRenderer.invoke('skin:apply', variant),
   repair: (): Promise<SyncCounts> => ipcRenderer.invoke('game:repair'),
   listVersions: (): Promise<VersionStatus[]> => ipcRenderer.invoke('versions:list'),
   installVersion: (versionId: string): Promise<SyncCounts> =>

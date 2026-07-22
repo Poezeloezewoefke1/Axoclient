@@ -6,6 +6,7 @@ import { getSession, initAuth, loginWithMicrosoft, logout, restoreSession } from
 import { SettingsStore } from './settings'
 import { forceCloseGame, launchGame } from './launch'
 import { deleteVersion, listVersions } from './versions'
+import { applySkin, getSkin, type SkinInfo } from './skin'
 import { initLogger, logDirectory, logLine, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
@@ -207,6 +208,33 @@ app.whenReady().then(async () => {
     if (dir) {
       void shell.openPath(dir)
     }
+  })
+
+  ipcMain.handle('skin:get', async (): Promise<SkinInfo> => {
+    const session = getSession()
+    if (!session?.uuid) {
+      return { dataUrl: null, slim: false }
+    }
+    return getSkin(session.uuid)
+  })
+
+  ipcMain.handle('skin:apply', async (_event, variant: 'classic' | 'slim'): Promise<string | null> => {
+    const session = getSession()
+    if (!session?.accessToken) {
+      throw new Error('Sign in again to change your skin (no access token).')
+    }
+    const picked = await dialog.showOpenDialog({
+      title: 'Choose a skin PNG (64×64)',
+      properties: ['openFile'],
+      filters: [{ name: 'Skin PNG', extensions: ['png'] }]
+    })
+    if (picked.canceled || picked.filePaths.length === 0) {
+      return null
+    }
+    await applySkin(session.accessToken, picked.filePaths[0], variant)
+    // Return the freshly-applied skin so the UI can update immediately.
+    const refreshed = await getSkin(session.uuid)
+    return refreshed.dataUrl
   })
 
   createWindow()

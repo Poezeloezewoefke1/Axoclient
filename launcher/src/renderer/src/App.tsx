@@ -1,20 +1,39 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import logoUrl from './assets/logo.png'
+import SkinRender from './components/SkinRender'
+import { IconCaret, IconLogout, IconPlay, IconSettings, IconSkin, IconVersions } from './components/Icons'
 import HomeScreen from './screens/Home'
 import LoginScreen from './screens/Login'
 import SettingsScreen from './screens/Settings'
+import SkinsScreen from './screens/Skins'
 import VersionsScreen from './screens/Versions'
-import type { AxoSettings, SessionInfo, UpdateStatus } from '../../shared/types'
+import type { AxoSettings, SessionInfo, SkinInfo, UpdateStatus } from '../../shared/types'
 
-type Screen = 'home' | 'versions' | 'settings'
+type Screen = 'play' | 'skins' | 'versions' | 'settings'
+
+const SCREEN_TITLE: Record<Screen, string> = {
+  play: 'Play',
+  skins: 'Skins',
+  versions: 'Versions',
+  settings: 'Settings'
+}
 
 export default function App(): React.JSX.Element {
-  const [screen, setScreen] = useState<Screen>('home')
+  const [screen, setScreen] = useState<Screen>('play')
   const [session, setSession] = useState<SessionInfo | null>(null)
   const [restoring, setRestoring] = useState(true)
   const [version, setVersion] = useState('')
   const [update, setUpdate] = useState<UpdateStatus | null>(null)
   const [onboarding, setOnboarding] = useState<AxoSettings | null>(null)
+  const [skin, setSkin] = useState<SkinInfo | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const refreshSkin = useCallback(() => {
+    void window.axo
+      .getSkin()
+      .then(setSkin)
+      .catch(() => setSkin(null))
+  }, [])
 
   useEffect(() => window.axo.onUpdateStatus(setUpdate), [])
 
@@ -37,6 +56,14 @@ export default function App(): React.JSX.Element {
     void window.axo.getVersion().then(setVersion)
   }, [])
 
+  useEffect(() => {
+    if (session) {
+      refreshSkin()
+    } else {
+      setSkin(null)
+    }
+  }, [session, refreshSkin])
+
   if (restoring) {
     return (
       <div className="login-screen">
@@ -52,50 +79,95 @@ export default function App(): React.JSX.Element {
     return <LoginScreen onLoggedIn={setSession} />
   }
 
+  const railItem = (id: Screen, icon: React.JSX.Element, label: string): React.JSX.Element => (
+    <button
+      className={screen === id ? 'rail-item active' : 'rail-item'}
+      onClick={() => setScreen(id)}
+      title={label}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  )
+
   return (
     <div className="shell">
-      <aside className="sidebar">
-        <div className="logo">
-          <img src={logoUrl} alt="" className="logo-mark" />
-          <span className="logo-axo">AXO</span>
-          <span className="logo-sub">CLIENT</span>
+      <aside className="rail">
+        <div className="rail-logo">
+          <img src={logoUrl} alt="" />
         </div>
-        <nav>
-          <button
-            className={screen === 'home' ? 'nav-item active' : 'nav-item'}
-            onClick={() => setScreen('home')}
-          >
-            Play
-          </button>
-          <button
-            className={screen === 'versions' ? 'nav-item active' : 'nav-item'}
-            onClick={() => setScreen('versions')}
-          >
-            Versions
-          </button>
-          <button
-            className={screen === 'settings' ? 'nav-item active' : 'nav-item'}
-            onClick={() => setScreen('settings')}
-          >
-            Settings
-          </button>
+        <nav className="rail-nav">
+          {railItem('play', <IconPlay />, 'Play')}
+          {railItem('skins', <IconSkin />, 'Skins')}
+          {railItem('versions', <IconVersions />, 'Versions')}
+          {railItem('settings', <IconSettings />, 'Settings')}
         </nav>
-        <div className="sidebar-footer">
-          <div className="account-chip" title={session.uuid}>
-            <span className="account-dot" />
-            {session.username}
-          </div>
-          <button
-            className="link-button"
-            onClick={() => {
-              void window.axo.logout().then(() => setSession(null))
-            }}
-          >
-            Sign out
-          </button>
-          <div className="app-version">v{version}</div>
-        </div>
+        <div className="rail-foot">v{version}</div>
       </aside>
+
+      <div className="stage">
+        <header className="topbar">
+          <div className="topbar-title">{SCREEN_TITLE[screen]}</div>
+          <div className="topbar-right">
+            <div className="account">
+              <button className="account-btn" onClick={() => setMenuOpen((v) => !v)}>
+                <span className="account-avatar">
+                  {skin?.dataUrl ? (
+                    <SkinRender dataUrl={skin.dataUrl} slim={skin.slim} scale={4} view="head" />
+                  ) : (
+                    <span className="account-avatar-fallback">{session.username[0]?.toUpperCase()}</span>
+                  )}
+                </span>
+                <span className="account-name">{session.username}</span>
+                <IconCaret size={16} />
+              </button>
+              {menuOpen && (
+                <>
+                  <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
+                  <div className="account-menu">
+                    <div className="account-menu-head">
+                      <div className="account-menu-name">{session.username}</div>
+                      <div className="muted account-menu-sub">Signed in with Microsoft</div>
+                    </div>
+                    <button
+                      className="account-menu-item"
+                      onClick={() => {
+                        setMenuOpen(false)
+                        void window.axo.logout().then(() => setSession(null))
+                      }}
+                    >
+                      <IconLogout size={16} />
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="content">
+          {update && (
+            <div className="update-banner">
+              Update {update.version} ready
+              <button className="link-button" onClick={() => void window.axo.installUpdate()}>
+                Restart to install
+              </button>
+            </div>
+          )}
+          {screen === 'play' && (
+            <HomeScreen
+              onGoToVersions={() => setScreen('versions')}
+              username={session.username}
+              skin={skin}
+            />
+          )}
+          {screen === 'skins' && <SkinsScreen skin={skin} onChanged={refreshSkin} />}
+          {screen === 'versions' && <VersionsScreen />}
+          {screen === 'settings' && <SettingsScreen />}
+        </main>
+      </div>
+
       {onboarding && (
         <div className="modal-backdrop">
           <div className="modal-card">
@@ -129,21 +201,6 @@ export default function App(): React.JSX.Element {
           </div>
         </div>
       )}
-      <main className="content">
-        {update && (
-          <div className="update-banner">
-            Update {update.version} ready
-            <button className="link-button" onClick={() => void window.axo.installUpdate()}>
-              Restart to install
-            </button>
-          </div>
-        )}
-        {screen === 'home' && (
-          <HomeScreen onGoToVersions={() => setScreen('versions')} username={session.username} />
-        )}
-        {screen === 'versions' && <VersionsScreen />}
-        {screen === 'settings' && <SettingsScreen />}
-      </main>
     </div>
   )
 }

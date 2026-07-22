@@ -3,6 +3,7 @@ import type {
   GameProgress,
   ManifestInfo,
   SessionInfo,
+  SkinInfo,
   UpdateStatus,
   VersionStatus
 } from '../shared/types'
@@ -25,6 +26,8 @@ declare global {
       onGameProgress(callback: (progress: GameProgress) => void): () => void
       installUpdate(): Promise<void>
       openLogs(): Promise<void>
+      getSkin(): Promise<SkinInfo>
+      applySkin(variant: 'classic' | 'slim'): Promise<string | null>
       repair(): Promise<SyncCounts>
       listVersions(): Promise<VersionStatus[]>
       installVersion(versionId: string): Promise<SyncCounts>
