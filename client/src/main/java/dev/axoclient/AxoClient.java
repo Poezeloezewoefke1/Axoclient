@@ -5,6 +5,8 @@ import dev.axoclient.core.ModuleManager;
 import dev.axoclient.modules.hud.CoordinatesModule;
 import dev.axoclient.modules.hud.CpsCounterModule;
 import dev.axoclient.modules.hud.FpsHudModule;
+import dev.axoclient.modules.hud.ModuleListHudModule;
+import dev.axoclient.modules.hud.TimeHudModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
 import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ZoomModule;
@@ -36,6 +38,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new FpsHudModule());
         modules.register(new CoordinatesModule());
         modules.register(new CpsCounterModule());
+        modules.register(new TimeHudModule());
+        modules.register(new ModuleListHudModule());
         modules.register(new KeystrokesModule());
         modules.register(new FullbrightModule());
         modules.register(new ZoomModule());
