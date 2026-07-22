@@ -44,8 +44,23 @@ public final class ModuleManager {
         }
         boolean state = config.isEnabled(module.id(), module.enabledByDefault());
         enabled.put(module.id(), state);
-        if (state) {
-            module.onEnable();
+        // NB: do NOT call onEnable() here. Registration runs during mod init,
+        // before Minecraft.options / the world exist, so a module that touches
+        // them (e.g. Fullbright reading options.gamma()) would NPE and crash the
+        // game on boot. Persisted-enabled modules are activated later, once the
+        // client has started, via enableInitial().
+    }
+
+    /**
+     * Fire onEnable() for every module whose persisted state is enabled. Call
+     * once the client is fully started (ClientLifecycleEvents.CLIENT_STARTED),
+     * when Minecraft.options and the render system are safely initialized.
+     */
+    public void enableInitial() {
+        for (AxoModule module : modules.values()) {
+            if (isEnabled(module)) {
+                module.onEnable();
+            }
         }
     }
 

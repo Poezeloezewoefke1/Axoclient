@@ -24,6 +24,7 @@ import dev.axoclient.input.Keybinds;
 import dev.axoclient.update.UpdateChecker;
 import dev.axoclient.util.Keys;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.core.particles.ParticleTypes;
 import org.lwjgl.glfw.GLFW;
@@ -82,6 +83,10 @@ public final class AxoClient implements ClientModInitializer {
 
         // In-game update check: notifies if the manifest advertises a newer build.
         UpdateChecker.runAsync(config);
+
+        // Apply persisted "enabled" modules only once the client is fully up —
+        // options and the render system exist by now, so onEnable() is safe.
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> modules.enableInitial());
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             modules.tickAll();
