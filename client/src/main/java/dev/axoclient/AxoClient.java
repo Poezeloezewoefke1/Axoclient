@@ -7,7 +7,6 @@ import dev.axoclient.modules.hud.CpsCounterModule;
 import dev.axoclient.modules.hud.FpsHudModule;
 import dev.axoclient.modules.cosmetic.HeartTrailModule;
 import dev.axoclient.modules.cosmetic.ParticleTrailModule;
-import dev.axoclient.modules.hud.BiomeHudModule;
 import dev.axoclient.modules.hud.DayCounterHudModule;
 import dev.axoclient.modules.hud.MemoryHudModule;
 import dev.axoclient.modules.hud.ModuleListHudModule;
@@ -53,7 +52,6 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new PingHudModule());
         modules.register(new DayCounterHudModule());
         modules.register(new SessionUptimeHudModule());
-        modules.register(new BiomeHudModule());
         modules.register(new ParticleTrailModule());
         modules.register(new HeartTrailModule());
         modules.register(new KeystrokesModule());
