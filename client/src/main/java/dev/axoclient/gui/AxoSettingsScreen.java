@@ -56,12 +56,18 @@ public final class AxoSettingsScreen extends Screen {
             b.setMessage(boolLabel("Auto-download updates", "update", "download", true));
         }).bounds(cx, y + GAP * 3, BTN_W, BTN_H).build();
 
+        Button notifications = Button.builder(boolLabel("Notifications", "gui", "notifications", true), b -> {
+            toggle("gui", "notifications", true);
+            b.setMessage(boolLabel("Notifications", "gui", "notifications", true));
+        }).bounds(cx, y + GAP * 4, BTN_W, BTN_H).build();
+
         addRenderableWidget(theme);
         addRenderableWidget(accent);
         addRenderableWidget(check);
         addRenderableWidget(download);
+        addRenderableWidget(notifications);
         addRenderableWidget(Button.builder(Component.literal("Done"), b -> this.onClose())
-            .bounds(cx, y + GAP * 5, BTN_W, BTN_H).build());
+            .bounds(cx, y + GAP * 6, BTN_W, BTN_H).build());
     }
 
     private static Component themeLabel() {

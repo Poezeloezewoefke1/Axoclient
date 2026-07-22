@@ -24,6 +24,9 @@ public final class Notifications {
     }
 
     public static void push(String message, Notification.Type type) {
+        if (!dev.axoclient.core.ModuleManager.get().config().getModuleBool("gui", "notifications", true)) {
+            return;
+        }
         ACTIVE.add(new Notification(message, type, 2600));
         if (ACTIVE.size() > 6) {
             ACTIVE.remove(0);

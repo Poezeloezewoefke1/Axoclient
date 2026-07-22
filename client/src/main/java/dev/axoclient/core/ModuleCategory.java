@@ -4,6 +4,7 @@ public enum ModuleCategory {
     PVP("PvP"),
     PERFORMANCE("Performance"),
     QOL("Quality of Life"),
+    COSMETIC("Cosmetic"),
     HUD("HUD");
 
     private final String displayName;

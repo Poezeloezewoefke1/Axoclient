@@ -20,11 +20,25 @@ public abstract class HudModule extends AxoModule implements HudRenderable {
     private HudPosition position;
 
     protected HudModule(String id, String displayName, HudPosition defaultPosition) {
-        this(id, displayName, ModuleCategory.HUD, defaultPosition);
+        this(id, displayName, ModuleCategory.HUD, defaultPosition, true);
+    }
+
+    protected HudModule(String id, String displayName, HudPosition defaultPosition, boolean enabledByDefault) {
+        this(id, displayName, ModuleCategory.HUD, defaultPosition, enabledByDefault);
     }
 
     protected HudModule(String id, String displayName, ModuleCategory category, HudPosition defaultPosition) {
-        super(id, displayName, category, true);
+        this(id, displayName, category, defaultPosition, true);
+    }
+
+    protected HudModule(
+        String id,
+        String displayName,
+        ModuleCategory category,
+        HudPosition defaultPosition,
+        boolean enabledByDefault
+    ) {
+        super(id, displayName, category, enabledByDefault);
         this.defaultPosition = defaultPosition;
         this.position = defaultPosition;
     }
