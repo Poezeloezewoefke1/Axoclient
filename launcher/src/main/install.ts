@@ -1,5 +1,6 @@
 import type { AxoManifest } from './manifest'
 import { instanceModsDir } from './paths'
+import { protectedModFiles } from './userMods'
 import {
   syncDirectory,
   type DesiredFile,
@@ -32,7 +33,11 @@ export function desiredModFiles(version: ManifestVersion): DesiredFile[] {
   return files
 }
 
-/** Sync a version's mods into its own instance folder (per-version isolation). */
+/**
+ * Sync a version's mods into its own instance folder (per-version isolation).
+ * Mods the player added themselves are passed through as protected, so the
+ * stray-removal pass leaves them alone.
+ */
 export async function syncModsFolder(
   installDir: string,
   version: ManifestVersion,
@@ -43,6 +48,7 @@ export async function syncModsFolder(
     instanceModsDir(installDir, version.id),
     desiredModFiles(version),
     onEvent,
-    onProgress
+    onProgress,
+    await protectedModFiles(installDir, version.id)
   )
 }

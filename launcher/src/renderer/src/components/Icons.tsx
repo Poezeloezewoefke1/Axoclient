@@ -40,6 +40,17 @@ export const IconVersions = ({ size = 22 }: IconProps): React.JSX.Element =>
     </>
   )
 
+export const IconMods = ({ size = 22 }: IconProps): React.JSX.Element =>
+  svg(
+    size,
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <path d="M17.5 14v7M14 17.5h7" />
+    </>
+  )
+
 export const IconSettings = ({ size = 22 }: IconProps): React.JSX.Element =>
   svg(
     size,

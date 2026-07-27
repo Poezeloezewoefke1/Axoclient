@@ -19,6 +19,7 @@ import { applySkin, getSkin, type SkinInfo } from './skin'
 import { findLatestCrash } from './crashReport'
 import { JVM_PRESETS, recommendedRamMb } from './system'
 import { getNews } from './news'
+import { addUserMods, listUserMods, removeUserMod, setUserModEnabled } from './userMods'
 import { initLogger, logDirectory, logLine, readLauncherLog, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
@@ -124,6 +125,27 @@ app.whenReady().then(async () => {
   )
   ipcMain.handle('accounts:remove', async (_event, uuid: string) =>
     toSessionInfo(await removeAccount(uuid))
+  )
+  // Player-owned mods, per version (protected from stray-removal on sync).
+  ipcMain.handle('mods:list', (_event, versionId: string) =>
+    listUserMods(settings.get().installDir, versionId)
+  )
+  ipcMain.handle('mods:add', async (_event, versionId: string) => {
+    const picked = await dialog.showOpenDialog({
+      title: 'Choose mod files',
+      properties: ['openFile', 'multiSelections'],
+      filters: [{ name: 'Minecraft mods', extensions: ['jar'] }]
+    })
+    if (picked.canceled || picked.filePaths.length === 0) {
+      return listUserMods(settings.get().installDir, versionId)
+    }
+    return addUserMods(settings.get().installDir, versionId, picked.filePaths)
+  })
+  ipcMain.handle('mods:setEnabled', (_event, versionId: string, fileName: string, enabled: boolean) =>
+    setUserModEnabled(settings.get().installDir, versionId, fileName, enabled)
+  )
+  ipcMain.handle('mods:remove', (_event, versionId: string, fileName: string) =>
+    removeUserMod(settings.get().installDir, versionId, fileName)
   )
   ipcMain.handle('news:get', () => getNews())
   ipcMain.handle('system:recommendedRam', () => recommendedRamMb())

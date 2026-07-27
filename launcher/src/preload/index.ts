@@ -9,6 +9,7 @@ import type {
   SessionInfo,
   SkinInfo,
   UpdateStatus,
+  UserMod,
   VersionStatus
 } from '../shared/types'
 
@@ -43,6 +44,12 @@ const api = {
   openLogs: (): Promise<void> => ipcRenderer.invoke('logs:open'),
   readLog: (): Promise<string> => ipcRenderer.invoke('logs:read'),
   getNews: (): Promise<NewsItem[]> => ipcRenderer.invoke('news:get'),
+  listMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:list', versionId),
+  addMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:add', versionId),
+  setModEnabled: (versionId: string, fileName: string, enabled: boolean): Promise<UserMod[]> =>
+    ipcRenderer.invoke('mods:setEnabled', versionId, fileName, enabled),
+  removeMod: (versionId: string, fileName: string): Promise<UserMod[]> =>
+    ipcRenderer.invoke('mods:remove', versionId, fileName),
   getCrashReport: (versionId: string): Promise<CrashDiagnosis | null> =>
     ipcRenderer.invoke('crash:latest', versionId),
   getRecommendedRam: (): Promise<number> => ipcRenderer.invoke('system:recommendedRam'),

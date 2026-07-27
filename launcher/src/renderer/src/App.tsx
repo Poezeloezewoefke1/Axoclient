@@ -1,19 +1,29 @@
 import { useCallback, useEffect, useState } from 'react'
 import logoUrl from './assets/logo.png'
 import SkinRender from './components/SkinRender'
-import { IconCaret, IconLogout, IconPlay, IconSettings, IconSkin, IconVersions } from './components/Icons'
+import {
+  IconCaret,
+  IconLogout,
+  IconMods,
+  IconPlay,
+  IconSettings,
+  IconSkin,
+  IconVersions
+} from './components/Icons'
 import HomeScreen from './screens/Home'
 import LoginScreen from './screens/Login'
 import SettingsScreen from './screens/Settings'
+import ModsScreen from './screens/Mods'
 import SkinsScreen from './screens/Skins'
 import VersionsScreen from './screens/Versions'
 import type { AccountInfo, AxoSettings, SessionInfo, SkinInfo, UpdateStatus } from '../../shared/types'
 
-type Screen = 'play' | 'skins' | 'versions' | 'settings'
+type Screen = 'play' | 'skins' | 'mods' | 'versions' | 'settings'
 
 const SCREEN_TITLE: Record<Screen, string> = {
   play: 'Play',
   skins: 'Skins',
+  mods: 'Mods',
   versions: 'Versions',
   settings: 'Settings'
 }
@@ -150,6 +160,7 @@ export default function App(): React.JSX.Element {
         <nav className="rail-nav">
           {railItem('play', <IconPlay />, 'Play')}
           {railItem('skins', <IconSkin />, 'Skins')}
+          {railItem('mods', <IconMods />, 'Mods')}
           {railItem('versions', <IconVersions />, 'Versions')}
           {railItem('settings', <IconSettings />, 'Settings')}
         </nav>
@@ -249,6 +260,7 @@ export default function App(): React.JSX.Element {
             />
           )}
           {screen === 'skins' && <SkinsScreen skin={skin} onChanged={refreshSkin} />}
+          {screen === 'mods' && <ModsScreen />}
           {screen === 'versions' && <VersionsScreen />}
           {screen === 'settings' && <SettingsScreen />}
         </main>

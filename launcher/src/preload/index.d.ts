@@ -8,6 +8,7 @@ import type {
   SessionInfo,
   SkinInfo,
   UpdateStatus,
+  UserMod,
   VersionStatus
 } from '../shared/types'
 
@@ -35,6 +36,10 @@ declare global {
       openLogs(): Promise<void>
       readLog(): Promise<string>
       getNews(): Promise<NewsItem[]>
+      listMods(versionId: string): Promise<UserMod[]>
+      addMods(versionId: string): Promise<UserMod[]>
+      setModEnabled(versionId: string, fileName: string, enabled: boolean): Promise<UserMod[]>
+      removeMod(versionId: string, fileName: string): Promise<UserMod[]>
       getCrashReport(versionId: string): Promise<CrashDiagnosis | null>
       getRecommendedRam(): Promise<number>
       getJvmPresets(): Promise<JvmPreset[]>

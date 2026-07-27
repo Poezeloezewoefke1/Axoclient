@@ -44,7 +44,13 @@ export async function syncDirectory(
   dir: string,
   desired: DesiredFile[],
   onEvent?: (event: SyncEvent) => void,
-  onProgress?: (progress: SyncProgress) => void
+  onProgress?: (progress: SyncProgress) => void,
+  /**
+   * Filenames the player owns (mods they added themselves). They aren't in
+   * the manifest, so stray-removal would delete them on every launch —
+   * listing them here keeps them.
+   */
+  protectedFiles?: ReadonlySet<string>
 ): Promise<SyncResult> {
   await mkdir(dir, { recursive: true })
   const result: SyncResult = { downloaded: [], kept: [], removed: [] }
@@ -90,7 +96,7 @@ export async function syncDirectory(
   }
 
   for (const name of existing) {
-    if (name.endsWith('.jar') && !wanted.has(name)) {
+    if (name.endsWith('.jar') && !wanted.has(name) && !protectedFiles?.has(name)) {
       onEvent?.({ file: name, action: 'remove' })
       await rm(join(dir, name), { force: true })
       result.removed.push(name)

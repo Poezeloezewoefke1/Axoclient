@@ -46,6 +46,13 @@ export interface UpdateStatus {
   version: string
 }
 
+export interface UserMod {
+  /** Jar filename inside the version's mods folder. */
+  fileName: string
+  /** False when parked as .jar.disabled — present but not loaded. */
+  enabled: boolean
+}
+
 export interface NewsItem {
   title: string
   body: string
