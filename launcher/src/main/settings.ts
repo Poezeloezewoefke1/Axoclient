@@ -61,7 +61,14 @@ export class SettingsStore {
           ? source.installDir
           : this.defaults.installDir,
       jvmArgs: typeof source.jvmArgs === 'string' ? source.jvmArgs : this.defaults.jvmArgs,
-      onboarded: typeof source.onboarded === 'boolean' ? source.onboarded : this.defaults.onboarded
+      onboarded: typeof source.onboarded === 'boolean' ? source.onboarded : this.defaults.onboarded,
+      // Monotonic counter — never let a corrupt file wind playtime backwards.
+      playtimeMinutes:
+        typeof source.playtimeMinutes === 'number' &&
+        Number.isFinite(source.playtimeMinutes) &&
+        source.playtimeMinutes >= 0
+          ? Math.floor(source.playtimeMinutes)
+          : this.defaults.playtimeMinutes
     }
   }
 

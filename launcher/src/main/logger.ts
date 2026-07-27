@@ -1,4 +1,4 @@
-import { appendFile, mkdir, readdir, rm } from 'node:fs/promises'
+import { appendFile, mkdir, readdir, readFile, rm } from 'node:fs/promises'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -63,6 +63,23 @@ export function writeCrashReport(error: Error): string | null {
     return path
   } catch {
     return null
+  }
+}
+
+/**
+ * Tail of launcher.log for the in-app viewer. Only the last `maxLines` are
+ * returned so a long-running install can't flood the renderer.
+ */
+export async function readLauncherLog(maxLines = 400): Promise<string> {
+  const dir = logDir
+  if (!dir) {
+    return ''
+  }
+  try {
+    const text = await readFile(join(dir, 'launcher.log'), 'utf8')
+    return text.split('\n').slice(-maxLines).join('\n').trim()
+  } catch {
+    return ''
   }
 }
 

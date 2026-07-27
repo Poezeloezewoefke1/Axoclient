@@ -46,6 +46,27 @@ export interface UpdateStatus {
   version: string
 }
 
+export interface NewsItem {
+  title: string
+  body: string
+  /** "Release" or "Beta" — drives the badge colour. */
+  tag: string
+  /** ISO timestamp from the release, when present. */
+  date?: string
+  url?: string
+}
+
+export interface CrashDiagnosis {
+  /** Plain-language statement of what went wrong. */
+  summary: string
+  /** What the player should do next. */
+  advice: string
+  /** Axo feature blamed for the crash, when the stack names one. */
+  culprit?: string
+  /** Raw exception/description line, shown only on request. */
+  technical?: string
+}
+
 export type VersionState = 'installed' | 'partial' | 'not-installed'
 
 export interface VersionStatus {
@@ -89,4 +110,6 @@ export interface AxoSettings {
   jvmArgs: string
   /** True once the first-run onboarding has been completed (P5-05). */
   onboarded: boolean
+  /** Total minutes played through the launcher. Only ever counts up. */
+  playtimeMinutes: number
 }

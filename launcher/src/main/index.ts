@@ -16,7 +16,10 @@ import { SettingsStore } from './settings'
 import { forceCloseGame, launchGame } from './launch'
 import { deleteVersion, listVersions } from './versions'
 import { applySkin, getSkin, type SkinInfo } from './skin'
-import { initLogger, logDirectory, logLine, writeCrashReport } from './logger'
+import { findLatestCrash } from './crashReport'
+import { JVM_PRESETS, recommendedRamMb } from './system'
+import { getNews } from './news'
+import { initLogger, logDirectory, logLine, readLauncherLog, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
 
@@ -74,6 +77,8 @@ function friendlyError(error: unknown): Error {
 }
 
 let launching = false
+/** Start of the most recent launch — bounds the crash-report search. */
+let lastLaunchAt = 0
 
 // Crash reporter (P5-03, crash-handling.md case 1): report file + dialog,
 // then a clean exit. No auto-upload — privacy-first.
@@ -102,7 +107,8 @@ app.whenReady().then(async () => {
     channel: 'stable',
     installDir: join(app.getPath('appData'), '.axoclient'),
     jvmArgs: '',
-    onboarded: false
+    onboarded: false,
+    playtimeMinutes: 0
   })
   await settings.load()
 
@@ -119,6 +125,10 @@ app.whenReady().then(async () => {
   ipcMain.handle('accounts:remove', async (_event, uuid: string) =>
     toSessionInfo(await removeAccount(uuid))
   )
+  ipcMain.handle('news:get', () => getNews())
+  ipcMain.handle('system:recommendedRam', () => recommendedRamMb())
+  ipcMain.handle('system:jvmPresets', () => JVM_PRESETS)
+  ipcMain.handle('logs:read', () => readLauncherLog())
   ipcMain.handle('settings:get', () => settings.get())
   ipcMain.handle('settings:update', (_event, patch: Partial<AxoSettings>) =>
     settings.update(patch)
@@ -137,9 +147,15 @@ app.whenReady().then(async () => {
       sender?.webContents.send('game:progress', progress)
     }
     launching = true
+    lastLaunchAt = Date.now()
     try {
       const { manifest } = await getManifest()
       await launchGame(manifest, versionId, session, settings.get(), report)
+      // Playtime is only credited for sessions that actually ran.
+      const minutes = Math.round((Date.now() - lastLaunchAt) / 60_000)
+      if (minutes > 0) {
+        await settings.update({ playtimeMinutes: settings.get().playtimeMinutes + minutes })
+      }
     } catch (error) {
       logLine('launch', `failed: ${error instanceof Error ? error.message : error}`)
       throw friendlyError(error)
@@ -147,6 +163,12 @@ app.whenReady().then(async () => {
       launching = false
     }
   })
+
+  // Crash helper: diagnose the report the game just wrote, ignoring any
+  // report older than the launch that produced it.
+  ipcMain.handle('crash:latest', (_event, versionId: string) =>
+    findLatestCrash(settings.get().installDir, versionId, lastLaunchAt)
+  )
 
   ipcMain.handle('update:install', () => installUpdate())
   // Repair (P3-05): full re-sync of the mods folder for the channel default

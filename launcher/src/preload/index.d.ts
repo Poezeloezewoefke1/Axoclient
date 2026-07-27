@@ -1,8 +1,10 @@
 import type {
   AccountInfo,
   AxoSettings,
+  CrashDiagnosis,
   GameProgress,
   ManifestInfo,
+  NewsItem,
   SessionInfo,
   SkinInfo,
   UpdateStatus,
@@ -10,6 +12,7 @@ import type {
 } from '../shared/types'
 
 type SyncCounts = { downloaded: number; kept: number; removed: number }
+type JvmPreset = { id: string; label: string; description: string; args: string }
 
 declare global {
   interface Window {
@@ -30,6 +33,11 @@ declare global {
       onGameProgress(callback: (progress: GameProgress) => void): () => void
       installUpdate(): Promise<void>
       openLogs(): Promise<void>
+      readLog(): Promise<string>
+      getNews(): Promise<NewsItem[]>
+      getCrashReport(versionId: string): Promise<CrashDiagnosis | null>
+      getRecommendedRam(): Promise<number>
+      getJvmPresets(): Promise<JvmPreset[]>
       getSkin(): Promise<SkinInfo>
       applySkin(variant: 'classic' | 'slim'): Promise<string | null>
       repair(): Promise<SyncCounts>

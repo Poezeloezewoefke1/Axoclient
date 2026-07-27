@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { GameProgress, ManifestInfo, SkinInfo, VersionStatus } from '../../../shared/types'
+import type {
+  CrashDiagnosis,
+  GameProgress,
+  ManifestInfo,
+  NewsItem,
+  SkinInfo,
+  VersionStatus
+} from '../../../shared/types'
 import { formatBytes, formatDuration, formatSpeed } from '../../../shared/format'
 import SkinRender from '../components/SkinRender'
 import { IconCaret, IconFolder, IconRefresh, IconSpark, IconWrench } from '../components/Icons'
@@ -20,12 +27,13 @@ const STATE_LABEL: Record<VersionStatus['state'], string> = {
   'not-installed': 'Not installed'
 }
 
-/** Static changelog — matches the zero-backend design (no news server). */
-const NEWS: { tag: string; title: string; body: string }[] = [
-  { tag: 'New', title: 'Skin changer', body: 'Change your Minecraft skin right here in the launcher.' },
-  { tag: 'New', title: 'Capes are here', body: 'Pick a Blue, Red, Purple, or Black cape in the in-game menu.' },
-  { tag: 'Update', title: 'HUD editor', body: 'Drag your FPS, CPS, and coordinates anywhere on screen.' },
-  { tag: 'Update', title: 'Performance', body: 'Sodium and Lithium are bundled for big FPS gains.' }
+/** Shown until the real releases load (or if the fetch fails offline). */
+const NEWS_PLACEHOLDER: NewsItem[] = [
+  {
+    tag: 'Release',
+    title: 'Welcome to Axo Client',
+    body: 'Release notes appear here once the first version is published on GitHub.'
+  }
 ]
 
 export default function HomeScreen({
@@ -46,6 +54,8 @@ export default function HomeScreen({
   const [repairMsg, setRepairMsg] = useState<string | null>(null)
   const [repairing, setRepairing] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [news, setNews] = useState<NewsItem[]>(NEWS_PLACEHOLDER)
+  const [crash, setCrash] = useState<CrashDiagnosis | null>(null)
 
   const refreshStatuses = useCallback(() => {
     window.axo
@@ -68,6 +78,14 @@ export default function HomeScreen({
         setManifestError(e instanceof Error ? e.message : 'Could not load version list.')
       })
     refreshStatuses()
+    window.axo
+      .getNews()
+      .then((items) => {
+        if (items.length > 0) {
+          setNews(items)
+        }
+      })
+      .catch(() => undefined)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -81,12 +99,22 @@ export default function HomeScreen({
         if (p.stage === 'closed' && p.detail?.startsWith('crash')) {
           setLaunchError(
             p.detail === 'crash-boot'
-              ? 'Minecraft crashed while starting. Check the game logs (Open logs below) — if it keeps happening, use Repair.'
-              : 'Minecraft crashed. Check the game logs via Open logs below.'
+              ? 'Minecraft crashed while starting.'
+              : 'Minecraft crashed.'
           )
+          // Ask the main process to read and explain the crash report.
+          if (versionId) {
+            window.axo
+              .getCrashReport(versionId)
+              .then(setCrash)
+              .catch(() => setCrash(null))
+          }
         }
       }),
-    [refreshStatuses]
+    // versionId is read inside the handler, so the listener must be rebound
+    // when the player switches version — otherwise we'd fetch the crash
+    // report for whichever version was selected when the app started.
+    [refreshStatuses, versionId]
   )
 
   const busy = progress !== null && progress.stage !== 'closed'
@@ -101,6 +129,7 @@ export default function HomeScreen({
       return
     }
     setLaunchError(null)
+    setCrash(null)
     setProgress({ stage: 'preparing' })
     window.axo.launch(versionId).catch((e: unknown) => {
       setLaunchError(e instanceof Error ? e.message : 'Launch failed — see logs.')
@@ -135,12 +164,38 @@ export default function HomeScreen({
             or download the latest from the website.
           </div>
         )}
-        {launchError && (
+        {launchError && !crash && (
           <div className="error-banner">
             {launchError}
             <button className="link-button" onClick={play}>
               Retry
             </button>
+          </div>
+        )}
+        {crash && (
+          <div className="crash-card">
+            <div className="crash-head">
+              <span className="crash-icon">⚠️</span>
+              <strong>{crash.summary}</strong>
+            </div>
+            <p className="crash-advice">{crash.advice}</p>
+            <div className="crash-actions">
+              <button className="btn-secondary" onClick={play}>
+                Try again
+              </button>
+              <button className="link-button" onClick={repair} disabled={repairing}>
+                {repairing ? 'Repairing…' : 'Repair install'}
+              </button>
+              <button className="link-button" onClick={() => void window.axo.openLogs()}>
+                Open logs
+              </button>
+            </div>
+            {crash.technical && (
+              <details className="crash-details">
+                <summary>Technical details</summary>
+                <code>{crash.technical}</code>
+              </details>
+            )}
           </div>
         )}
         {manifest?.stale && (
@@ -289,11 +344,14 @@ export default function HomeScreen({
           <span>News</span>
         </div>
         <div className="news-list">
-          {NEWS.map((n) => (
-            <article className="news-card" key={n.title}>
+          {news.map((n) => (
+            <article className="news-card" key={`${n.title}-${n.date ?? ''}`}>
               <span className={`news-tag news-tag-${n.tag.toLowerCase()}`}>{n.tag}</span>
               <h3>{n.title}</h3>
-              <p>{n.body}</p>
+              {n.body && <p>{n.body}</p>}
+              {n.date && (
+                <p className="news-date">{new Date(n.date).toLocaleDateString()}</p>
+              )}
             </article>
           ))}
         </div>

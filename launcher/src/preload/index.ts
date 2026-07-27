@@ -2,8 +2,10 @@ import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import type {
   AccountInfo,
   AxoSettings,
+  CrashDiagnosis,
   GameProgress,
   ManifestInfo,
+  NewsItem,
   SessionInfo,
   SkinInfo,
   UpdateStatus,
@@ -11,6 +13,7 @@ import type {
 } from '../shared/types'
 
 type SyncCounts = { downloaded: number; kept: number; removed: number }
+type JvmPreset = { id: string; label: string; description: string; args: string }
 
 /** The only surface the renderer can call. Keep it small and typed. */
 const api = {
@@ -38,6 +41,12 @@ const api = {
   },
   installUpdate: (): Promise<void> => ipcRenderer.invoke('update:install'),
   openLogs: (): Promise<void> => ipcRenderer.invoke('logs:open'),
+  readLog: (): Promise<string> => ipcRenderer.invoke('logs:read'),
+  getNews: (): Promise<NewsItem[]> => ipcRenderer.invoke('news:get'),
+  getCrashReport: (versionId: string): Promise<CrashDiagnosis | null> =>
+    ipcRenderer.invoke('crash:latest', versionId),
+  getRecommendedRam: (): Promise<number> => ipcRenderer.invoke('system:recommendedRam'),
+  getJvmPresets: (): Promise<JvmPreset[]> => ipcRenderer.invoke('system:jvmPresets'),
   getSkin: (): Promise<SkinInfo> => ipcRenderer.invoke('skin:get'),
   applySkin: (variant: 'classic' | 'slim'): Promise<string | null> =>
     ipcRenderer.invoke('skin:apply', variant),

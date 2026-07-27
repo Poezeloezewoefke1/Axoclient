@@ -956,6 +956,144 @@ body {
   gap: 12px;
 }
 
+/* ---- Crash helper ---- */
+
+.crash-card {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+
+.crash-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--axo-text);
+}
+
+.crash-icon {
+  font-size: 16px;
+}
+
+.crash-advice {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--axo-text-muted);
+}
+
+.crash-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.crash-details {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--axo-text-muted);
+}
+
+.crash-details summary {
+  cursor: pointer;
+}
+
+.crash-details code {
+  display: block;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--axo-black);
+  border: 1px solid var(--axo-border);
+  border-radius: 8px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* ---- Settings: presets + log viewer ---- */
+
+.preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.preset {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid var(--axo-border);
+  border-radius: 10px;
+  background: var(--axo-surface-2);
+  color: var(--axo-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.preset:hover {
+  border-color: var(--axo-blue);
+}
+
+.preset.active {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.preset-label {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.preset.active .preset-label {
+  color: var(--axo-blue);
+}
+
+.preset-desc {
+  font-size: 12px;
+  color: var(--axo-text-muted);
+}
+
+.log-view {
+  margin-top: 12px;
+  max-height: 280px;
+  overflow: auto;
+  padding: 12px;
+  background: var(--axo-black);
+  border: 1px solid var(--axo-border);
+  border-radius: 8px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--axo-text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+
+.news-date {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--axo-text-muted);
+}
+
+.news-tag-release {
+  color: var(--axo-black);
+  background: var(--axo-blue);
+}
+
+.news-tag-beta {
+  color: var(--axo-amber);
+  background: rgba(251, 191, 36, 0.14);
+}
+
 /* ---- Progress ---- */
 
 .progress {

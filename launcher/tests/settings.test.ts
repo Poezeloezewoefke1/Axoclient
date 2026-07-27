@@ -10,7 +10,8 @@ const DEFAULTS: AxoSettings = {
   channel: 'stable',
   installDir: 'C:/fake/.axoclient',
   jvmArgs: '',
-  onboarded: false
+  onboarded: false,
+  playtimeMinutes: 0
 }
 
 describe('SettingsStore', () => {
@@ -65,6 +66,24 @@ describe('SettingsStore', () => {
     const store = new SettingsStore(file, DEFAULTS)
     const settings = await store.load()
     expect(settings).toEqual(DEFAULTS)
+  })
+
+  it('keeps playtime as a whole, non-negative number', async () => {
+    const store = new SettingsStore(file, DEFAULTS)
+    await store.load()
+    expect((await store.update({ playtimeMinutes: 42.7 })).playtimeMinutes).toBe(42)
+    // A negative value on disk must not wind the counter backwards.
+    expect((await store.update({ playtimeMinutes: -5 })).playtimeMinutes).toBe(0)
+  })
+
+  it('accumulates playtime across sessions', async () => {
+    const store = new SettingsStore(file, DEFAULTS)
+    await store.load()
+    await store.update({ playtimeMinutes: 30 })
+    const reloaded = new SettingsStore(file, DEFAULTS)
+    const settings = await reloaded.load()
+    expect(settings.playtimeMinutes).toBe(30)
+    expect((await reloaded.update({ playtimeMinutes: settings.playtimeMinutes + 15 })).playtimeMinutes).toBe(45)
   })
 
   it('writes valid JSON to disk', async () => {
