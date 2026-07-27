@@ -11,6 +11,7 @@ import dev.axoclient.modules.cosmetic.ParticleCosmeticModule;
 import dev.axoclient.modules.cosmetic.ParticleTrailModule;
 import dev.axoclient.modules.hud.ArmorHudModule;
 import dev.axoclient.modules.hud.ClockHudModule;
+import dev.axoclient.modules.hud.CompassHudModule;
 import dev.axoclient.modules.hud.DayCounterHudModule;
 import dev.axoclient.modules.hud.DirectionHudModule;
 import dev.axoclient.modules.hud.ExperienceHudModule;
@@ -27,8 +28,11 @@ import dev.axoclient.modules.hud.ServerInfoHudModule;
 import dev.axoclient.modules.hud.SessionUptimeHudModule;
 import dev.axoclient.modules.hud.SpeedHudModule;
 import dev.axoclient.modules.hud.TimeHudModule;
+import dev.axoclient.modules.hud.TpsHudModule;
 import dev.axoclient.modules.hud.XpProgressHudModule;
+import dev.axoclient.modules.pvp.AttackCooldownModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
+import dev.axoclient.modules.pvp.TargetHudModule;
 import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ToggleSprintModule;
 import dev.axoclient.modules.qol.UnfocusedFpsModule;
@@ -82,6 +86,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new PingSpikeModule());
         modules.register(new DurabilityWarningModule());
         modules.register(new DeathCoordsModule());
+        modules.register(new TpsHudModule());
+        modules.register(new CompassHudModule());
         modules.register(new ParticleTrailModule());
         modules.register(new HeartTrailModule());
         // Particle cosmetics (client-side, local-only) — all share one class.
@@ -103,6 +109,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new CapeModule("cape_purple", "Purple Cape", "textures/capes/purple.png"));
         modules.register(new CapeModule("cape_black", "Black Cape", "textures/capes/black.png"));
         modules.register(new KeystrokesModule());
+        modules.register(new TargetHudModule());
+        modules.register(new AttackCooldownModule());
         modules.register(new FullbrightModule());
         modules.register(new ZoomModule());
         modules.register(new ToggleSprintModule());
