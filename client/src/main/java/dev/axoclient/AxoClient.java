@@ -18,13 +18,20 @@ import dev.axoclient.modules.hud.HealthHudModule;
 import dev.axoclient.modules.hud.HungerHudModule;
 import dev.axoclient.modules.hud.MemoryHudModule;
 import dev.axoclient.modules.hud.ModuleListHudModule;
+import dev.axoclient.modules.hud.DeathCoordsModule;
+import dev.axoclient.modules.hud.DurabilityWarningModule;
 import dev.axoclient.modules.hud.PingHudModule;
+import dev.axoclient.modules.hud.PingSpikeModule;
 import dev.axoclient.modules.hud.PotionEffectsHudModule;
+import dev.axoclient.modules.hud.ServerInfoHudModule;
 import dev.axoclient.modules.hud.SessionUptimeHudModule;
 import dev.axoclient.modules.hud.SpeedHudModule;
 import dev.axoclient.modules.hud.TimeHudModule;
+import dev.axoclient.modules.hud.XpProgressHudModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
 import dev.axoclient.modules.qol.FullbrightModule;
+import dev.axoclient.modules.qol.ToggleSprintModule;
+import dev.axoclient.modules.qol.UnfocusedFpsModule;
 import dev.axoclient.modules.qol.ZoomModule;
 import dev.axoclient.gui.ClickGuiScreen;
 import dev.axoclient.input.Keybinds;
@@ -70,6 +77,11 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new ClockHudModule());
         modules.register(new ArmorHudModule());
         modules.register(new PotionEffectsHudModule());
+        modules.register(new XpProgressHudModule());
+        modules.register(new ServerInfoHudModule());
+        modules.register(new PingSpikeModule());
+        modules.register(new DurabilityWarningModule());
+        modules.register(new DeathCoordsModule());
         modules.register(new ParticleTrailModule());
         modules.register(new HeartTrailModule());
         // Particle cosmetics (client-side, local-only) — all share one class.
@@ -93,6 +105,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new KeystrokesModule());
         modules.register(new FullbrightModule());
         modules.register(new ZoomModule());
+        modules.register(new ToggleSprintModule());
+        modules.register(new UnfocusedFpsModule());
         // New modules register here and nowhere else (see docs/architecture.md).
 
         // In-game update check: notifies if the manifest advertises a newer build.
