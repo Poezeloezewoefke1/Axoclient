@@ -1,6 +1,16 @@
 import { Auth } from 'msmc'
 import { clearRefreshToken, loadRefreshToken, saveRefreshToken } from './tokens'
 import { logLine } from './logger'
+import {
+  emptyStore,
+  findAccount,
+  parseStore,
+  removeAccount as removeFromStore,
+  serializeStore,
+  toAccountInfos,
+  upsertAccount,
+  type AccountStore
+} from './accountStore'
 import type { AccountInfo, SessionInfo } from '../shared/types'
 
 /**
@@ -17,18 +27,6 @@ export interface AxoSession extends SessionInfo {
   mclcAuth: unknown
   /** Minecraft access token — used for skin changes. Never send to the renderer. */
   accessToken: string
-}
-
-interface StoredAccount {
-  uuid: string
-  username: string
-  /** msmc refresh token (xboxManager.save()). Encrypted at rest. */
-  refresh: string
-}
-
-interface AccountStore {
-  activeUuid: string | null
-  accounts: StoredAccount[]
 }
 
 /**
@@ -64,14 +62,14 @@ interface MinecraftLike {
 }
 
 let storeFile: string | null = null
-let store: AccountStore = { activeUuid: null, accounts: [] }
+let store: AccountStore = emptyStore()
 let loaded = false
 let currentSession: AxoSession | null = null
 
 export function initAuth(filePath: string): void {
   storeFile = filePath
   loaded = false
-  store = { activeUuid: null, accounts: [] }
+  store = emptyStore()
 }
 
 async function ensureLoaded(): Promise<void> {
@@ -82,23 +80,12 @@ async function ensureLoaded(): Promise<void> {
   if (!storeFile) {
     return
   }
-  const raw = await loadRefreshToken(storeFile)
-  if (!raw) {
-    return
-  }
-  try {
-    const parsed = JSON.parse(raw) as AccountStore
-    if (parsed && Array.isArray(parsed.accounts)) {
-      store = { activeUuid: parsed.activeUuid ?? null, accounts: parsed.accounts }
-    }
-  } catch {
-    // Corrupt/legacy store — start fresh; the user signs in again.
-  }
+  store = parseStore(await loadRefreshToken(storeFile))
 }
 
 async function persist(): Promise<void> {
   if (storeFile) {
-    await saveRefreshToken(storeFile, JSON.stringify(store))
+    await saveRefreshToken(storeFile, serializeStore(store))
   }
 }
 
@@ -112,14 +99,7 @@ function toSession(token: MinecraftLike): AxoSession {
 }
 
 function upsert(uuid: string, username: string, refresh: string): void {
-  const existing = store.accounts.find((a) => a.uuid === uuid)
-  if (existing) {
-    existing.username = username
-    existing.refresh = refresh
-  } else {
-    store.accounts.push({ uuid, username, refresh })
-  }
-  store.activeUuid = uuid
+  store = upsertAccount(store, { uuid, username, refresh })
 }
 
 /** Add a new account via the Microsoft popup, and make it active. */
@@ -138,7 +118,7 @@ export async function loginWithMicrosoft(): Promise<AxoSession> {
 
 /** Silent refresh of a stored account by uuid; updates the rotated token. */
 async function activate(uuid: string): Promise<AxoSession> {
-  const account = store.accounts.find((a) => a.uuid === uuid)
+  const account = findAccount(store, uuid)
   if (!account) {
     throw new Error('Account not found — sign in again.')
   }
@@ -177,11 +157,7 @@ export async function selectAccount(uuid: string): Promise<AxoSession> {
 
 export async function listAccounts(): Promise<AccountInfo[]> {
   await ensureLoaded()
-  return store.accounts.map((a) => ({
-    username: a.username,
-    uuid: a.uuid,
-    active: a.uuid === store.activeUuid
-  }))
+  return toAccountInfos(store)
 }
 
 /**
@@ -191,20 +167,20 @@ export async function listAccounts(): Promise<AccountInfo[]> {
 export async function removeAccount(uuid: string): Promise<AxoSession | null> {
   await ensureLoaded()
   const wasActive = store.activeUuid === uuid
-  store.accounts = store.accounts.filter((a) => a.uuid !== uuid)
+  store = removeFromStore(store, uuid)
   if (!wasActive) {
     await persist()
     return currentSession
   }
+  // The removed account was the one playing — promote whoever the store
+  // picked next (activate() re-persists with a rotated token).
   currentSession = null
-  store.activeUuid = null
-  const next = store.accounts[0]
-  if (next) {
+  const nextUuid = store.activeUuid
+  if (nextUuid) {
     try {
-      const session = await activate(next.uuid)
-      return session
+      return await activate(nextUuid)
     } catch {
-      // Fall through: nothing usable left; user signs in again.
+      // Fall through: nothing usable left; the user signs in again.
     }
   }
   await persist()
