@@ -9,7 +9,12 @@ import dev.axoclient.modules.cosmetic.CapeModule;
 import dev.axoclient.modules.cosmetic.HeartTrailModule;
 import dev.axoclient.modules.cosmetic.ParticleCosmeticModule;
 import dev.axoclient.modules.cosmetic.ParticleTrailModule;
+import dev.axoclient.modules.hud.ClockHudModule;
 import dev.axoclient.modules.hud.DayCounterHudModule;
+import dev.axoclient.modules.hud.DirectionHudModule;
+import dev.axoclient.modules.hud.ExperienceHudModule;
+import dev.axoclient.modules.hud.HealthHudModule;
+import dev.axoclient.modules.hud.HungerHudModule;
 import dev.axoclient.modules.hud.MemoryHudModule;
 import dev.axoclient.modules.hud.ModuleListHudModule;
 import dev.axoclient.modules.hud.PingHudModule;
@@ -56,6 +61,11 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new PingHudModule());
         modules.register(new DayCounterHudModule());
         modules.register(new SessionUptimeHudModule());
+        modules.register(new HealthHudModule());
+        modules.register(new HungerHudModule());
+        modules.register(new ExperienceHudModule());
+        modules.register(new DirectionHudModule());
+        modules.register(new ClockHudModule());
         modules.register(new ParticleTrailModule());
         modules.register(new HeartTrailModule());
         // Particle cosmetics (client-side, local-only) — all share one class.
