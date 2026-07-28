@@ -13,6 +13,7 @@ import dev.axoclient.modules.hud.ArmorHudModule;
 import dev.axoclient.modules.hud.BiomeHudModule;
 import dev.axoclient.modules.hud.ClockHudModule;
 import dev.axoclient.modules.hud.CompassHudModule;
+import dev.axoclient.modules.hud.CrosshairModule;
 import dev.axoclient.modules.hud.DayCounterHudModule;
 import dev.axoclient.modules.hud.DirectionHudModule;
 import dev.axoclient.modules.hud.ExperienceHudModule;
@@ -37,6 +38,7 @@ import dev.axoclient.modules.pvp.ComboCounterModule;
 import dev.axoclient.modules.pvp.DamageNumbersModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
 import dev.axoclient.modules.pvp.TargetHudModule;
+import dev.axoclient.modules.qol.CopyCoordsModule;
 import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ToggleSprintModule;
 import dev.axoclient.modules.qol.UnfocusedFpsModule;
@@ -94,6 +96,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new CompassHudModule());
         modules.register(new BiomeHudModule());
         modules.register(new PickupLogModule());
+        modules.register(new CrosshairModule());
         modules.register(new ParticleTrailModule());
         modules.register(new HeartTrailModule());
         // Particle cosmetics (client-side, local-only) — all share one class.
@@ -137,6 +140,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new ZoomModule());
         modules.register(new ToggleSprintModule());
         modules.register(new UnfocusedFpsModule());
+        modules.register(new CopyCoordsModule());
         // New modules register here and nowhere else (see docs/architecture.md).
 
         // In-game update check: notifies if the manifest advertises a newer build.
