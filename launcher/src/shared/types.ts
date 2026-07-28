@@ -46,6 +46,15 @@ export interface UpdateStatus {
   version: string
 }
 
+export interface SavedSkin {
+  /** Filesystem-safe id; the PNG is <id>.png in the skins folder. */
+  id: string
+  name: string
+  slim: boolean
+  /** data:image/png;base64,… so the renderer can draw it under the CSP. */
+  dataUrl: string
+}
+
 export interface UserMod {
   /** Jar filename inside the version's mods folder. */
   fileName: string

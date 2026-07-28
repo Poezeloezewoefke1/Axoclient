@@ -20,6 +20,13 @@ import { findLatestCrash } from './crashReport'
 import { JVM_PRESETS, recommendedRamMb } from './system'
 import { getNews } from './news'
 import { addUserMods, listUserMods, removeUserMod, setUserModEnabled } from './userMods'
+import {
+  deleteSavedSkin,
+  listSavedSkins,
+  savedSkinPath,
+  saveSkinData,
+  saveSkinFile
+} from './skinLibrary'
 import { initLogger, logDirectory, logLine, readLauncherLog, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
@@ -126,6 +133,41 @@ app.whenReady().then(async () => {
   ipcMain.handle('accounts:remove', async (_event, uuid: string) =>
     toSessionInfo(await removeAccount(uuid))
   )
+  // Skin library: keep favourites locally so swapping is a click.
+  const skinsDir = join(app.getPath('userData'), 'skins')
+  ipcMain.handle('skins:list', () => listSavedSkins(skinsDir))
+  ipcMain.handle('skins:saveFile', async (_event, name: string, slim: boolean) => {
+    const picked = await dialog.showOpenDialog({
+      title: 'Choose a skin PNG (64×64)',
+      properties: ['openFile'],
+      filters: [{ name: 'Skin PNG', extensions: ['png'] }]
+    })
+    if (picked.canceled || picked.filePaths.length === 0) {
+      return listSavedSkins(skinsDir)
+    }
+    return saveSkinFile(skinsDir, picked.filePaths[0], name, slim)
+  })
+  ipcMain.handle('skins:saveCurrent', async (_event, name: string) => {
+    const session = getSession()
+    if (!session?.uuid) {
+      throw new Error('Sign in first.')
+    }
+    const current = await getSkin(session.uuid)
+    if (!current.dataUrl) {
+      throw new Error('Your current skin could not be downloaded.')
+    }
+    return saveSkinData(skinsDir, current.dataUrl, name, current.slim)
+  })
+  ipcMain.handle('skins:delete', (_event, id: string) => deleteSavedSkin(skinsDir, id))
+  ipcMain.handle('skins:wear', async (_event, id: string, slim: boolean) => {
+    const session = getSession()
+    if (!session?.accessToken) {
+      throw new Error('Sign in again to change your skin (no access token).')
+    }
+    await applySkin(session.accessToken, savedSkinPath(skinsDir, id), slim ? 'slim' : 'classic')
+    return (await getSkin(session.uuid)).dataUrl
+  })
+
   // Player-owned mods, per version (protected from stray-removal on sync).
   ipcMain.handle('mods:list', (_event, versionId: string) =>
     listUserMods(settings.get().installDir, versionId)

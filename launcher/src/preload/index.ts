@@ -6,6 +6,7 @@ import type {
   GameProgress,
   ManifestInfo,
   NewsItem,
+  SavedSkin,
   SessionInfo,
   SkinInfo,
   UpdateStatus,
@@ -44,6 +45,14 @@ const api = {
   openLogs: (): Promise<void> => ipcRenderer.invoke('logs:open'),
   readLog: (): Promise<string> => ipcRenderer.invoke('logs:read'),
   getNews: (): Promise<NewsItem[]> => ipcRenderer.invoke('news:get'),
+  listSkins: (): Promise<SavedSkin[]> => ipcRenderer.invoke('skins:list'),
+  saveSkinFile: (name: string, slim: boolean): Promise<SavedSkin[]> =>
+    ipcRenderer.invoke('skins:saveFile', name, slim),
+  saveCurrentSkin: (name: string): Promise<SavedSkin[]> =>
+    ipcRenderer.invoke('skins:saveCurrent', name),
+  deleteSkin: (id: string): Promise<SavedSkin[]> => ipcRenderer.invoke('skins:delete', id),
+  wearSkin: (id: string, slim: boolean): Promise<string | null> =>
+    ipcRenderer.invoke('skins:wear', id, slim),
   listMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:list', versionId),
   addMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:add', versionId),
   setModEnabled: (versionId: string, fileName: string, enabled: boolean): Promise<UserMod[]> =>
