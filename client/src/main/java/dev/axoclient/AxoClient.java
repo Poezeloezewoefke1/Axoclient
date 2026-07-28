@@ -103,11 +103,25 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new ParticleCosmeticModule("splash_trail", "Splash Trail", ParticleTypes.SPLASH, 1, 0.1));
         modules.register(new ParticleCosmeticModule("lava_trail", "Lava Trail", ParticleTypes.LAVA, 2, 0.1));
         modules.register(new ParticleCosmeticModule("angry_aura", "Angry Aura", ParticleTypes.ANGRY_VILLAGER, 4, 1.5));
+        modules.register(new ParticleCosmeticModule("enchant_aura", "Enchant Aura", ParticleTypes.ENCHANT, 1, 1.2));
+        modules.register(new ParticleCosmeticModule("endrod_trail", "End Rod Trail", ParticleTypes.END_ROD, 1, 0.1));
+        modules.register(new ParticleCosmeticModule("snow_trail", "Snow Trail", ParticleTypes.SNOWFLAKE, 1, 0.1));
+        modules.register(new ParticleCosmeticModule("soul_aura", "Soul Aura", ParticleTypes.SOUL, 2, 1.0));
+        modules.register(new ParticleCosmeticModule("spark_trail", "Spark Trail", ParticleTypes.ELECTRIC_SPARK, 1, 0.1));
+        modules.register(new ParticleCosmeticModule("glow_aura", "Glow Aura", ParticleTypes.GLOW, 2, 1.0));
+        modules.register(new ParticleCosmeticModule("cherry_trail", "Cherry Trail", ParticleTypes.CHERRY_LEAVES, 1, 1.4));
+        modules.register(new ParticleCosmeticModule("firework_trail", "Firework Trail", ParticleTypes.FIREWORK, 2, 0.5));
         // Custom capes (client-side, local-only) — bundled textures.
         modules.register(new CapeModule("cape_blue", "Blue Cape", "textures/capes/blue.png"));
         modules.register(new CapeModule("cape_red", "Red Cape", "textures/capes/red.png"));
         modules.register(new CapeModule("cape_purple", "Purple Cape", "textures/capes/purple.png"));
         modules.register(new CapeModule("cape_black", "Black Cape", "textures/capes/black.png"));
+        modules.register(new CapeModule("cape_green", "Green Cape", "textures/capes/green.png"));
+        modules.register(new CapeModule("cape_white", "White Cape", "textures/capes/white.png"));
+        modules.register(new CapeModule("cape_gold", "Gold Cape", "textures/capes/gold.png"));
+        modules.register(new CapeModule("cape_sunset", "Sunset Cape", "textures/capes/sunset.png"));
+        modules.register(new CapeModule("cape_ocean", "Ocean Cape", "textures/capes/ocean.png"));
+        modules.register(new CapeModule("cape_carbon", "Carbon Cape", "textures/capes/carbon.png"));
         modules.register(new KeystrokesModule());
         modules.register(new TargetHudModule());
         modules.register(new AttackCooldownModule());
