@@ -31,6 +31,8 @@ import dev.axoclient.modules.hud.TimeHudModule;
 import dev.axoclient.modules.hud.TpsHudModule;
 import dev.axoclient.modules.hud.XpProgressHudModule;
 import dev.axoclient.modules.pvp.AttackCooldownModule;
+import dev.axoclient.modules.pvp.ComboCounterModule;
+import dev.axoclient.modules.pvp.DamageNumbersModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
 import dev.axoclient.modules.pvp.TargetHudModule;
 import dev.axoclient.modules.qol.FullbrightModule;
@@ -125,6 +127,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new KeystrokesModule());
         modules.register(new TargetHudModule());
         modules.register(new AttackCooldownModule());
+        modules.register(new DamageNumbersModule());
+        modules.register(new ComboCounterModule());
         modules.register(new FullbrightModule());
         modules.register(new ZoomModule());
         modules.register(new ToggleSprintModule());
