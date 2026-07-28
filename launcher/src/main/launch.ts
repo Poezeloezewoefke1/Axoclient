@@ -35,7 +35,9 @@ export async function launchGame(
   versionId: string,
   session: AxoSession,
   settings: AxoSettings,
-  onProgress: (progress: GameProgress) => void
+  onProgress: (progress: GameProgress) => void,
+  /** Server address to join straight from the launcher, skipping the menus. */
+  joinServer?: string
 ): Promise<void> {
   const version = Object.values(manifest.channels)
     .flatMap((channel) => channel.versions)
@@ -110,7 +112,11 @@ export async function launchGame(
     overrides: {
       gameDirectory: instanceDir(settings.installDir, version.id)
     },
-    customArgs: settings.jvmArgs ? settings.jvmArgs.split(/\s+/).filter(Boolean) : undefined
+    customArgs: settings.jvmArgs ? settings.jvmArgs.split(/\s+/).filter(Boolean) : undefined,
+    // Quick Play (1.20+): hand the address to the game so it connects on boot.
+    quickPlay: joinServer
+      ? { type: 'multiplayer' as const, identifier: joinServer }
+      : undefined
   } as LaunchOptions
 
   const process = await launcher.launch(options)

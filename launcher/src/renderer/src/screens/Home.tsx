@@ -56,6 +56,7 @@ export default function HomeScreen({
   const [pickerOpen, setPickerOpen] = useState(false)
   const [news, setNews] = useState<NewsItem[]>(NEWS_PLACEHOLDER)
   const [crash, setCrash] = useState<CrashDiagnosis | null>(null)
+  const [joinServer, setJoinServer] = useState('')
 
   const refreshStatuses = useCallback(() => {
     window.axo
@@ -131,7 +132,7 @@ export default function HomeScreen({
     setLaunchError(null)
     setCrash(null)
     setProgress({ stage: 'preparing' })
-    window.axo.launch(versionId).catch((e: unknown) => {
+    window.axo.launch(versionId, joinServer.trim() || undefined).catch((e: unknown) => {
       setLaunchError(e instanceof Error ? e.message : 'Launch failed — see logs.')
       setProgress(null)
     })
@@ -322,6 +323,19 @@ export default function HomeScreen({
               Force close game
             </button>
           )}
+
+          <label className="join-row">
+            <span className="join-label">Join server</span>
+            <input
+              type="text"
+              className="join-input"
+              placeholder="optional — e.g. play.example.net"
+              spellCheck={false}
+              value={joinServer}
+              disabled={busy}
+              onChange={(e) => setJoinServer(e.target.value)}
+            />
+          </label>
 
           <div className="quick-actions">
             <button className="chip-action" onClick={repair} disabled={busy || repairing}>

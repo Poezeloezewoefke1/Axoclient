@@ -197,7 +197,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('settings:update', (_event, patch: Partial<AxoSettings>) =>
     settings.update(patch)
   )
-  ipcMain.handle('game:launch', async (event, versionId: string) => {
+  ipcMain.handle('game:launch', async (event, versionId: string, joinServer?: string) => {
     if (launching) {
       throw new Error('A launch is already in progress')
     }
@@ -214,7 +214,7 @@ app.whenReady().then(async () => {
     lastLaunchAt = Date.now()
     try {
       const { manifest } = await getManifest()
-      await launchGame(manifest, versionId, session, settings.get(), report)
+      await launchGame(manifest, versionId, session, settings.get(), report, joinServer)
       // Playtime is only credited for sessions that actually ran.
       const minutes = Math.round((Date.now() - lastLaunchAt) / 60_000)
       if (minutes > 0) {
