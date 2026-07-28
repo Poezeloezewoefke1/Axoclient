@@ -6,6 +6,7 @@ import dev.axoclient.modules.hud.CoordinatesModule;
 import dev.axoclient.modules.hud.CpsCounterModule;
 import dev.axoclient.modules.hud.FpsHudModule;
 import dev.axoclient.modules.cosmetic.CapeModule;
+import dev.axoclient.modules.cosmetic.CustomCapeModule;
 import dev.axoclient.modules.cosmetic.HeartTrailModule;
 import dev.axoclient.modules.cosmetic.ParticleCosmeticModule;
 import dev.axoclient.modules.cosmetic.ParticleTrailModule;
@@ -131,6 +132,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new CapeModule("cape_sunset", "Sunset Cape", "textures/capes/sunset.png"));
         modules.register(new CapeModule("cape_ocean", "Ocean Cape", "textures/capes/ocean.png"));
         modules.register(new CapeModule("cape_carbon", "Carbon Cape", "textures/capes/carbon.png"));
+        modules.register(new CustomCapeModule());
         modules.register(new KeystrokesModule());
         modules.register(new TargetHudModule());
         modules.register(new AttackCooldownModule());
