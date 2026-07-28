@@ -105,6 +105,102 @@
       });
   }
 
+  /* ---- Total downloads across every release asset ---- */
+  var countEls = document.querySelectorAll('[data-download-count]');
+  if (countEls.length) {
+    fetch('https://api.github.com/repos/' + REPO + '/releases', {
+      headers: { Accept: 'application/vnd.github+json' }
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (releases) {
+        var total = 0;
+        releases.forEach(function (r) {
+          (r.assets || []).forEach(function (a) {
+            total += a.download_count || 0;
+          });
+        });
+        // Nothing published yet reads as broken; say nothing instead.
+        if (total > 0) {
+          countEls.forEach(function (el) {
+            el.textContent = total.toLocaleString() + ' downloads';
+            el.hidden = false;
+          });
+        }
+      })
+      .catch(function () {
+        /* Offline or rate-limited: leave the element hidden. */
+      });
+  }
+
+  /* ---- Changelog built from published releases ---- */
+  var log = document.querySelector('[data-changelog]');
+  if (log) {
+    fetch('https://api.github.com/repos/' + REPO + '/releases', {
+      headers: { Accept: 'application/vnd.github+json' }
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (releases) {
+        var published = releases.filter(function (r) {
+          return !r.draft;
+        });
+        if (!published.length) return;
+
+        log.innerHTML = '';
+        published.forEach(function (release) {
+          var card = document.createElement('div');
+          card.className = 'release';
+
+          var head = document.createElement('div');
+          head.className = 'release-head';
+
+          var title = document.createElement('h3');
+          title.textContent = release.name || release.tag_name || 'Release';
+          head.appendChild(title);
+
+          if (release.prerelease) {
+            var badge = document.createElement('span');
+            badge.className = 'badge badge-soon';
+            badge.textContent = 'Beta';
+            head.appendChild(badge);
+          }
+          if (release.published_at) {
+            var when = document.createElement('span');
+            when.className = 'release-date';
+            when.textContent = new Date(release.published_at).toLocaleDateString();
+            head.appendChild(when);
+          }
+          card.appendChild(head);
+
+          var list = document.createElement('ul');
+          list.className = 'changelist';
+          (release.body || '')
+            .split(/\r?\n/)
+            .map(function (line) {
+              return line.replace(/^\s*[-*+]\s+/, '').replace(/^#+\s*/, '').trim();
+            })
+            .filter(function (line) {
+              return line && !/^\*\*Full Changelog\*\*/i.test(line) && !/^https?:\/\/\S+$/.test(line);
+            })
+            .forEach(function (line) {
+              var li = document.createElement('li');
+              li.textContent = line; /* textContent: release bodies are untrusted markdown */
+              list.appendChild(li);
+            });
+          if (list.childNodes.length) card.appendChild(list);
+          log.appendChild(card);
+        });
+      })
+      .catch(function () {
+        /* Keep the built-in changelog that's already in the HTML. */
+      });
+  }
+
   /* ---- Footer year ---- */
   var yr = document.querySelector('[data-year]');
   if (yr) yr.textContent = new Date().getFullYear();
