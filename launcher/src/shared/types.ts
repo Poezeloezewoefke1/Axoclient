@@ -41,6 +41,16 @@ export interface SkinInfo {
   slim: boolean
 }
 
+export interface LaunchProfile {
+  /** Unique, case-insensitively, within the profile list. */
+  name: string
+  /** Only the fields a profile actually pins are set; the rest stay as-is. */
+  ramMb?: number
+  jvmArgs?: string
+  channel?: string
+  versionId?: string
+}
+
 export interface UpdateStatus {
   state: 'ready'
   version: string
@@ -135,4 +145,6 @@ export interface AxoSettings {
   onboarded: boolean
   /** Total minutes played through the launcher. Only ever counts up. */
   playtimeMinutes: number
+  /** Show "Playing Axo Client" on your Discord profile. */
+  discordRpc: boolean
 }

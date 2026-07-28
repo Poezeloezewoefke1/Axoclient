@@ -62,6 +62,8 @@ export class SettingsStore {
           : this.defaults.installDir,
       jvmArgs: typeof source.jvmArgs === 'string' ? source.jvmArgs : this.defaults.jvmArgs,
       onboarded: typeof source.onboarded === 'boolean' ? source.onboarded : this.defaults.onboarded,
+      discordRpc:
+        typeof source.discordRpc === 'boolean' ? source.discordRpc : this.defaults.discordRpc,
       // Monotonic counter — never let a corrupt file wind playtime backwards.
       playtimeMinutes:
         typeof source.playtimeMinutes === 'number' &&

@@ -11,7 +11,8 @@ const DEFAULTS: AxoSettings = {
   installDir: 'C:/fake/.axoclient',
   jvmArgs: '',
   onboarded: false,
-  playtimeMinutes: 0
+  playtimeMinutes: 0,
+  discordRpc: true
 }
 
 describe('SettingsStore', () => {

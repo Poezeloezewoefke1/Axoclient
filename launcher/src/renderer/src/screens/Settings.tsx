@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { AxoSettings } from '../../../shared/types'
+import type { AxoSettings, LaunchProfile } from '../../../shared/types'
 
 const RAM_MIN = 1024
 const RAM_MAX = 16384
@@ -32,6 +32,8 @@ export default function SettingsScreen(): React.JSX.Element {
   const [recommendedRam, setRecommendedRam] = useState<number | null>(null)
   const [presets, setPresets] = useState<JvmPreset[]>([])
   const [log, setLog] = useState<string | null>(null)
+  const [profiles, setProfiles] = useState<LaunchProfile[]>([])
+  const [profileName, setProfileName] = useState('')
 
   const repair = (): void => {
     setRepairState('Repairing…')
@@ -49,7 +51,34 @@ export default function SettingsScreen(): React.JSX.Element {
     void window.axo.getSettings().then(setSettings)
     void window.axo.getRecommendedRam().then(setRecommendedRam).catch(() => undefined)
     void window.axo.getJvmPresets().then(setPresets).catch(() => undefined)
+    void window.axo.listProfiles().then(setProfiles).catch(() => undefined)
   }, [])
+
+  const saveProfile = (): void => {
+    const name = profileName.trim()
+    if (!name || !settings) return
+    void window.axo
+      .saveProfile({
+        name,
+        ramMb: settings.ramMb,
+        jvmArgs: settings.jvmArgs,
+        channel: settings.channel
+      })
+      .then((next) => {
+        setProfiles(next)
+        setProfileName('')
+      })
+      .catch(() => undefined)
+  }
+
+  const useProfile = (name: string): void => {
+    setSaving(true)
+    window.axo
+      .applyProfile(name)
+      .then((result) => setSettings(result.settings))
+      .catch(() => undefined)
+      .finally(() => setSaving(false))
+  }
 
   const apply = (patch: Partial<AxoSettings>): void => {
     setSaving(true)
@@ -152,6 +181,74 @@ export default function SettingsScreen(): React.JSX.Element {
         </label>
         <p className="muted">
           Install location: <code>{settings.installDir}</code>
+        </p>
+      </div>
+
+      <div className="settings-group">
+        <h2>Profiles</h2>
+        <p className="muted">
+          Save your current memory, speed preset and channel under a name, then switch between them
+          in one click.
+        </p>
+        <div className="quick-actions" style={{ justifyContent: 'flex-start' }}>
+          <input
+            type="text"
+            className="profile-name-input"
+            value={profileName}
+            placeholder="Profile name (e.g. PvP)"
+            maxLength={40}
+            onChange={(e) => setProfileName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && saveProfile()}
+          />
+          <button className="chip-action" onClick={saveProfile} disabled={!profileName.trim()}>
+            Save current
+          </button>
+        </div>
+        {profiles.length === 0 ? (
+          <p className="muted">No profiles saved yet.</p>
+        ) : (
+          <div className="profile-list">
+            {profiles.map((profile) => (
+              <div className="profile-row" key={profile.name}>
+                <div>
+                  <span className="profile-name">{profile.name}</span>
+                  <span className="profile-detail">
+                    {profile.ramMb ? `${(profile.ramMb / 1024).toFixed(1)} GB` : 'memory unchanged'}
+                    {profile.channel ? ` · ${profile.channel}` : ''}
+                  </span>
+                </div>
+                <div className="quick-actions" style={{ justifyContent: 'flex-end' }}>
+                  <button className="chip-action" onClick={() => useProfile(profile.name)}>
+                    Use
+                  </button>
+                  <button
+                    className="link-button"
+                    onClick={() =>
+                      void window.axo.removeProfile(profile.name).then(setProfiles)
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="settings-group">
+        <h2>Discord</h2>
+        <label className="toggle-row">
+          <input
+            type="checkbox"
+            checked={settings.discordRpc}
+            onChange={(e) => apply({ discordRpc: e.target.checked })}
+          />
+          <span>Show what I&apos;m playing on Discord</span>
+        </label>
+        <p className="muted">
+          Adds &quot;Playing Axo Client&quot; to your Discord status. Nothing is sent anywhere else,
+          and it does nothing if Discord isn&apos;t running.
         </p>
       </div>
 

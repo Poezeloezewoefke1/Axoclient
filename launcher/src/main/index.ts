@@ -35,7 +35,17 @@ import {
 } from './skinLibrary'
 import { initLogger, logDirectory, logLine, readLauncherLog, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
-import type { AxoSettings, GameProgress, SessionInfo } from '../shared/types'
+import { ProfileStore, findProfile, profilePatch } from './profiles'
+import { DiscordPresence } from './discord'
+import type { AxoSettings, GameProgress, LaunchProfile, SessionInfo } from '../shared/types'
+
+/**
+ * Discord application id for Rich Presence. Empty means "no presence": the
+ * feature is inert rather than broken until a real id is registered at
+ * https://discord.com/developers/applications (see docs/discord-presence.md).
+ * The build can inject one without a code change.
+ */
+const DISCORD_APP_ID = process.env['AXO_DISCORD_APP_ID'] ?? ''
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -122,9 +132,36 @@ app.whenReady().then(async () => {
     installDir: join(app.getPath('appData'), '.axoclient'),
     jvmArgs: '',
     onboarded: false,
-    playtimeMinutes: 0
+    playtimeMinutes: 0,
+    discordRpc: true
   })
   await settings.load()
+
+  const profiles = new ProfileStore(join(app.getPath('userData'), 'profiles.json'))
+  await profiles.load()
+
+  // Rich Presence is opt-out and silently inert until DISCORD_APP_ID is set
+  // to a real Discord application id (see docs/discord-presence.md).
+  const presence = new DiscordPresence(DISCORD_APP_ID)
+  const showPresence = (details: string, state?: string, since?: number): void => {
+    if (!settings.get().discordRpc) {
+      presence.clear()
+      return
+    }
+    presence.setActivity({
+      details,
+      state,
+      startTimestamp: since,
+      largeImageKey: 'axo_logo',
+      largeImageText: 'Axo Client'
+    })
+  }
+  if (settings.get().discordRpc && DISCORD_APP_ID) {
+    void presence.connect().then((ok) => {
+      logLine('discord', ok ? 'rich presence connected' : 'Discord not running')
+      if (ok) showPresence('In the launcher')
+    })
+  }
 
   ipcMain.handle('app:version', () => app.getVersion())
   ipcMain.handle('manifest:get', () => getManifestInfo())
@@ -216,9 +253,32 @@ app.whenReady().then(async () => {
   ipcMain.handle('system:jvmPresets', () => JVM_PRESETS)
   ipcMain.handle('logs:read', () => readLauncherLog())
   ipcMain.handle('settings:get', () => settings.get())
-  ipcMain.handle('settings:update', (_event, patch: Partial<AxoSettings>) =>
-    settings.update(patch)
-  )
+  ipcMain.handle('settings:update', async (_event, patch: Partial<AxoSettings>) => {
+    const next = await settings.update(patch)
+    // Turning presence off should take effect now, not on next restart.
+    if (patch.discordRpc === false) {
+      presence.clear()
+    } else if (patch.discordRpc === true && DISCORD_APP_ID) {
+      void presence.connect().then((ok) => {
+        if (ok) showPresence('In the launcher')
+      })
+    }
+    return next
+  })
+
+  // Launch profiles: saved bundles of RAM / JVM args / channel / version.
+  ipcMain.handle('profiles:list', () => profiles.list())
+  ipcMain.handle('profiles:save', (_event, profile: LaunchProfile) => profiles.save(profile))
+  ipcMain.handle('profiles:remove', (_event, name: string) => profiles.remove(name))
+  ipcMain.handle('profiles:apply', async (_event, name: string) => {
+    const profile = findProfile(profiles.list(), name)
+    if (!profile) {
+      throw new Error(`No profile named "${name}"`)
+    }
+    // versionId isn't a setting — the renderer applies it to its own picker.
+    const applied = await settings.update(profilePatch(profile) as Partial<AxoSettings>)
+    return { settings: applied, versionId: profile.versionId ?? null }
+  })
   ipcMain.handle('game:launch', async (event, versionId: string, joinServer?: string) => {
     if (launching) {
       throw new Error('A launch is already in progress')
@@ -234,6 +294,7 @@ app.whenReady().then(async () => {
     }
     launching = true
     lastLaunchAt = Date.now()
+    showPresence(joinServer ? `Playing on ${joinServer}` : 'Playing Minecraft', versionId, lastLaunchAt)
     try {
       const { manifest } = await getManifest()
       await launchGame(manifest, versionId, session, settings.get(), report, joinServer)
@@ -247,6 +308,7 @@ app.whenReady().then(async () => {
       throw friendlyError(error)
     } finally {
       launching = false
+      showPresence('In the launcher')
     }
   })
 
@@ -369,6 +431,10 @@ app.whenReady().then(async () => {
       createWindow()
     }
   })
+
+  // Drop presence on the way out; a stale "Playing Axo Client" would sit on
+  // the user's profile until Discord itself times the socket out.
+  app.on('before-quit', () => presence.close())
 })
 
 app.on('window-all-closed', () => {

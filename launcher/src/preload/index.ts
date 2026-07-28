@@ -4,6 +4,7 @@ import type {
   AxoSettings,
   CrashDiagnosis,
   GameProgress,
+  LaunchProfile,
   ManifestInfo,
   NewsItem,
   ScreenshotInfo,
@@ -16,6 +17,7 @@ import type {
 } from '../shared/types'
 
 type SyncCounts = { downloaded: number; kept: number; removed: number }
+type AppliedProfile = { settings: AxoSettings; versionId: string | null }
 type JvmPreset = { id: string; label: string; description: string; args: string }
 
 /** The only surface the renderer can call. Keep it small and typed. */
@@ -34,6 +36,13 @@ const api = {
   getSettings: (): Promise<AxoSettings> => ipcRenderer.invoke('settings:get'),
   updateSettings: (patch: Partial<AxoSettings>): Promise<AxoSettings> =>
     ipcRenderer.invoke('settings:update', patch),
+  listProfiles: (): Promise<LaunchProfile[]> => ipcRenderer.invoke('profiles:list'),
+  saveProfile: (profile: LaunchProfile): Promise<LaunchProfile[]> =>
+    ipcRenderer.invoke('profiles:save', profile),
+  removeProfile: (name: string): Promise<LaunchProfile[]> =>
+    ipcRenderer.invoke('profiles:remove', name),
+  applyProfile: (name: string): Promise<AppliedProfile> =>
+    ipcRenderer.invoke('profiles:apply', name),
   launch: (versionId: string, joinServer?: string): Promise<void> =>
     ipcRenderer.invoke('game:launch', versionId, joinServer),
   forceClose: (): Promise<boolean> => ipcRenderer.invoke('game:forceClose'),

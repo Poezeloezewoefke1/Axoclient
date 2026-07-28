@@ -3,6 +3,7 @@ import type {
   AxoSettings,
   CrashDiagnosis,
   GameProgress,
+  LaunchProfile,
   ManifestInfo,
   NewsItem,
   ScreenshotInfo,
@@ -16,6 +17,7 @@ import type {
 
 type SyncCounts = { downloaded: number; kept: number; removed: number }
 type JvmPreset = { id: string; label: string; description: string; args: string }
+type AppliedProfile = { settings: AxoSettings; versionId: string | null }
 
 declare global {
   interface Window {
@@ -31,6 +33,10 @@ declare global {
       removeAccount(uuid: string): Promise<SessionInfo | null>
       getSettings(): Promise<AxoSettings>
       updateSettings(patch: Partial<AxoSettings>): Promise<AxoSettings>
+      listProfiles(): Promise<LaunchProfile[]>
+      saveProfile(profile: LaunchProfile): Promise<LaunchProfile[]>
+      removeProfile(name: string): Promise<LaunchProfile[]>
+      applyProfile(name: string): Promise<AppliedProfile>
       launch(versionId: string, joinServer?: string): Promise<void>
       forceClose(): Promise<boolean>
       onGameProgress(callback: (progress: GameProgress) => void): () => void
