@@ -5,6 +5,7 @@ import type {
   GameProgress,
   ManifestInfo,
   NewsItem,
+  ScreenshotInfo,
   SavedSkin,
   SessionInfo,
   SkinInfo,
@@ -42,6 +43,10 @@ declare global {
       saveCurrentSkin(name: string): Promise<SavedSkin[]>
       deleteSkin(id: string): Promise<SavedSkin[]>
       wearSkin(id: string, slim: boolean): Promise<string | null>
+      listShots(versionId: string): Promise<ScreenshotInfo[]>
+      readShot(versionId: string, fileName: string): Promise<string | null>
+      deleteShot(versionId: string, fileName: string): Promise<ScreenshotInfo[]>
+      revealShot(versionId: string, fileName: string): Promise<void>
       listMods(versionId: string): Promise<UserMod[]>
       addMods(versionId: string): Promise<UserMod[]>
       setModEnabled(versionId: string, fileName: string, enabled: boolean): Promise<UserMod[]>

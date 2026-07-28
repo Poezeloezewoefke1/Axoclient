@@ -55,6 +55,13 @@ export interface SavedSkin {
   dataUrl: string
 }
 
+export interface ScreenshotInfo {
+  fileName: string
+  sizeBytes: number
+  /** Epoch millis; the list is sorted newest first. */
+  modifiedAt: number
+}
+
 export interface UserMod {
   /** Jar filename inside the version's mods folder. */
   fileName: string

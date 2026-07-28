@@ -51,6 +51,15 @@ export const IconMods = ({ size = 22 }: IconProps): React.JSX.Element =>
     </>
   )
 
+export const IconShots = ({ size = 22 }: IconProps): React.JSX.Element =>
+  svg(
+    size,
+    <>
+      <path d="M3 7h3l2-2h8l2 2h3v12H3z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </>
+  )
+
 export const IconSettings = ({ size = 22 }: IconProps): React.JSX.Element =>
   svg(
     size,

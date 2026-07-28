@@ -19,6 +19,12 @@ import { applySkin, getSkin, type SkinInfo } from './skin'
 import { findLatestCrash } from './crashReport'
 import { JVM_PRESETS, recommendedRamMb } from './system'
 import { getNews } from './news'
+import {
+  deleteScreenshot,
+  listScreenshots,
+  readScreenshot,
+  screenshotPath
+} from './screenshots'
 import { addUserMods, listUserMods, removeUserMod, setUserModEnabled } from './userMods'
 import {
   deleteSavedSkin,
@@ -189,6 +195,22 @@ app.whenReady().then(async () => {
   ipcMain.handle('mods:remove', (_event, versionId: string, fileName: string) =>
     removeUserMod(settings.get().installDir, versionId, fileName)
   )
+  // Screenshot gallery: metadata only until an image is actually opened.
+  ipcMain.handle('shots:list', (_event, versionId: string) =>
+    listScreenshots(settings.get().installDir, versionId)
+  )
+  ipcMain.handle('shots:read', (_event, versionId: string, fileName: string) =>
+    readScreenshot(settings.get().installDir, versionId, fileName)
+  )
+  ipcMain.handle('shots:delete', (_event, versionId: string, fileName: string) =>
+    deleteScreenshot(settings.get().installDir, versionId, fileName)
+  )
+  ipcMain.handle('shots:reveal', (_event, versionId: string, fileName: string) => {
+    const path = screenshotPath(settings.get().installDir, versionId, fileName)
+    if (path) {
+      shell.showItemInFolder(path)
+    }
+  })
   ipcMain.handle('news:get', () => getNews())
   ipcMain.handle('system:recommendedRam', () => recommendedRamMb())
   ipcMain.handle('system:jvmPresets', () => JVM_PRESETS)

@@ -6,6 +6,7 @@ import type {
   GameProgress,
   ManifestInfo,
   NewsItem,
+  ScreenshotInfo,
   SavedSkin,
   SessionInfo,
   SkinInfo,
@@ -54,6 +55,14 @@ const api = {
   deleteSkin: (id: string): Promise<SavedSkin[]> => ipcRenderer.invoke('skins:delete', id),
   wearSkin: (id: string, slim: boolean): Promise<string | null> =>
     ipcRenderer.invoke('skins:wear', id, slim),
+  listShots: (versionId: string): Promise<ScreenshotInfo[]> =>
+    ipcRenderer.invoke('shots:list', versionId),
+  readShot: (versionId: string, fileName: string): Promise<string | null> =>
+    ipcRenderer.invoke('shots:read', versionId, fileName),
+  deleteShot: (versionId: string, fileName: string): Promise<ScreenshotInfo[]> =>
+    ipcRenderer.invoke('shots:delete', versionId, fileName),
+  revealShot: (versionId: string, fileName: string): Promise<void> =>
+    ipcRenderer.invoke('shots:reveal', versionId, fileName),
   listMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:list', versionId),
   addMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:add', versionId),
   setModEnabled: (versionId: string, fileName: string, enabled: boolean): Promise<UserMod[]> =>

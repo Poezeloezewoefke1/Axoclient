@@ -7,6 +7,7 @@ import {
   IconMods,
   IconPlay,
   IconSettings,
+  IconShots,
   IconSkin,
   IconVersions
 } from './components/Icons'
@@ -14,16 +15,18 @@ import HomeScreen from './screens/Home'
 import LoginScreen from './screens/Login'
 import SettingsScreen from './screens/Settings'
 import ModsScreen from './screens/Mods'
+import ShotsScreen from './screens/Shots'
 import SkinsScreen from './screens/Skins'
 import VersionsScreen from './screens/Versions'
 import type { AccountInfo, AxoSettings, SessionInfo, SkinInfo, UpdateStatus } from '../../shared/types'
 
-type Screen = 'play' | 'skins' | 'mods' | 'versions' | 'settings'
+type Screen = 'play' | 'skins' | 'mods' | 'shots' | 'versions' | 'settings'
 
 const SCREEN_TITLE: Record<Screen, string> = {
   play: 'Play',
   skins: 'Skins',
   mods: 'Mods',
+  shots: 'Shots',
   versions: 'Versions',
   settings: 'Settings'
 }
@@ -161,6 +164,7 @@ export default function App(): React.JSX.Element {
           {railItem('play', <IconPlay />, 'Play')}
           {railItem('skins', <IconSkin />, 'Skins')}
           {railItem('mods', <IconMods />, 'Mods')}
+          {railItem('shots', <IconShots />, 'Shots')}
           {railItem('versions', <IconVersions />, 'Versions')}
           {railItem('settings', <IconSettings />, 'Settings')}
         </nav>
@@ -261,6 +265,7 @@ export default function App(): React.JSX.Element {
           )}
           {screen === 'skins' && <SkinsScreen skin={skin} onChanged={refreshSkin} />}
           {screen === 'mods' && <ModsScreen />}
+          {screen === 'shots' && <ShotsScreen />}
           {screen === 'versions' && <VersionsScreen />}
           {screen === 'settings' && <SettingsScreen />}
         </main>
