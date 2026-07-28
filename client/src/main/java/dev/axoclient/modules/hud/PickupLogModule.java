@@ -13,7 +13,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -31,7 +30,8 @@ public final class PickupLogModule extends AxoModule implements HudRenderable {
 
     private record Entry(String text, int expiresAtTick) {}
 
-    private final Map<Item, Integer> counts = new HashMap<>();
+    /** Keyed by display name rather than Item: it is what we print anyway. */
+    private final Map<String, Integer> counts = new HashMap<>();
     private final Deque<Entry> lines = new ArrayDeque<>();
     private boolean primed;
     private int tick;
@@ -57,12 +57,12 @@ public final class PickupLogModule extends AxoModule implements HudRenderable {
             primed = false;
             return;
         }
-        Map<Item, Integer> current = tally(player.getInventory());
+        Map<String, Integer> current = tally(player.getInventory());
         if (primed) {
-            for (Map.Entry<Item, Integer> entry : current.entrySet()) {
+            for (Map.Entry<String, Integer> entry : current.entrySet()) {
                 int gained = entry.getValue() - counts.getOrDefault(entry.getKey(), 0);
                 if (gained > 0) {
-                    push("+" + gained + " " + entry.getKey().getDescription().getString());
+                    push("+" + gained + " " + entry.getKey());
                 }
             }
         }
@@ -82,12 +82,12 @@ public final class PickupLogModule extends AxoModule implements HudRenderable {
         lines.addLast(new Entry(text, tick + LINE_TICKS));
     }
 
-    private static Map<Item, Integer> tally(Inventory inventory) {
-        Map<Item, Integer> totals = new HashMap<>();
+    private static Map<String, Integer> tally(Inventory inventory) {
+        Map<String, Integer> totals = new HashMap<>();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
             if (!stack.isEmpty()) {
-                totals.merge(stack.getItem(), stack.getCount(), Integer::sum);
+                totals.merge(stack.getHoverName().getString(), stack.getCount(), Integer::sum);
             }
         }
         return totals;
