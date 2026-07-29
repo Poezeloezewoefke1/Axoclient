@@ -44,6 +44,7 @@ import dev.axoclient.modules.qol.ChatAntiSpamModule;
 import dev.axoclient.modules.qol.ChatHistoryModule;
 import dev.axoclient.modules.qol.ChatTimestampsModule;
 import dev.axoclient.modules.qol.CopyCoordsModule;
+import dev.axoclient.modules.qol.FreelookModule;
 import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ToggleSprintModule;
 import dev.axoclient.modules.qol.UnfocusedFpsModule;
@@ -151,6 +152,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new ChatTimestampsModule());
         modules.register(new ChatAntiSpamModule());
         modules.register(new ChatHistoryModule());
+        modules.register(new FreelookModule());
         // New modules register here and nowhere else (see docs/architecture.md).
 
         // In-game update check: notifies if the manifest advertises a newer build.
