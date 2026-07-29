@@ -96,6 +96,9 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Toggle Sprint | off | Sprint stays on without holding the key |
 | Unfocused FPS | off | Caps frames when the window isn't focused |
 | Copy Coords | on | **F8** copies your position to the clipboard |
+| Chat Timestamps | off | Dim [HH:mm] in front of each chat line |
+| Chat Anti-Spam | off | Hides an exact repeat of the previous line within ~1s |
+| Chat History | off | Keeps sent messages across servers and restarts |
 
 ### Cosmetics
 
@@ -110,15 +113,46 @@ Axo deliberately does not have.
 New modules are registered in one place — `AxoClient.onInitializeClient()` —
 so the list grows without touching the GUI or config code.
 
-### Why almost nothing here uses a mixin
+## Module settings
 
-`axoclient.mixins.json` sets `required: true`. A mixin that fails to apply
-after a Minecraft update **stops the game from starting** — not just that one
-feature. So features are built by polling and diffing state where possible
-(the pickup log diffs your inventory; the combo counter watches attack
-timing) and the mixin list is kept to five. Chat-based features (timestamps,
-anti-spam, cross-server history) are the main things this rules out for now:
-they have no non-mixin route.
+Modules with something to tune show a small **>** on the right of their row
+in the ClickGUI. Click it to fold the settings open, then use **-** and **+**.
+
+Everything saves as you click. Nothing here needs the config file edited by
+hand.
+
+| Module | You can change |
+| --- | --- |
+| Crosshair | style (dot / cross / ring), size, centre gap |
+| Zoom | zoomed FOV, how long the ease takes |
+| Colour Trail | particle size, how often it emits |
+| Any particle trail | how often it emits |
+
+The Colour Trail's colour follows your ClickGUI accent, so picking a swatch
+in the top bar recolours it. A fixed `0xRRGGBB` override is available in the
+config file for anyone who wants one.
+
+## Two mixin configs, on purpose
+
+`axoclient.mixins.json` sets `required: true`. A mixin in there that stops
+matching after a Minecraft update **stops the game from starting** — not just
+that one feature. That is exactly the class of crash this project has already
+hit once.
+
+So there are two rules:
+
+1. **Prefer no mixin at all.** Most features are built by polling and diffing
+   state instead: the pickup log diffs your inventory, the combo counter
+   watches attack timing, chat history uses the public `getRecentChat()` /
+   `addRecentChat()` methods. None of those can break the game.
+2. **When a mixin is genuinely needed for a nice-to-have, put it in
+   `axoclient.optional.mixins.json`** (`required: false`,
+   `defaultRequire: 0`). If it stops matching, the feature quietly stops
+   working and the game still boots.
+
+The chat timestamps and anti-spam mixin lives in the optional config for
+exactly this reason. The five mixins in the required config are the ones the
+client genuinely cannot work without.
 
 ## Notifications
 

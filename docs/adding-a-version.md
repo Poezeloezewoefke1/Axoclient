@@ -35,6 +35,7 @@ Where breakage usually is, worst first:
 | Risk | Files | Why |
 | --- | --- | --- |
 | **High** | `client/src/main/java/dev/axoclient/mixin/` | Mixins inject into vanilla internals. A renamed method = the mixin fails = **the game will not start** (`axoclient.mixins.json` sets `required: true`). |
+| **Low** | `client/src/main/java/dev/axoclient/mixin/optional/` | Same kind of code, but declared in `axoclient.optional.mixins.json` (`required: false`). If these stop matching, the feature stops working and the game still boots — fix them after launch, not before. |
 | **Medium** | Anything using `GuiGraphics` | Mojang reworks the render stack often. |
 | **Low** | Everything else | Most modules only touch long-stable accessors. |
 
