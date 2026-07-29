@@ -23,8 +23,8 @@ Classification:
 
 ## Findings
 
-1. **The coupling surface is already narrow**: ~10 distinct vanilla APIs across 6 modules + 2 mixins. Everything user-facing goes through `HudModule`/`ModuleManager`, so most modules touch only STABLE accessors.
-2. **The two mixins are the port hotspots** — exactly as designed; they are the whole MIXIN class.
+1. **The coupling surface is still narrow despite the module count.** The mod has grown well past the six modules this table was first written against, but the vanilla API surface has not grown with it: new modules are built out of the same ~15 accessors, because everything user-facing goes through `HudModule`/`HudRenderable`/`ModuleManager`. Adding a module costs no new port risk.
+2. **The mixins are the port hotspots** — exactly as designed; they are the whole MIXIN class. There are now five (`GuiMixin`, `OptionInstanceAccessor`, `PauseScreenMixin`, `PlayerCapeMixin`, `TitleScreenMixin`), and the deliberate policy since has been to build features by polling/diffing rather than injecting, precisely to keep this list short.
 3. **`GuiGraphics` is the one WATCH item used widely.** When P6-02 (adapter layer) happens, wrap the four drawing calls (`drawString`, `fill`, `drawCenteredString`, text metrics) behind a `HudCanvas` interface in `core/compat/` — that single adapter would insulate every HUD module from render-stack churn. That is the only adapter P6-02 needs today; adapters for STABLE rows would be speculative bloat.
 4. `util/Keys` and the settings screen are single files by design — a port touches one place each.
 

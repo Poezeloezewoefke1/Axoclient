@@ -46,17 +46,79 @@ handle:
 
 ## Modules
 
-| Module | Category | Default | What it does |
-| --- | --- | --- | --- |
-| FPS Counter | HUD | on | Frames-per-second readout |
-| Coordinates | HUD | on | X / Y / Z and facing direction |
-| CPS Counter | HUD | on | Left/right clicks per second (1s window) |
-| Keystrokes | PvP | on | WASD + mouse key overlay |
-| Fullbright | Quality of Life | off | Maximum brightness without touching your video settings |
-| Zoom | Quality of Life | on | Hold **C** to zoom the view |
+Everything is a module. Toggle any of them in the ClickGUI.
+
+### HUD
+
+| Module | Default | What it does |
+| --- | --- | --- |
+| FPS Counter | on | Frames-per-second readout |
+| Coordinates | on | X / Y / Z and facing direction |
+| CPS Counter | on | Left/right clicks per second (1s window) |
+| Memory | off | Heap used / total |
+| Speed | off | Blocks per second |
+| Ping | off | Latency to the server |
+| Health / Hunger / Experience | off | Exact numbers instead of counting icons |
+| XP Progress | off | Percentage to the next level |
+| Direction | off | Facing as N/E/S/W plus yaw |
+| Compass | off | Compass strip across the top of the screen |
+| Biome | off | Biome you're standing in |
+| Clock | off | Real-world time |
+| Day Counter | off | In-game day number |
+| Session Uptime | off | How long this session has run |
+| Armour | off | Each armour piece with durability left |
+| Potion Effects | off | Active effects and time remaining |
+| Server Info | off | Server name and address |
+| TPS | off | How well the server is keeping up |
+| Death Coords | off | Where you last died |
+| Durability Warning | off | Warns before a tool breaks |
+| Pickup Log | off | Short list of what you just picked up |
+| Ping Spike | off | Flags the moment latency jumps |
+| Crosshair | off | Dot / cross / circle in your accent colour |
+| Module List | on | Which modules are active |
+
+### Combat
+
+| Module | Default | What it does |
+| --- | --- | --- |
+| Keystrokes | on | WASD + mouse key overlay |
+| Target HUD | off | Who you're looking at, with a health bar |
+| Attack Cooldown | off | Weapon charge bar |
+| Damage Numbers | off | Floating damage dealt |
+| Combo Counter | off | Consecutive hits |
+
+### Quality of life
+
+| Module | Default | What it does |
+| --- | --- | --- |
+| Fullbright | off | Maximum brightness without touching your video settings |
+| Zoom | on | Hold **C** to zoom, with smooth easing |
+| Toggle Sprint | off | Sprint stays on without holding the key |
+| Unfocused FPS | off | Caps frames when the window isn't focused |
+| Copy Coords | on | **F8** copies your position to the clipboard |
+
+### Cosmetics
+
+Ten bundled capes, twenty particle trails and auras, plus **Custom Cape** —
+drop a 64×32 PNG into `<game dir>/axoclient/capes/` and enable it. The first
+PNG alphabetically is used, so naming one `1-favourite.png` picks it.
+
+All cosmetics are local-only: they render on your screen, not other players'.
+Showing them to anyone else would need a server hosting the textures, which
+Axo deliberately does not have.
 
 New modules are registered in one place — `AxoClient.onInitializeClient()` —
 so the list grows without touching the GUI or config code.
+
+### Why almost nothing here uses a mixin
+
+`axoclient.mixins.json` sets `required: true`. A mixin that fails to apply
+after a Minecraft update **stops the game from starting** — not just that one
+feature. So features are built by polling and diffing state where possible
+(the pickup log diffs your inventory; the combo counter watches attack
+timing) and the mixin list is kept to five. Chat-based features (timestamps,
+anti-spam, cross-server history) are the main things this rules out for now:
+they have no non-mixin route.
 
 ## Notifications
 
