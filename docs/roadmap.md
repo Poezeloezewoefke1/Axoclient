@@ -334,7 +334,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Pipe game stdout/stderr to `logs/game-<timestamp>.log` (keep last 5); on abnormal exit show "Game crashed" card with "Open log folder".
 - **Done when:** forced crash (kill process) produces the card and a complete log file.
 - **Depends:** P5-01, P2-14 · **Est:** 1 h
-- **Status:** 🟡 PARTIAL 2026-07-19 — per-session game-<ts>.log (keep 5) + Open-log-folder button; crash cards still to do.
+- **Status:** ✅ DONE 2026-07-29 — per-session game-<ts>.log (keep 5), Open-log-folder button, an in-launcher log viewer, and the crash card: `crashReport.ts` reads the game's own crash report after an abnormal exit and `diagnoseCrash()` turns it into plain language, naming the Axo module at fault when the stack points at one. Tested against a real crash report from this project.
 
 ### P5-03 · launcher crash reporter
 - **Do:** Global main-process exception handler → write crash report file, show dialog offering to open the GitHub issues page with prefilled title (no auto-upload — privacy-first default).
@@ -357,6 +357,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** Settings: RAM slider, custom JVM args (with reset), custom Java path override (bypasses P2-09), install dir move (with file migration + progress).
 - **Done when:** all four settings apply on next launch; migration verified.
 - **Depends:** P2-04, P2-09 · **Est:** 2 h
+- **Status:** 🟡 PARTIAL 2026-07-29 — RAM slider (with a recommendation computed from actual system memory), custom JVM args, one-click speed presets, and named launch profiles are all in. Custom Java path override and install-dir move with migration are still outstanding.
 
 ### P5-07 · decide on Windows code signing
 - **Do:** Research current options (OV cert ~$100–400/yr, Azure Trusted Signing ~$10/mo) vs unsigned + SmartScreen warning; record decision + budget in `docs/decisions.md`; if signing, wire cert into P4-06 workflow.
@@ -372,7 +373,7 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Do:** In-game screen where HUD modules render as draggable boxes; drag writes anchor+offset to config; snap-to-anchor guides.
 - **Done when:** dragging the FPS counter to a corner persists across restarts.
 - **Depends:** P1-06, P1-12 · **Est:** 2 h
-- **Status:** 🟡 DONE (v1) 2026-07-20 — button-based HudLayoutScreen (anchor cycle + offset nudges, live apply); drag editing remains a possible upgrade.
+- **Status:** ✅ DONE 2026-07-29 — started as a button-based HudLayoutScreen (anchor cycle + offset nudges); now `HudEditorScreen` with real drag-to-place, magnetic edge snapping and arrow-key nudging, persisted per module.
 
 ---
 
@@ -407,9 +408,10 @@ Task IDs are `P<phase>-<nn>`. Dependencies name task IDs; no dependency means "s
 - **Depends:** P6-02, P6-03 · **Est:** 2 h · **Refs:** https://docs.fabricmc.net/develop/porting/current
 
 ### P6-06 · write the porting checklist
-- **Do:** Distill P6-05's log into `docs/porting-checklist.md`: exact steps to support a new MC version (mappings bump, adapter impls, mod picks, manifest entry, test matrix, beta→stable).
+- **Do:** Distill P6-05's log into a porting checklist: exact steps to support a new MC version (mappings bump, adapter impls, mod picks, manifest entry, test matrix, beta→stable).
 - **Done when:** checklist is complete enough that "add 1.22 support" is just executing it. **This closes M4.**
 - **Depends:** P6-05 · **Est:** 1 h
+- **Status:** ✅ DONE 2026-07-29 — written up front as `docs/adding-a-version.md` rather than after P6-05, because the steps are already known from building against 1.21.11. It covers the mappings bump, where breakage lands (mixins first), fetching Modrinth ids, the manifest entry and hash validation. P6-05 (an actual second-version port) is still outstanding and is what will prove the checklist; expect to revise it once a real port surfaces surprises.
 
 ---
 
