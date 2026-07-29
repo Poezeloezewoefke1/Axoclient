@@ -6,6 +6,7 @@ import dev.axoclient.modules.hud.CoordinatesModule;
 import dev.axoclient.modules.hud.CpsCounterModule;
 import dev.axoclient.modules.hud.FpsHudModule;
 import dev.axoclient.modules.cosmetic.CapeModule;
+import dev.axoclient.modules.cosmetic.ColourTrailModule;
 import dev.axoclient.modules.cosmetic.CustomCapeModule;
 import dev.axoclient.modules.cosmetic.HeartTrailModule;
 import dev.axoclient.modules.cosmetic.ParticleCosmeticModule;
@@ -121,6 +122,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new ParticleCosmeticModule("glow_aura", "Glow Aura", ParticleTypes.GLOW, 2, 1.0));
         modules.register(new ParticleCosmeticModule("cherry_trail", "Cherry Trail", ParticleTypes.CHERRY_LEAVES, 1, 1.4));
         modules.register(new ParticleCosmeticModule("firework_trail", "Firework Trail", ParticleTypes.FIREWORK, 2, 0.5));
+        modules.register(new ColourTrailModule());
         // Custom capes (client-side, local-only) — bundled textures.
         modules.register(new CapeModule("cape_blue", "Blue Cape", "textures/capes/blue.png"));
         modules.register(new CapeModule("cape_red", "Red Cape", "textures/capes/red.png"));
