@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { z } from 'zod'
 import { compareSemver } from './semver'
 import { FALLBACK_MANIFEST } from './fallbackManifest'
+import { projectChannels } from './manifestView'
 import type { ManifestInfo } from '../shared/types'
 
 /**
@@ -129,16 +130,5 @@ export async function getManifestInfo(): Promise<ManifestInfo> {
   const { manifest, stale } = await getManifest()
   // Forced-update gate (P3-03): launchers older than minimumVersion must not install/launch.
   const forcedUpdate = compareSemver(app.getVersion(), manifest.launcher.minimumVersion) < 0
-  const channels: ManifestInfo['channels'] = {}
-  for (const [name, channel] of Object.entries(manifest.channels)) {
-    channels[name] = {
-      default: channel.default,
-      versions: channel.versions.map((v) => ({
-        id: v.id,
-        mcVersion: v.mcVersion,
-        notes: v.notes
-      }))
-    }
-  }
-  return { stale, forcedUpdate, channels }
+  return { stale, forcedUpdate, channels: projectChannels(manifest) }
 }

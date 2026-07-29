@@ -5,6 +5,24 @@
   var REPO = 'Poezeloezewoefke1/Axoclient';
   var FALLBACK_URL = 'https://github.com/' + REPO + '/releases/latest';
 
+  /* ---- Community link ----
+     Put your real Discord invite here and every [data-discord] element on the
+     site turns into a working link. Leave it empty and they stay hidden —
+     better a missing button than a dead one on a download page. */
+  var DISCORD_INVITE = '';
+
+  var discordSlots = document.querySelectorAll('[data-discord]');
+  for (var d = 0; d < discordSlots.length; d++) {
+    var slot = discordSlots[d];
+    if (DISCORD_INVITE) {
+      slot.setAttribute('href', DISCORD_INVITE);
+      slot.setAttribute('rel', 'noopener');
+      slot.hidden = false;
+    } else {
+      slot.hidden = true;
+    }
+  }
+
   /* ---- Mobile nav toggle ---- */
   var toggle = document.querySelector('.nav-toggle');
   var links = document.querySelector('.nav-links');

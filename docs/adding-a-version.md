@@ -81,14 +81,31 @@ Copy the existing entry in `manifest/axo-manifest.json`, then replace every
 id, URL, hash and size. Set `"default"` to the new id when it's ready to be
 the one everyone gets.
 
+Version ids must be **unique across all channels** — the id names the install
+folder, so a beta and a stable entry sharing one id would share an install.
+Suffix them (`1.21.11-r1` for stable, `1.21.11-b1` for beta).
+
 Then validate — this is not optional:
 
 ```bash
 node manifest/validate.mjs
 ```
 
-It checks the schema **and** re-downloads every file to confirm the hashes
-match. A wrong hash means every player gets a failed install.
+**What it does check:** the schema, required fields, semver shapes, SHA-1
+*format*, duplicate version ids across channels, and placeholder hashes you
+forgot to fill in.
+
+**What it does not check:** whether the hashes are *correct*. It never touches
+the network. A wrong-but-well-formed hash passes validation and then fails
+every player's install, so verify the real thing yourself:
+
+```bash
+curl -sL "<url from the manifest>" | sha1sum
+```
+
+Compare against the manifest for the client jar and each mod. Modrinth's API
+gives you its hashes directly (step 3), so those are copy-paste; the client
+jar is the one to check by hand.
 
 ---
 
