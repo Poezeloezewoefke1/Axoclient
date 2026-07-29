@@ -13,7 +13,7 @@
   "entrypoints": {
     "client": ["dev.axoclient.AxoClient"]
   },
-  "mixins": ["axoclient.mixins.json"],
+  "mixins": ["axoclient.mixins.json", "axoclient.optional.mixins.json"],
   "depends": {
     "fabricloader": ">=0.17.0",
     "fabric-api": "*",

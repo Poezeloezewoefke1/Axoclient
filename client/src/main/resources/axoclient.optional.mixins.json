@@ -1,0 +1,14 @@
+{
+  "_comment": "Mixins that must NEVER be able to stop the game booting. axoclient.mixins.json is required:true — a mixin in there that stops matching after a Minecraft update takes the whole game down with it. Anything in this file is allowed to silently fail instead: the feature stops working, the game still starts. Put speculative or deep-injection mixins here.",
+  "required": false,
+  "package": "dev.axoclient.mixin.optional",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "ChatMixin"
+  ],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
