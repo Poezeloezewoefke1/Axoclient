@@ -4,11 +4,9 @@ import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
 import dev.axoclient.core.ModuleSetting;
-import dev.axoclient.gui.theme.Themes;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.particles.DustParticleOptions;
 
 /**
  * A trail in a colour you choose, rather than one of the twenty fixed
@@ -23,7 +21,6 @@ import net.minecraft.core.particles.DustParticleOptions;
  * Local-only, like every Axo cosmetic.
  */
 public final class ColourTrailModule extends AxoModule {
-    private static final int FOLLOW_ACCENT = -1;
     private static final double SPREAD = 0.4;
 
     public ColourTrailModule() {
@@ -59,7 +56,7 @@ public final class ColourTrailModule extends AxoModule {
         double ox = (Math.random() - 0.5) * SPREAD;
         double oz = (Math.random() - 0.5) * SPREAD;
         minecraft.level.addParticle(
-            new DustParticleOptions(rgb(), scale()),
+            Trails.themedDust(id(), scale()),
             player.getX() + ox,
             player.getY() + 0.1,
             player.getZ() + oz,
@@ -67,15 +64,6 @@ public final class ColourTrailModule extends AxoModule {
             0.0,
             0.0
         );
-    }
-
-    /** Configured colour, or the current theme accent with its alpha stripped. */
-    private int rgb() {
-        int configured = ModuleManager.get().config().getModuleInt(id(), "colour", FOLLOW_ACCENT);
-        if (configured != FOLLOW_ACCENT) {
-            return configured & 0xFFFFFF;
-        }
-        return Themes.current().accent & 0xFFFFFF;
     }
 
     private float scale() {
