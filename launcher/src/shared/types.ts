@@ -41,6 +41,13 @@ export interface SkinInfo {
   slim: boolean
 }
 
+export interface SavedServer {
+  /** Label for the list; falls back to the address when unnamed. */
+  name: string
+  /** host or host:port, lowercased. Unique within the list. */
+  address: string
+}
+
 export interface LaunchProfile {
   /** Unique, case-insensitively, within the profile list. */
   name: string

@@ -8,6 +8,7 @@ import type {
   ManifestInfo,
   NewsItem,
   ScreenshotInfo,
+  SavedServer,
   SavedSkin,
   SessionInfo,
   SkinInfo,
@@ -36,6 +37,11 @@ const api = {
   getSettings: (): Promise<AxoSettings> => ipcRenderer.invoke('settings:get'),
   updateSettings: (patch: Partial<AxoSettings>): Promise<AxoSettings> =>
     ipcRenderer.invoke('settings:update', patch),
+  listServers: (): Promise<SavedServer[]> => ipcRenderer.invoke('servers:list'),
+  saveServer: (server: SavedServer): Promise<SavedServer[]> =>
+    ipcRenderer.invoke('servers:save', server),
+  removeServer: (address: string): Promise<SavedServer[]> =>
+    ipcRenderer.invoke('servers:remove', address),
   listProfiles: (): Promise<LaunchProfile[]> => ipcRenderer.invoke('profiles:list'),
   saveProfile: (profile: LaunchProfile): Promise<LaunchProfile[]> =>
     ipcRenderer.invoke('profiles:save', profile),

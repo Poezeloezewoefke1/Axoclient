@@ -1449,6 +1449,89 @@ body {
   opacity: 0.5;
 }
 
+.join-save {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: var(--axo-surface-2);
+  border: 1px solid var(--axo-border);
+  border-radius: 8px;
+  color: var(--axo-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.join-save:hover:not(:disabled) {
+  border-color: var(--axo-blue);
+  color: var(--axo-blue);
+}
+
+.join-save:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Saved-server chips under the join box */
+.server-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  max-width: 460px;
+  margin-top: -4px;
+}
+
+.server-chip {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--axo-surface-2);
+  border: 1px solid var(--axo-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.server-chip.active {
+  border-color: var(--axo-blue);
+}
+
+.server-chip-pick,
+.server-chip-x {
+  background: none;
+  border: none;
+  color: var(--axo-text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.server-chip-pick {
+  padding: 5px 4px 5px 12px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-chip.active .server-chip-pick {
+  color: var(--axo-blue);
+  font-weight: 700;
+}
+
+.server-chip-pick:hover:not(:disabled) {
+  color: var(--axo-text);
+}
+
+.server-chip-x {
+  padding: 5px 10px 5px 6px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.server-chip-x:hover {
+  color: #f87171;
+}
+
 /* ---- Screenshot gallery ---- */
 
 .shot-grid {

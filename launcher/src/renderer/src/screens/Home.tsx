@@ -4,6 +4,7 @@ import type {
   GameProgress,
   ManifestInfo,
   NewsItem,
+  SavedServer,
   SkinInfo,
   VersionStatus
 } from '../../../shared/types'
@@ -57,6 +58,9 @@ export default function HomeScreen({
   const [news, setNews] = useState<NewsItem[]>(NEWS_PLACEHOLDER)
   const [crash, setCrash] = useState<CrashDiagnosis | null>(null)
   const [joinServer, setJoinServer] = useState('')
+  const [servers, setServers] = useState<SavedServer[]>([])
+  /** Hides Save when the typed address is already a chip. */
+  const isSaved = servers.some((s) => s.address === joinServer.trim().toLowerCase())
 
   const refreshStatuses = useCallback(() => {
     window.axo
@@ -87,6 +91,7 @@ export default function HomeScreen({
         }
       })
       .catch(() => undefined)
+    window.axo.listServers().then(setServers).catch(() => undefined)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -335,7 +340,57 @@ export default function HomeScreen({
               disabled={busy}
               onChange={(e) => setJoinServer(e.target.value)}
             />
+            <button
+              className="join-save"
+              title="Save this address"
+              disabled={busy || joinServer.trim().length === 0 || isSaved}
+              onClick={() =>
+                void window.axo
+                  .saveServer({ name: joinServer.trim(), address: joinServer.trim() })
+                  .then(setServers)
+                  .catch(() => undefined)
+              }
+            >
+              Save
+            </button>
           </label>
+
+          {servers.length > 0 && (
+            <div className="server-chips">
+              {servers.map((server) => (
+                <span
+                  className={
+                    server.address === joinServer.trim().toLowerCase()
+                      ? 'server-chip active'
+                      : 'server-chip'
+                  }
+                  key={server.address}
+                >
+                  <button
+                    className="server-chip-pick"
+                    title={server.address}
+                    disabled={busy}
+                    onClick={() => setJoinServer(server.address)}
+                  >
+                    {server.name}
+                  </button>
+                  <button
+                    className="server-chip-x"
+                    title="Forget this server"
+                    aria-label={`Forget ${server.name}`}
+                    onClick={() =>
+                      void window.axo
+                        .removeServer(server.address)
+                        .then(setServers)
+                        .catch(() => undefined)
+                    }
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="quick-actions">
             <button className="chip-action" onClick={repair} disabled={busy || repairing}>

@@ -7,6 +7,7 @@ import type {
   ManifestInfo,
   NewsItem,
   ScreenshotInfo,
+  SavedServer,
   SavedSkin,
   SessionInfo,
   SkinInfo,
@@ -33,6 +34,9 @@ declare global {
       removeAccount(uuid: string): Promise<SessionInfo | null>
       getSettings(): Promise<AxoSettings>
       updateSettings(patch: Partial<AxoSettings>): Promise<AxoSettings>
+      listServers(): Promise<SavedServer[]>
+      saveServer(server: SavedServer): Promise<SavedServer[]>
+      removeServer(address: string): Promise<SavedServer[]>
       listProfiles(): Promise<LaunchProfile[]>
       saveProfile(profile: LaunchProfile): Promise<LaunchProfile[]>
       removeProfile(name: string): Promise<LaunchProfile[]>

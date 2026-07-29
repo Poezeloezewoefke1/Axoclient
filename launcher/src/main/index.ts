@@ -36,8 +36,15 @@ import {
 import { initLogger, logDirectory, logLine, readLauncherLog, writeCrashReport } from './logger'
 import { initUpdater, installUpdate } from './updater'
 import { ProfileStore, findProfile, profilePatch } from './profiles'
+import { ServerStore } from './servers'
 import { DiscordPresence } from './discord'
-import type { AxoSettings, GameProgress, LaunchProfile, SessionInfo } from '../shared/types'
+import type {
+  AxoSettings,
+  GameProgress,
+  LaunchProfile,
+  SavedServer,
+  SessionInfo
+} from '../shared/types'
 
 /**
  * Discord application id for Rich Presence. Empty means "no presence": the
@@ -139,6 +146,9 @@ app.whenReady().then(async () => {
 
   const profiles = new ProfileStore(join(app.getPath('userData'), 'profiles.json'))
   await profiles.load()
+
+  const servers = new ServerStore(join(app.getPath('userData'), 'servers.json'))
+  await servers.load()
 
   // Rich Presence is opt-out and silently inert until DISCORD_APP_ID is set
   // to a real Discord application id (see docs/discord-presence.md).
@@ -280,6 +290,11 @@ app.whenReady().then(async () => {
     }
     return next
   })
+
+  // Saved servers for the quick-join box.
+  ipcMain.handle('servers:list', () => servers.list())
+  ipcMain.handle('servers:save', (_event, server: SavedServer) => servers.save(server))
+  ipcMain.handle('servers:remove', (_event, address: string) => servers.remove(address))
 
   // Launch profiles: saved bundles of RAM / JVM args / channel / version.
   ipcMain.handle('profiles:list', () => profiles.list())
