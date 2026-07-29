@@ -53,6 +53,7 @@ declare global {
       readShot(versionId: string, fileName: string): Promise<string | null>
       deleteShot(versionId: string, fileName: string): Promise<ScreenshotInfo[]>
       revealShot(versionId: string, fileName: string): Promise<void>
+      copyShot(versionId: string, fileName: string): Promise<boolean>
       listMods(versionId: string): Promise<UserMod[]>
       addMods(versionId: string): Promise<UserMod[]>
       setModEnabled(versionId: string, fileName: string, enabled: boolean): Promise<UserMod[]>

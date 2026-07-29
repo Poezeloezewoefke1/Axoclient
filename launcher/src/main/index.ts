@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, ipcMain, nativeImage, shell } from 'electron'
 import { join } from 'node:path'
 import { getManifest, getManifestInfo } from './manifest'
 import { syncModsFolder } from './install'
@@ -247,6 +247,21 @@ app.whenReady().then(async () => {
     if (path) {
       shell.showItemInFolder(path)
     }
+  })
+  // Copy a screenshot to the clipboard so it can be pasted straight into
+  // Discord. screenshotPath() is the same traversal-guarded lookup the other
+  // shot handlers use — it returns null for anything outside the folder.
+  ipcMain.handle('shots:copy', (_event, versionId: string, fileName: string) => {
+    const path = screenshotPath(settings.get().installDir, versionId, fileName)
+    if (!path) {
+      return false
+    }
+    const image = nativeImage.createFromPath(path)
+    if (image.isEmpty()) {
+      return false
+    }
+    clipboard.writeImage(image)
+    return true
   })
   ipcMain.handle('news:get', () => getNews())
   ipcMain.handle('system:recommendedRam', () => recommendedRamMb())

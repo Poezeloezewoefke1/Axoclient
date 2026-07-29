@@ -18,6 +18,8 @@ export default function ShotsScreen(): React.JSX.Element {
   const [shots, setShots] = useState<ScreenshotInfo[]>([])
   const [openName, setOpenName] = useState<string | null>(null)
   const [openData, setOpenData] = useState<string | null>(null)
+  /** Replaces the filename in the viewer footer after a copy, as feedback. */
+  const [copied, setCopied] = useState<string | null>(null)
 
   const refresh = useCallback((id: string) => {
     window.axo
@@ -47,10 +49,21 @@ export default function ShotsScreen(): React.JSX.Element {
     }
     setOpenName(fileName)
     setOpenData(null)
+    setCopied(null)
     void window.axo
       .readShot(versionId, fileName)
       .then(setOpenData)
       .catch(() => setOpenData(null))
+  }
+
+  const copy = (fileName: string): void => {
+    if (!versionId) {
+      return
+    }
+    void window.axo
+      .copyShot(versionId, fileName)
+      .then((ok) => setCopied(ok ? 'Copied to clipboard' : 'Could not copy that image'))
+      .catch(() => setCopied('Could not copy that image'))
   }
 
   const remove = (fileName: string): void => {
@@ -116,7 +129,10 @@ export default function ShotsScreen(): React.JSX.Element {
               <p className="muted">Loading…</p>
             )}
             <div className="shot-viewer-actions">
-              <span className="muted">{openName}</span>
+              <span className="muted">{copied ?? openName}</span>
+              <button className="chip-action" onClick={() => copy(openName)}>
+                Copy image
+              </button>
               <button
                 className="chip-action"
                 onClick={() => versionId && void window.axo.revealShot(versionId, openName)}

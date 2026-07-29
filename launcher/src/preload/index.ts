@@ -72,6 +72,8 @@ const api = {
     ipcRenderer.invoke('shots:delete', versionId, fileName),
   revealShot: (versionId: string, fileName: string): Promise<void> =>
     ipcRenderer.invoke('shots:reveal', versionId, fileName),
+  copyShot: (versionId: string, fileName: string): Promise<boolean> =>
+    ipcRenderer.invoke('shots:copy', versionId, fileName),
   listMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:list', versionId),
   addMods: (versionId: string): Promise<UserMod[]> => ipcRenderer.invoke('mods:add', versionId),
   setModEnabled: (versionId: string, fileName: string, enabled: boolean): Promise<UserMod[]> =>
