@@ -54,26 +54,35 @@ Java 21, Fabric Loom, Mojang official mappings. Package root `dev.axoclient`.
 
 ```
 dev.axoclient
-├── AxoClient            client entrypoint: bootstraps config + modules
+├── AxoClient            client entrypoint: registers every module, one place
 ├── core/
-│   ├── AxoModule        base class: id, name, category, enabled, onEnable/onDisable/onTick
-│   ├── ModuleManager    registry, lookup, tick dispatch, enable/disable
+│   ├── AxoModule        base class: id, name, category, onEnable/onDisable/onTick, settings()
+│   ├── ModuleManager    registry, tick dispatch, enable/disable, HUD dispatch
+│   ├── ModuleSetting    one adjustable integer, rendered as -/+ in the ClickGUI
+│   ├── HudRenderable    opt-in interface for modules that draw
+│   ├── ModuleCategory   PVP / PERFORMANCE / QOL / COSMETIC / HUD
 │   └── AxoConfig        versioned JSON config (Gson), per-module sections, atomic save
+├── hud/                 HudModule base (single-line text), HudAnchor, HudPosition
 ├── modules/
-│   ├── hud/             FpsHud, CpsCounter, Coordinates, Keystrokes
-│   ├── pvp/             (Phase 1+) hit color, item highlight — vanilla-legal only
-│   └── qol/             Fullbright, Zoom
-├── ui/                  settings screen (module list + toggles), HUD edit mode (later)
-└── mixin/               minimal mixins: HUD render hook, others as needed
+│   ├── hud/             ~24 readouts: FPS, coords, health, armour, compass, biome, …
+│   ├── pvp/             keystrokes, target HUD, attack cooldown, damage numbers, combo
+│   ├── qol/             fullbright, zoom, toggle sprint, copy coords, chat tools
+│   └── cosmetic/        10 capes + custom cape from PNG, 20 particle trails, colour trail
+├── gui/                 ClickGuiScreen, HudEditorScreen, themes, notifications, GuiRender
+├── chat/                ChatTweaks — the logic behind the chat mixin, kept testable
+├── input/ util/ update/ keybinds, key polling, in-game update check
+├── mixin/               required mixins — a failure here stops the game booting
+└── mixin/optional/      optional mixins — a failure here only breaks one feature
 ```
 
 Design rules:
 
-1. **Everything user-facing is a module.** One class per feature, registered in `ModuleManager`, config section auto-derived from module id. Adding a feature never touches core.
-2. **Prefer Fabric API events over mixins.** Mixins only where no event exists (kept in `mixin/`, one concern per mixin). The scaffold ships without Fabric API to stay dependency-light; task P1-02 adds it.
-3. **Performance comes from bundled mods** (Sodium, Lithium via the manifest), not reimplementation. Axo modules are PvP/QoL/HUD features.
-4. **Server-fairness line:** no modules that give unfair advantage (no reach, no aim, no auto-clicker). Balanced-PvP means info and rendering QoL, the same line Lunar/Badlion draw. This keeps Axo allowed on major servers.
-5. **Version isolation (Phase 6):** anything touching Minecraft internals goes behind small adapter interfaces so a 1.22 port swaps adapters, not features.
+1. **Everything user-facing is a module.** One class per feature, registered in `AxoClient.onInitializeClient()`, config section auto-derived from module id. Adding a feature never touches core.
+2. **Prefer polling over mixins, and never let a nice-to-have be fatal.** Two mixin configs: `axoclient.mixins.json` is `required: true` and holds only what the client cannot work without; `axoclient.optional.mixins.json` is `required: false` for everything else. Most features avoid mixins entirely by diffing state on the client tick.
+3. **`onEnable()` runs after the client is up, not at registration.** Registration happens during mod init, before `Minecraft.options` exists — calling `onEnable()` there NPEs and takes the game down on boot (this happened; see P5-02). `ModuleManager.enableInitial()` is fired from `CLIENT_STARTED` instead.
+4. **Performance comes from bundled mods** (Sodium, Lithium via the manifest), not reimplementation. Axo modules are PvP/QoL/HUD features.
+5. **Server-fairness line:** no modules that give unfair advantage (no reach, no aim, no auto-clicker). Balanced-PvP means info and rendering QoL, the same line Lunar/Badlion draw. This keeps Axo allowed on major servers.
+6. **Cosmetics are local-only.** Capes and trails render on your own screen. Showing them to other players needs a server hosting the textures, which Axo deliberately does not have.
 
 ## Launcher (`launcher/`)
 
@@ -82,26 +91,60 @@ Electron + TypeScript. Main process owns all privileged work; renderer is a Reac
 ```
 launcher/src
 ├── main/
-│   ├── index.ts       window lifecycle, IPC wiring
-│   ├── manifest.ts    fetch + zod-validate axo-manifest.json, offline cache
-│   ├── auth.ts        Microsoft login (msmc), token refresh, safeStorage persistence
-│   ├── java.ts        (Phase 2) Adoptium JRE provisioning
-│   ├── install.ts     (Phase 2) vanilla + Fabric + mods into %APPDATA%/.axoclient
-│   ├── launch.ts      game launch via minecraft-launcher-core, progress events
-│   └── updater.ts     (Phase 3) electron-updater against GitHub Releases
-├── preload/index.ts   contextBridge: the only surface renderer can call
-└── renderer/          React app (screens below), light-blue-on-black theme
+│   ├── index.ts        window lifecycle, IPC wiring
+│   ├── manifest.ts     fetch + validate axo-manifest.json, offline cache
+│   ├── fallbackManifest.ts  bundled last-resort manifest
+│   ├── auth.ts         Microsoft login (msmc), token refresh
+│   ├── accountStore.ts multi-account persistence (accounts.dat, safeStorage)
+│   ├── tokens.ts       safeStorage encrypt/decrypt
+│   ├── java.ts         Adoptium JRE provisioning
+│   ├── install.ts      vanilla + Fabric + mods into %APPDATA%/.axoclient
+│   ├── download.ts     hash-verified downloads with progress
+│   ├── sync.ts         mods-folder reconciliation (keep/replace/remove)
+│   ├── fabricProfile.ts / versions.ts / semver.ts / paths.ts / progress.ts
+│   ├── launch.ts       game launch via minecraft-launcher-core, quickPlay join
+│   ├── settings.ts     persisted settings, atomic writes
+│   ├── profiles.ts     named launch profiles
+│   ├── servers.ts      saved servers for quick join
+│   ├── system.ts       RAM recommendation, JVM presets
+│   ├── skin.ts / skinLibrary.ts   skin read/apply + saved skin library
+│   ├── userMods.ts     player-owned mods (protected from sync removal)
+│   ├── screenshots.ts  screenshot listing/read/delete (traversal-guarded)
+│   ├── news.ts         GitHub Releases → news items
+│   ├── crashReport.ts  read the game's crash report, diagnose in plain English
+│   ├── discord.ts      Rich Presence over Discord's local IPC (no native dep)
+│   ├── logger.ts       launcher + game logs, crash reports
+│   └── updater.ts      electron-updater against GitHub Releases
+├── preload/            contextBridge: the only surface renderer can call
+│   ├── index.ts        the bridge itself
+│   └── index.d.ts      its types — must be edited in lockstep with index.ts
+└── renderer/           React app (screens below), light-blue-on-black theme
 ```
+
+Modules that import `electron` or `msmc` cannot be unit-tested, so privileged
+work is kept in `index.ts` and the logic beneath it stays pure. That is why
+`accountStore`, `profiles`, `servers`, `crashReport`, `system`, `sync`,
+`userMods`, `skinLibrary` and `screenshots` are separate files: each is
+directly testable, and together they carry most of the launcher's real logic.
 
 ### Launcher screens
 
-| Screen | Purpose | Phase |
-|---|---|---|
-| **Login** | Microsoft sign-in (msmc popup/device flow), progress + errors | 2 |
-| **Home / Play** | account chip, channel + version picker (from manifest), big Play button, install/launch progress | 2 |
-| **Settings** | RAM/JVM args, install directory, channel selection | 2 (basic) / 5 (full) |
-| **Update** | launcher self-update banner + download progress | 3 |
-| **Error / Logs** | readable failure surface, open-logs button, retry | 2 (basic) / 5 (full) |
+| Screen | Purpose |
+|---|---|
+| **Login** | Microsoft sign-in (msmc), progress + errors |
+| **Play** | account switcher, version picker, big LAUNCH, install/launch progress, quick-join with saved servers, crash card, news |
+| **Skins** | current skin in 3D, upload a new one, saved skin library |
+| **Mods** | add/enable/disable/remove your own mods per version |
+| **Screenshots** | browse, view, copy to clipboard, reveal, delete |
+| **Versions** | per-version install state, install, repair, delete |
+| **Settings** | RAM (with a recommendation), speed presets, JVM args, profiles, Discord toggle, repair, log viewer, playtime |
+
+### IPC boundary rule
+
+Only `SessionInfo` (username + uuid) crosses to the renderer. `accessToken`
+and the mclc auth object stay in the main process, on `AxoSession`. Anything
+needing the token — applying a skin, launching — is done main-side and returns
+a result, never the token.
 
 ### Launch pipeline (happy path)
 
