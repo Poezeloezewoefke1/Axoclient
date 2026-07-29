@@ -99,12 +99,24 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Chat Timestamps | off | Dim [HH:mm] in front of each chat line |
 | Chat Anti-Spam | off | Hides an exact repeat of the previous line within ~1s |
 | Chat History | off | Keeps sent messages across servers and restarts |
+| Freelook | off | Hold **Left Alt** to look around while you keep running the same way |
 
 ### Cosmetics
 
-Ten bundled capes, twenty particle trails and auras, plus **Custom Cape** —
-drop a 64×32 PNG into `<game dir>/axoclient/capes/` and enable it. The first
-PNG alphabetically is used, so naming one `1-favourite.png` picks it.
+Ten bundled capes, twenty particle trails and auras, plus:
+
+- **Custom Cape** — drop a 64×32 PNG into `<game dir>/axoclient/capes/` and
+  enable it. The first PNG alphabetically is used, so naming one
+  `1-favourite.png` picks it.
+- **Colour Trail** — a trail in your accent colour, with size and density
+  settings.
+- **Halo** — a ring that turns above your head.
+- **Wings** — two swept arcs behind your shoulders that follow your facing.
+
+Halo and Wings are drawn with particles, not 3D models. A modelled accessory
+needs a player-renderer mixin plus hand-built geometry — a lot of surface area
+to break on a Minecraft update, and it looks wrong unless the model is
+properly made. Particles give a clean readable shape for no port risk.
 
 All cosmetics are local-only: they render on your screen, not other players'.
 Showing them to anyone else would need a server hosting the textures, which
@@ -126,6 +138,8 @@ hand.
 | Crosshair | style (dot / cross / ring), size, centre gap |
 | Zoom | zoomed FOV, how long the ease takes |
 | Colour Trail | particle size, how often it emits |
+| Halo | radius, number of points, how often it emits |
+| Wings | span, points per wing, how often it emits |
 | Any particle trail | how often it emits |
 
 The Colour Trail's colour follows your ClickGUI accent, so picking a swatch
@@ -150,9 +164,21 @@ So there are two rules:
    `defaultRequire: 0`). If it stops matching, the feature quietly stops
    working and the game still boots.
 
-The chat timestamps and anti-spam mixin lives in the optional config for
-exactly this reason. The five mixins in the required config are the ones the
-client genuinely cannot work without.
+The chat and freelook mixins live in the optional config for exactly this
+reason. The five mixins in the required config are the ones the client
+genuinely cannot work without.
+
+### Freelook's extra safety
+
+Freelook needs two mixins that must work *together*: one banks the mouse
+movement, the other points the camera. If only the first applied, the mouse
+would be swallowed with nothing moving in its place — a frozen view, which is
+worse than the feature not existing.
+
+So the camera mixin sets a flag the first time it runs, and the mouse hook
+refuses to swallow anything until that flag is set. A half-applied pair
+therefore degrades to "freelook does nothing", and the module says so with a
+notification rather than leaving a dead key.
 
 ## Notifications
 
