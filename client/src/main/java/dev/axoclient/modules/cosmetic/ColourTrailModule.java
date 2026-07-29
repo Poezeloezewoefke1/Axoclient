@@ -3,7 +3,9 @@ package dev.axoclient.modules.cosmetic;
 import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.core.ModuleSetting;
 import dev.axoclient.gui.theme.Themes;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -24,22 +26,33 @@ public final class ColourTrailModule extends AxoModule {
     private static final int FOLLOW_ACCENT = -1;
     private static final double SPREAD = 0.4;
 
-    private int everyTicks = 1;
-
     public ColourTrailModule() {
         super("colour_trail", "Colour Trail", ModuleCategory.COSMETIC, false);
     }
 
+    /**
+     * Colour is not listed here: it follows your ClickGUI accent by default,
+     * and the accent swatches are right there in the same screen. A raw
+     * 0xRRGGBB override is still available in the config file.
+     */
     @Override
-    protected void onEnable() {
-        everyTicks = Math.max(1, ModuleManager.get().config().getModuleInt(id(), "density_ticks", 1));
+    public List<ModuleSetting> settings() {
+        return List.of(
+            new ModuleSetting(id(), "scale", "Size", 1, 40, 1, 10, ModuleSetting.Format.TENTHS),
+            ModuleSetting.plain(id(), "density_ticks", "Every N ticks", 1, 20, 1)
+        );
+    }
+
+    /** Read per tick, not cached at enable, so ClickGUI edits apply instantly. */
+    private int densityTicks() {
+        return Math.max(1, ModuleManager.get().config().getModuleInt(id(), "density_ticks", 1));
     }
 
     @Override
     public void onTick() {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
-        if (player == null || minecraft.level == null || player.tickCount % everyTicks != 0) {
+        if (player == null || minecraft.level == null || player.tickCount % densityTicks() != 0) {
             return;
         }
 

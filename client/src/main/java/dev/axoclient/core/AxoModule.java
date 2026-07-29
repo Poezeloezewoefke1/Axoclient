@@ -50,4 +50,12 @@ public abstract class AxoModule {
     public int defaultToggleKey() {
         return -1;
     }
+
+    /**
+     * Adjustable numbers shown under this module's row in the ClickGUI.
+     * Empty means the module has nothing to tune.
+     */
+    public java.util.List<ModuleSetting> settings() {
+        return java.util.List.of();
+    }
 }

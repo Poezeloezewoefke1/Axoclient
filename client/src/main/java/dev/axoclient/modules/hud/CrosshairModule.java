@@ -4,8 +4,10 @@ import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.HudRenderable;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.core.ModuleSetting;
 import dev.axoclient.gui.render.GuiRender;
 import dev.axoclient.gui.theme.Themes;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -29,6 +31,15 @@ public final class CrosshairModule extends AxoModule implements HudRenderable {
 
     public CrosshairModule() {
         super("crosshair", "Crosshair", ModuleCategory.HUD, false);
+    }
+
+    @Override
+    public List<ModuleSetting> settings() {
+        return List.of(
+            ModuleSetting.plain(id(), "style", "Style (0 dot, 1 cross, 2 ring)", 0, 2, STYLE_DOT),
+            ModuleSetting.plain(id(), "size", "Size", 1, 12, 4),
+            ModuleSetting.plain(id(), "gap", "Centre gap", 0, 8, 2)
+        );
     }
 
     @Override

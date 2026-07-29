@@ -3,6 +3,7 @@ package dev.axoclient.gui;
 import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.core.ModuleSetting;
 import dev.axoclient.gui.render.GuiRender;
 import dev.axoclient.gui.theme.GuiTheme;
 import dev.axoclient.gui.theme.Themes;
@@ -31,6 +32,9 @@ public final class ClickGuiScreen extends Screen {
     private static final int PANEL_W = 122;
     private static final int HEADER_H = 20;
     private static final int ROW_H = 15;
+    private static final int SETTING_ROW_H = 13;
+    /** Width of the [-] / [+] stepper hitboxes on a settings row. */
+    private static final int STEPPER_W = 11;
     private static final int TOPBAR_Y = 8;
     private static final int SWATCH = 14;
 
@@ -41,6 +45,8 @@ public final class ClickGuiScreen extends Screen {
     private String search = "";
     private boolean searchFocused;
     private AxoModule awaitingBind;
+    /** Module whose settings rows are currently unfolded, or null. One at a time. */
+    private AxoModule expanded;
 
     public ClickGuiScreen() {
         super(Component.literal("Axo Client"));
@@ -150,15 +156,13 @@ public final class ClickGuiScreen extends Screen {
         GuiTheme theme
     ) {
         List<AxoModule> mods = modulesIn(cat);
-        int height = HEADER_H + mods.size() * ROW_H;
-        GuiRender.panel(g, x, y, PANEL_W, height, theme);
+        GuiRender.panel(g, x, y, PANEL_W, panelHeight(mods), theme);
         GuiRender.text(g, cat.displayName(), x + 8, y + 6, theme.text);
 
         int ry = y + HEADER_H;
         for (AxoModule m : mods) {
             boolean on = ModuleManager.get().isEnabled(m);
-            boolean hover = GuiRender.inside(mouseX, mouseY, x, ry, PANEL_W, ROW_H);
-            if (hover) {
+            if (GuiRender.inside(mouseX, mouseY, x, ry, PANEL_W, ROW_H)) {
                 GuiRender.rect(g, x, ry, PANEL_W, ROW_H, theme.hover);
             }
             if (on) {
@@ -169,10 +173,69 @@ public final class ClickGuiScreen extends Screen {
             int bind = Keybinds.keyOf(m);
             String badge = bind > 0 ? Keybinds.keyName(bind) : "";
             if (!badge.isEmpty()) {
-                GuiRender.text(g, badge, x + PANEL_W - 8 - GuiRender.textWidth(badge), ry + 4, theme.textDim);
+                GuiRender.text(g, badge, x + PANEL_W - 20 - GuiRender.textWidth(badge), ry + 4, theme.textDim);
+            }
+            // Fold arrow, only for modules that actually have something to tune.
+            if (!m.settings().isEmpty()) {
+                String arrow = m == expanded ? "v" : ">";
+                GuiRender.text(g, arrow, x + PANEL_W - 11, ry + 4, theme.textDim);
             }
             ry += ROW_H;
+
+            if (m == expanded) {
+                ry = renderSettings(g, m, x, ry, mouseX, mouseY, theme);
+            }
         }
+    }
+
+    /** Draws the unfolded settings rows; returns the y below them. */
+    private int renderSettings(
+        GuiGraphics g,
+        AxoModule module,
+        int x,
+        int startY,
+        int mouseX,
+        int mouseY,
+        GuiTheme theme
+    ) {
+        int ry = startY;
+        for (ModuleSetting setting : module.settings()) {
+            if (GuiRender.inside(mouseX, mouseY, x, ry, PANEL_W, SETTING_ROW_H)) {
+                GuiRender.rect(g, x, ry, PANEL_W, SETTING_ROW_H, theme.hover);
+            }
+            GuiRender.text(g, trimLabel(setting.label()), x + 14, ry + 3, theme.textDim);
+
+            int minusX = x + PANEL_W - 2 * STEPPER_W - 26;
+            int plusX = x + PANEL_W - STEPPER_W - 2;
+            GuiRender.text(g, "-", minusX + 4, ry + 3, theme.text);
+            GuiRender.text(g, "+", plusX + 4, ry + 3, theme.text);
+
+            String value = setting.display();
+            GuiRender.text(g, value, plusX - 6 - GuiRender.textWidth(value), ry + 3, theme.accent);
+            ry += SETTING_ROW_H;
+        }
+        return ry;
+    }
+
+    /** Labels are authored short, but never let one bleed over the steppers. */
+    private static String trimLabel(String label) {
+        int budget = PANEL_W - 2 * STEPPER_W - 46;
+        if (GuiRender.textWidth(label) <= budget) {
+            return label;
+        }
+        String trimmed = label;
+        while (trimmed.length() > 1 && GuiRender.textWidth(trimmed + "…") > budget) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed + "…";
+    }
+
+    private int panelHeight(List<AxoModule> mods) {
+        int height = HEADER_H + mods.size() * ROW_H;
+        if (expanded != null && mods.contains(expanded)) {
+            height += expanded.settings().size() * SETTING_ROW_H;
+        }
+        return height;
     }
 
     @Override
@@ -227,12 +290,31 @@ public final class ClickGuiScreen extends Screen {
                 if (GuiRender.inside(mx, my, px, ry, PANEL_W, ROW_H)) {
                     if (button == 1) {
                         awaitingBind = m;
+                    } else if (!m.settings().isEmpty() && mx >= px + PANEL_W - 13) {
+                        // Clicking the arrow folds settings open instead of toggling.
+                        expanded = m == expanded ? null : m;
                     } else {
                         ModuleManager.get().toggle(m);
                     }
                     return true;
                 }
                 ry += ROW_H;
+
+                if (m == expanded) {
+                    for (ModuleSetting setting : m.settings()) {
+                        if (GuiRender.inside(mx, my, px, ry, PANEL_W, SETTING_ROW_H)) {
+                            int minusX = px + PANEL_W - 2 * STEPPER_W - 26;
+                            int plusX = px + PANEL_W - STEPPER_W - 2;
+                            if (GuiRender.inside(mx, my, plusX, ry, STEPPER_W, SETTING_ROW_H)) {
+                                setting.nudge(1);
+                            } else if (GuiRender.inside(mx, my, minusX, ry, STEPPER_W, SETTING_ROW_H)) {
+                                setting.nudge(-1);
+                            }
+                            return true;
+                        }
+                        ry += SETTING_ROW_H;
+                    }
+                }
             }
         }
         return super.mouseClicked(event, doubleClick);

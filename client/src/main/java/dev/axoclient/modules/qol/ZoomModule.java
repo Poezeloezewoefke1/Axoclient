@@ -3,7 +3,9 @@ package dev.axoclient.modules.qol;
 import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.core.ModuleSetting;
 import dev.axoclient.util.Keys;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
@@ -31,6 +33,16 @@ public final class ZoomModule extends AxoModule {
 
     public ZoomModule() {
         super("zoom", "Zoom", ModuleCategory.QOL, true);
+    }
+
+    @Override
+    public List<ModuleSetting> settings() {
+        return List.of(
+            ModuleSetting.plain(id(), "fov", "Zoomed FOV", 1, 110, DEFAULT_ZOOM_FOV),
+            new ModuleSetting(
+                id(), "smooth", "Ease time", 1, 20, 1, DEFAULT_SMOOTH_TICKS, ModuleSetting.Format.TICKS
+            )
+        );
     }
 
     @Override
