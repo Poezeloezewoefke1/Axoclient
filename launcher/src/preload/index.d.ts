@@ -48,6 +48,7 @@ declare global {
       openLogs(): Promise<void>
       readLog(): Promise<string>
       getNews(): Promise<NewsItem[]>
+      openCommunity(): Promise<void>
       listSkins(): Promise<SavedSkin[]>
       saveSkinFile(name: string, slim: boolean): Promise<SavedSkin[]>
       saveCurrentSkin(name: string): Promise<SavedSkin[]>

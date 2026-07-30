@@ -54,6 +54,14 @@ import type {
  */
 const DISCORD_APP_ID = process.env['AXO_DISCORD_APP_ID'] ?? ''
 
+/**
+ * Community invite. Opened via a dedicated IPC call that takes no arguments —
+ * an openExternal(url) bridge would let anything running in the renderer send
+ * the user wherever it liked, and there is no reason to hand out that power
+ * for one fixed link.
+ */
+const DISCORD_INVITE = 'https://discord.gg/nKXpBaeeyy'
+
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 1000,
@@ -273,6 +281,7 @@ app.whenReady().then(async () => {
     clipboard.writeImage(image)
     return true
   })
+  ipcMain.handle('community:open', () => shell.openExternal(DISCORD_INVITE))
   ipcMain.handle('news:get', () => getNews())
   ipcMain.handle('system:recommendedRam', () => recommendedRamMb())
   ipcMain.handle('system:jvmPresets', () => JVM_PRESETS)

@@ -9,7 +9,7 @@
      Put your real Discord invite here and every [data-discord] element on the
      site turns into a working link. Leave it empty and they stay hidden —
      better a missing button than a dead one on a download page. */
-  var DISCORD_INVITE = '';
+  var DISCORD_INVITE = 'https://discord.gg/nKXpBaeeyy';
 
   var discordSlots = document.querySelectorAll('[data-discord]');
   for (var d = 0; d < discordSlots.length; d++) {
@@ -21,6 +21,11 @@
     } else {
       slot.hidden = true;
     }
+  }
+  // Whole sections that exist only to hold a Discord link.
+  var discordBands = document.querySelectorAll('[data-discord-band]');
+  for (var b = 0; b < discordBands.length; b++) {
+    discordBands[b].hidden = !DISCORD_INVITE;
   }
 
   /* ---- Mobile nav toggle ---- */

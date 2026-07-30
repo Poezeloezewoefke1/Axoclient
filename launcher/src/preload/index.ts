@@ -62,6 +62,7 @@ const api = {
   openLogs: (): Promise<void> => ipcRenderer.invoke('logs:open'),
   readLog: (): Promise<string> => ipcRenderer.invoke('logs:read'),
   getNews: (): Promise<NewsItem[]> => ipcRenderer.invoke('news:get'),
+  openCommunity: (): Promise<void> => ipcRenderer.invoke('community:open'),
   listSkins: (): Promise<SavedSkin[]> => ipcRenderer.invoke('skins:list'),
   saveSkinFile: (name: string, slim: boolean): Promise<SavedSkin[]> =>
     ipcRenderer.invoke('skins:saveFile', name, slim),

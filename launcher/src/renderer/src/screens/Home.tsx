@@ -10,7 +10,14 @@ import type {
 } from '../../../shared/types'
 import { formatBytes, formatDuration, formatSpeed } from '../../../shared/format'
 import SkinRender from '../components/SkinRender'
-import { IconCaret, IconFolder, IconRefresh, IconSpark, IconWrench } from '../components/Icons'
+import {
+  IconCaret,
+  IconChat,
+  IconFolder,
+  IconRefresh,
+  IconSpark,
+  IconWrench
+} from '../components/Icons'
 
 const STAGE_LABELS: Record<GameProgress['stage'], string> = {
   preparing: 'Preparing…',
@@ -401,6 +408,9 @@ export default function HomeScreen({
             </button>
             <button className="chip-action" onClick={onGoToVersions} disabled={busy}>
               <IconRefresh /> Versions
+            </button>
+            <button className="chip-action" onClick={() => void window.axo.openCommunity()}>
+              <IconChat /> Discord
             </button>
           </div>
           {repairMsg && <p className="muted repair-msg">{repairMsg}</p>}
