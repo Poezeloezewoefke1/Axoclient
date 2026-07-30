@@ -146,6 +146,39 @@ The Colour Trail's colour follows your ClickGUI accent, so picking a swatch
 in the top bar recolours it. A fixed `0xRRGGBB` override is available in the
 config file for anyone who wants one.
 
+## Look and feel
+
+The main menu uses Axo artwork instead of the vanilla rotating panorama, and
+the Axo hub screen sits on the same image behind a dark panel.
+
+Panels across the ClickGUI and HUD editor get a soft drop shadow, a light
+top-edge gradient and bitten-out corners so they read as rounded. All of it is
+drawn with `fill()` — no gradient or rounded-rect helper from vanilla — so the
+styling cannot break on a Minecraft update.
+
+### Changing the artwork
+
+Replace one file:
+
+```
+client/src/main/resources/assets/axoclient/textures/gui/menu_background.png
+```
+
+Rules:
+
+| | |
+| --- | --- |
+| Size | 1024×512 (declared in `MenuBackground.TEX_W/TEX_H` — update both if you change it) |
+| Format | PNG |
+| Aspect | Cropped to fill, never stretched, so any aspect works — the centre is what stays |
+
+The image is darkened by a scrim so button text stays readable. If your art is
+already dark, lower `SCRIM` in `MenuBackground`.
+
+`GuiGraphics#blit` is the least stable signature in Minecraft's GUI code — it
+has changed shape more than once inside 1.21 alone — so it is called from
+exactly one place, `MenuBackground`. A port fixes one line, not every screen.
+
 ## Two mixin configs, on purpose
 
 `axoclient.mixins.json` sets `required: true`. A mixin in there that stops
@@ -164,9 +197,18 @@ So there are two rules:
    `defaultRequire: 0`). If it stops matching, the feature quietly stops
    working and the game still boots.
 
-The chat and freelook mixins live in the optional config for exactly this
-reason. The five mixins in the required config are the ones the client
-genuinely cannot work without.
+The chat, freelook and menu-background mixins live in the optional config for
+exactly this reason. The five mixins in the required config are the ones the
+client genuinely cannot work without.
+
+The menu background is a good example of the split paying off. It has two
+injections, each allowed to fail alone:
+
+- panorama suppression fails → the vanilla panorama returns and hides the art
+- the draw call fails → you get the plain vanilla menu
+
+Neither outcome stops the game starting, so neither belongs in the required
+config.
 
 ### Freelook's extra safety
 
