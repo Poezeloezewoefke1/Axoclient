@@ -47,13 +47,22 @@ Axo *distribution* versions (what users pick in the launcher) are manifest `Vers
 > Release** workflow from the repo's **Actions** tab (the `workflow_dispatch`
 > button — available once this workflow is on `main`), or (b) create the tag
 > via GitHub's **Releases → Draft a new release → choose a new tag** UI. The
-> resulting `.exe` (`Axo Launcher Setup X.Y.Z.exe`) is attached to a GitHub
+> resulting `.exe` (`AxoLauncher-Setup-X.Y.Z.exe`) is attached to a GitHub
 > Release. For anyone other than the repo owner to download it, the repo must
 > be **public**.
 
+> **Both release workflows refuse a mismatched tag.** `launcher-vX.Y.Z` must
+> equal `launcher/package.json` version, and `client-vX.Y.Z` must equal
+> `mod_version` in `client/gradle.properties`. This is guarded because the
+> launcher case fails silently otherwise: the build and publish both succeed,
+> but `latest.yml` announces the old version, so no existing install ever sees
+> the update. If a run fails on this step, bump the version file or retag —
+> nothing was published.
+
 ### Promotion & rollback
 
-- New Minecraft versions or risky changes land in the `beta` channel first (added in P6-04); promotion to `stable` is a manifest edit moving/copying the Version entry.
+- New Minecraft versions or risky changes land in the `beta` channel first — the channel is live in the manifest now, and the launcher shows channel tabs whenever more than one exists. Promotion to `stable` is a manifest edit moving/copying the Version entry.
+- Version ids must be **unique across channels** (they name the install folder), so use a suffix: `1.21.11-r1` on stable, `1.21.11-b1` on beta. `validate.mjs` enforces this.
 - Rollback = revert the manifest commit. Launchers pick up the old pins on next start; the client-side `.previous` jar (P3-05) covers users mid-session.
 
 ## Checklist before any tag

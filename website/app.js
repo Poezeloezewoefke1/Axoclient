@@ -134,10 +134,16 @@
         return res.json();
       })
       .then(function (releases) {
+        // Installers only. Counting every asset would fold in latest.yml and
+        // the .blockmap files, which electron-updater fetches on a schedule
+        // from every running launcher — the total would be update checks
+        // wearing a download's clothes.
         var total = 0;
         releases.forEach(function (r) {
           (r.assets || []).forEach(function (a) {
-            total += a.download_count || 0;
+            if (/\.exe$/i.test(a.name)) {
+              total += a.download_count || 0;
+            }
           });
         });
         // Nothing published yet reads as broken; say nothing instead.

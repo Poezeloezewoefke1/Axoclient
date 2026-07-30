@@ -4,13 +4,24 @@ productName: Axo Launcher
 directories:
   output: release
   buildResources: build
+# A positive-only files list REPLACES electron-builder's default of "**/*", so
+# node_modules has to be named explicitly. Without it the installer builds
+# fine and then the app dies on launch with "Cannot find module 'msmc'":
+# electron-vite treats production dependencies as external, so msmc,
+# minecraft-launcher-core, extract-zip, electron-updater and zod are required
+# at runtime rather than bundled into out/. devDependencies are stripped by
+# electron-builder regardless, so this stays small.
 files:
   - out/**
+  - node_modules/**
   - package.json
 win:
   icon: build/icon.ico
   target:
     - nsis
+# No spaces in the filename: it is what people see in their downloads folder
+# and what the website links to.
+artifactName: AxoLauncher-Setup-${version}.${ext}
 nsis:
   oneClick: true
   perMachine: false

@@ -30,6 +30,20 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
+      # The jar is named from mod_version, so a mismatched tag produces
+      # axoclient-0.1.0.jar hanging off tag client-v0.2.0 — and then a manifest
+      # entry whose URL and version disagree. Fail early instead.
+      - name: Tag must match mod_version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF#refs/tags/client-v}"
+          mod=$(grep '^mod_version=' gradle.properties | cut -d= -f2)
+          if [ "$tag" != "$mod" ]; then
+            echo "::error::Tag client-v$tag does not match client/gradle.properties mod_version $mod"
+            echo "Bump mod_version to $tag (or retag to client-v$mod) and re-run."
+            exit 1
+          fi
+          echo "Tag and mod_version agree on $mod"
       - run: ./gradlew build --no-daemon
       - name: Generate SHA1 checksums
         run: sha1sum build/libs/*.jar | tee build/libs/SHA1SUMS.txt

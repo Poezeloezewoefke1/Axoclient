@@ -26,8 +26,25 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: launcher/package-lock.json
+      # A tag that disagrees with package.json is the worst kind of release
+      # bug: it builds and publishes fine, but latest.yml announces the old
+      # version, so no existing install ever sees the update. Catch it here
+      # rather than in a bug report three weeks later.
+      - name: Tag must match package.json version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          tag="${GITHUB_REF#refs/tags/launcher-v}"
+          pkg=$(node -p "require('./package.json').version")
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::Tag launcher-v$tag does not match launcher/package.json version $pkg"
+            echo "Bump launcher/package.json to $tag (or retag to launcher-v$pkg) and re-run."
+            exit 1
+          fi
+          echo "Tag and package.json agree on $pkg"
       - run: npm ci
       - run: npm run typecheck
+      - run: npm test
       - run: npm run build
       - name: Package and publish installer
         run: npx electron-builder --win --config electron-builder.yml --publish always
