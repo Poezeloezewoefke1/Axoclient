@@ -780,6 +780,41 @@ html.js .reveal.in {
   transform: none;
 }
 
+/* Screenshot / artwork figure */
+.shot-figure {
+  margin: 0 0 28px;
+  border: 1px solid var(--axo-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--axo-surface);
+  box-shadow: var(--shadow);
+}
+
+.shot-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.shot-figure figcaption {
+  padding: 12px 18px;
+  font-size: 13.5px;
+  color: var(--axo-text-muted);
+  border-top: 1px solid var(--axo-border-soft);
+}
+
+/* Inline callout — was used on the gallery page with no styles behind it */
+.note-box {
+  padding: 14px 18px;
+  border: 1px solid var(--axo-border);
+  border-left: 3px solid var(--axo-blue);
+  border-radius: var(--radius-sm);
+  background: var(--axo-surface);
+  color: var(--axo-text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;

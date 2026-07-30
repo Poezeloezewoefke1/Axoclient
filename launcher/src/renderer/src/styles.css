@@ -397,6 +397,9 @@ body {
 
 .play-stage {
   position: relative;
+  /* Keeps the artwork layer's negative z-index inside this box rather than
+     letting it slide behind the page background. */
+  isolation: isolate;
   flex: 1;
   min-width: 0;
   display: flex;
@@ -410,6 +413,19 @@ body {
     linear-gradient(90deg, rgba(56, 189, 248, 0.045) 1px, transparent 1px) 0 0 / 34px 100%,
     radial-gradient(700px 420px at 50% 8%, rgba(56, 189, 248, 0.12), transparent 70%),
     var(--axo-surface);
+}
+
+/* The same artwork as the in-game main menu, so launcher and game match.
+   Kept faint on purpose: this sits behind the character render and the
+   LAUNCH button, and has to lose every contrast fight with them. */
+.play-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('./assets/menu-art.jpg') center / cover no-repeat;
+  opacity: 0.16;
+  pointer-events: none;
 }
 
 .offline-pill {
