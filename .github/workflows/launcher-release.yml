@@ -1,6 +1,14 @@
-# Roadmap P4-06: tag launcher-vX.Y.Z -> Windows NSIS installer + latest.yml
-# published to a GitHub Release. latest.yml is the electron-updater feed
+# Roadmap P4-06: build the Windows NSIS installer and publish it, with
+# latest.yml, to a GitHub Release. latest.yml is the electron-updater feed
 # (P3-02) — never delete it from a release. See docs/releasing.md.
+#
+# Two tags are in play and they are not the same thing:
+#   launcher-vX.Y.Z  triggers this workflow (namespaced so it doesn't collide
+#                    with the client's own client-vX.Y.Z tags)
+#   vX.Y.Z           is where electron-builder publishes, because its GitHub
+#                    publisher derives the tag from package.json version
+# The "Tag must match" step keeps the numbers identical, so these only ever
+# differ by the prefix.
 name: Launcher Release
 
 on:
@@ -26,6 +34,7 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: launcher/package-lock.json
+
       # A tag that disagrees with package.json is the worst kind of release
       # bug: it builds and publishes fine, but latest.yml announces the old
       # version, so no existing install ever sees the update. Catch it here
@@ -42,11 +51,92 @@ jobs:
             exit 1
           fi
           echo "Tag and package.json agree on $pkg"
+
+      - name: Resolve version
+        id: v
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # Create the release UP FRONT, before electron-builder runs.
+      #
+      # Why: electron-builder uploads its artifacts in parallel, and each
+      # uploader independently checks "does the release exist?" then creates it
+      # if not. On a fresh version they all miss, several POST /releases fire at
+      # once, one wins and the rest get
+      #   422 "Published releases must have a valid tag"
+      # — which is exactly how v0.1.1 ended up published with nothing but a
+      # .blockmap in it, no installer and no latest.yml. Creating the release
+      # here means every uploader finds it and only uploads.
+      #
+      # Stale DRAFTS for the same version are deleted first: electron-builder
+      # happily reuses a draft, which silently parks the installer somewhere
+      # nobody can download. Only drafts are ever removed, never a published
+      # release.
+      - name: Prepare GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 100 \
+            --json tagName,isDraft,name \
+            --jq ".[] | select(.isDraft and (.tagName == \"$tag\" or .name == \"$VERSION\")) | .tagName" \
+            > drafts.txt || true
+          while read -r stale; do
+            [ -z "$stale" ] && continue
+            echo "Removing stale draft: $stale"
+            gh release delete "$stale" --repo "$GITHUB_REPOSITORY" --yes || true
+          done < drafts.txt
+
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $tag already exists — uploading into it."
+          else
+            echo "Creating release $tag"
+            gh release create "$tag" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "$VERSION" \
+              --generate-notes
+          fi
+
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
       - name: Package and publish installer
         run: npx electron-builder --win --config electron-builder.yml --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # A release missing the installer or the update feed is worse than a
+      # failed build: it looks finished, the website links to it, and
+      # electron-updater has nothing to read. Assert both are actually there.
+      - name: Verify the release has what it needs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          assets=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" \
+            --json assets --jq '.assets[].name')
+          echo "Assets on $tag:"
+          echo "$assets"
+
+          missing=0
+          for want in "AxoLauncher-Setup-$VERSION.exe" "latest.yml"; do
+            if ! grep -Fxq "$want" <<< "$assets"; then
+              echo "::error::Missing release asset: $want"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Release $tag is incomplete. Delete it and re-run rather than shipping it."
+            exit 1
+          fi
+          echo "Release $tag is complete."
