@@ -24,12 +24,13 @@ export const FALLBACK_MANIFEST: unknown = {
           mcVersion: '1.21.11',
           fabricLoaderVersion: '0.17.3',
           javaMajor: 21,
-          notes: 'First Axo Client release for Minecraft 1.21.11',
+          notes:
+            'Axo Client 0.2.0 for Minecraft 1.21.11 — fixes the boot crash in 0.1.0 and adds the full module set.',
           client: {
-            version: '0.1.0',
-            url: 'https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.1.0/axoclient-0.1.0.jar',
-            sha1: 'b31515aedc371f6b43731bc7a51d4319a3845911',
-            size: 29925
+            version: '0.2.0',
+            url: 'https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.2.0/axoclient-0.2.0.jar',
+            sha1: '53eb53ff598dc0bd3a117e0fc4252aeec4a759b5',
+            size: 826192
           },
           mods: [
             {
@@ -80,10 +81,10 @@ export const FALLBACK_MANIFEST: unknown = {
           notes:
             'Beta channel. Currently the same build as stable \u2014 new versions land here first for testing, then the stable default moves.',
           client: {
-            version: '0.1.0',
-            url: 'https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.1.0/axoclient-0.1.0.jar',
-            sha1: 'b31515aedc371f6b43731bc7a51d4319a3845911',
-            size: 29925
+            version: '0.2.0',
+            url: 'https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.2.0/axoclient-0.2.0.jar',
+            sha1: '53eb53ff598dc0bd3a117e0fc4252aeec4a759b5',
+            size: 826192
           },
           mods: [
             {

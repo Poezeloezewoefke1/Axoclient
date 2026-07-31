@@ -10,6 +10,26 @@ import { join } from 'node:path'
 
 let logDir: string | null = null
 
+/**
+ * Strip credentials before anything reaches disk. MCLC echoes the full
+ * java command line on its `debug` channel, which includes the live
+ * Minecraft access token — logs get shared when people report crashes,
+ * so the token must never land in the file. Applied centrally in the two
+ * write paths rather than at call sites, so a new logLine() caller can't
+ * reintroduce the leak.
+ */
+export function redactSecrets(text: string): string {
+  return (
+    text
+      // --accessToken <jwt>, --clientId <id>, --xuid <id>, --uuid <id>
+      .replace(/(--(?:accessToken|clientId|xuid|uuid)[ =])\S+/g, '$1<redacted>')
+      // Authorization: Bearer <token>
+      .replace(/(Bearer\s+)[\w-]+\.[\w-]+\.[\w-]+/gi, '$1<redacted>')
+      // Any bare JWT that slipped through another format
+      .replace(/eyJ[\w-]{8,}\.[\w-]+\.[\w-]+/g, '<redacted-jwt>')
+  )
+}
+
 export function initLogger(dir: string): void {
   logDir = dir
 }
@@ -42,7 +62,7 @@ export function createGameLog(keep = 5): { path: string | null; append: (line: s
   return {
     path,
     append: (line: string) => {
-      void appendFile(path, `${line}\n`, 'utf8').catch(() => undefined)
+      void appendFile(path, `${redactSecrets(line)}\n`, 'utf8').catch(() => undefined)
     }
   }
 }
@@ -84,7 +104,7 @@ export async function readLauncherLog(maxLines = 400): Promise<string> {
 }
 
 export function logLine(scope: string, message: string): void {
-  const line = `${new Date().toISOString()} [${scope}] ${message}\n`
+  const line = `${new Date().toISOString()} [${scope}] ${redactSecrets(message)}\n`
   console.log(line.trim())
   const dir = logDir
   if (dir) {

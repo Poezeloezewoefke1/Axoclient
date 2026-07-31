@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-20T12:50:00Z",
+  "generatedAt": "2026-07-31T22:30:00Z",
   "_comment": "Live manifest for Axo Client. Mods come from Modrinth CDN; the client jar from GitHub Releases. All hashes are real \u2014 validate strictly with manifest/validate.mjs.",
   "launcher": {
     "minimumVersion": "0.1.0",
@@ -15,12 +15,12 @@
           "mcVersion": "1.21.11",
           "fabricLoaderVersion": "0.17.3",
           "javaMajor": 21,
-          "notes": "First Axo Client release for Minecraft 1.21.11",
+          "notes": "Axo Client 0.2.0 for Minecraft 1.21.11 \u2014 fixes the boot crash in 0.1.0 and adds the full module set.",
           "client": {
-            "version": "0.1.0",
-            "url": "https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.1.0/axoclient-0.1.0.jar",
-            "sha1": "b31515aedc371f6b43731bc7a51d4319a3845911",
-            "size": 29925
+            "version": "0.2.0",
+            "url": "https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.2.0/axoclient-0.2.0.jar",
+            "sha1": "53eb53ff598dc0bd3a117e0fc4252aeec4a759b5",
+            "size": 826192
           },
           "mods": [
             {
@@ -70,10 +70,10 @@
           "javaMajor": 21,
           "notes": "Beta channel. Currently the same build as stable — new versions land here first for testing, then the stable default moves.",
           "client": {
-            "version": "0.1.0",
-            "url": "https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.1.0/axoclient-0.1.0.jar",
-            "sha1": "b31515aedc371f6b43731bc7a51d4319a3845911",
-            "size": 29925
+            "version": "0.2.0",
+            "url": "https://github.com/Poezeloezewoefke1/Axoclient/releases/download/client-v0.2.0/axoclient-0.2.0.jar",
+            "sha1": "53eb53ff598dc0bd3a117e0fc4252aeec4a759b5",
+            "size": 826192
           },
           "mods": [
             {
