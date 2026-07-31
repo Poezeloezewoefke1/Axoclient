@@ -34,6 +34,24 @@ export default function SettingsScreen(): React.JSX.Element {
   const [log, setLog] = useState<string | null>(null)
   const [profiles, setProfiles] = useState<LaunchProfile[]>([])
   const [profileName, setProfileName] = useState('')
+  /** Feedback from the Java picker — mostly for explaining a bad choice. */
+  const [javaNote, setJavaNote] = useState<string | null>(null)
+
+  const pickJava = (): void => {
+    setJavaNote(null)
+    void window.axo
+      .pickJava()
+      .then((result) => {
+        if (!result) return
+        if (result.ok) {
+          setJavaNote(null)
+          void window.axo.getSettings().then(setSettings)
+        } else {
+          setJavaNote(result.reason)
+        }
+      })
+      .catch(() => setJavaNote('Could not use that file.'))
+  }
 
   const repair = (): void => {
     setRepairState('Repairing…')
@@ -182,6 +200,35 @@ export default function SettingsScreen(): React.JSX.Element {
         <p className="muted">
           Install location: <code>{settings.installDir}</code>
         </p>
+
+        <h3 className="field-heading">Java</h3>
+        {settings.javaPath ? (
+          <>
+            <p className="muted">
+              Using your Java: <code>{settings.javaPath}</code>
+            </p>
+            <button
+              className="link-button"
+              onClick={() => {
+                setJavaNote(null)
+                apply({ javaPath: '' })
+              }}
+            >
+              Go back to the managed Java
+            </button>
+          </>
+        ) : (
+          <p className="muted">
+            Axo downloads and manages the right Java for you. Only change this if you have a
+            reason to.
+          </p>
+        )}
+        <div className="quick-actions" style={{ justifyContent: 'flex-start', marginTop: 8 }}>
+          <button className="chip-action" onClick={pickJava}>
+            Choose Java…
+          </button>
+        </div>
+        {javaNote && <p className="muted">{javaNote}</p>}
       </div>
 
       <div className="settings-group">

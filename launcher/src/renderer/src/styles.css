@@ -1133,6 +1133,16 @@ body {
   user-select: text;
 }
 
+/* Sub-heading inside a settings group */
+.field-heading {
+  margin: 20px 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--axo-text-muted);
+}
+
 /* Profiles */
 .profile-name-input {
   flex: 1 1 200px;

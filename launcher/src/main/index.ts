@@ -37,6 +37,7 @@ import { initLogger, logDirectory, logLine, readLauncherLog, writeCrashReport } 
 import { initUpdater, installUpdate } from './updater'
 import { ProfileStore, findProfile, profilePatch } from './profiles'
 import { ServerStore } from './servers'
+import { validateJavaPath } from './javaOverride'
 import { DiscordPresence } from './discord'
 import type {
   AxoSettings,
@@ -148,7 +149,8 @@ app.whenReady().then(async () => {
     jvmArgs: '',
     onboarded: false,
     playtimeMinutes: 0,
-    discordRpc: true
+    discordRpc: true,
+    javaPath: ''
   })
   await settings.load()
 
@@ -284,6 +286,27 @@ app.whenReady().then(async () => {
   ipcMain.handle('community:open', () => shell.openExternal(DISCORD_INVITE))
   ipcMain.handle('news:get', () => getNews())
   ipcMain.handle('system:recommendedRam', () => recommendedRamMb())
+  // Pick your own java. Returns the validation result so the UI can explain a
+  // bad choice ("that's the compiler") instead of failing at launch time.
+  ipcMain.handle('system:pickJava', async () => {
+    const picked = await dialog.showOpenDialog({
+      title: 'Choose your Java executable',
+      properties: ['openFile'],
+      filters:
+        process.platform === 'win32'
+          ? [{ name: 'Java', extensions: ['exe'] }]
+          : [{ name: 'All files', extensions: ['*'] }]
+    })
+    if (picked.canceled || picked.filePaths.length === 0) {
+      return null
+    }
+    const check = await validateJavaPath(picked.filePaths[0])
+    if (!check.ok) {
+      return { ok: false as const, reason: check.reason }
+    }
+    await settings.update({ javaPath: check.path })
+    return { ok: true as const, path: check.path }
+  })
   ipcMain.handle('system:jvmPresets', () => JVM_PRESETS)
   ipcMain.handle('logs:read', () => readLauncherLog())
   ipcMain.handle('settings:get', () => settings.get())

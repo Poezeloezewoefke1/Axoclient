@@ -154,4 +154,9 @@ export interface AxoSettings {
   playtimeMinutes: number
   /** Show "Playing Axo Client" on your Discord profile. */
   discordRpc: boolean
+  /**
+   * Absolute path to your own java executable. Empty means "use the runtime
+   * the launcher provisions", which is the right answer for almost everyone.
+   */
+  javaPath: string
 }

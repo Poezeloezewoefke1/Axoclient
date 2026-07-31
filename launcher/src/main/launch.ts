@@ -4,6 +4,7 @@ import type { AxoManifest } from './manifest'
 import type { AxoSession } from './auth'
 import type { AxoSettings, GameProgress } from '../shared/types'
 import { ensureJava } from './java'
+import { resolveJavaPath } from './javaOverride'
 import { installFabricProfile } from './fabricProfile'
 import { syncModsFolder } from './install'
 import { instanceDir } from './paths'
@@ -49,9 +50,18 @@ export async function launchGame(
   onProgress({ stage: 'preparing', detail: `Minecraft ${version.mcVersion}` })
   logLine('launch', `pipeline start: ${version.id} for ${session.username}`)
 
-  const javaPath = await ensureJava(version.javaMajor, join(settings.installDir, 'runtime'), {
-    onProgress: (stage, detail) => onProgress({ stage: 'java', detail: detail ?? stage })
-  })
+  // A configured java wins; resolveJavaPath returns null when it is unset or
+  // has gone missing, and then we provision the managed runtime as usual.
+  const override = await resolveJavaPath(settings.javaPath ?? '')
+  if (override) {
+    logLine('launch', `using custom java: ${override}`)
+    onProgress({ stage: 'java', detail: 'Using your Java' })
+  }
+  const javaPath =
+    override ??
+    (await ensureJava(version.javaMajor, join(settings.installDir, 'runtime'), {
+      onProgress: (stage, detail) => onProgress({ stage: 'java', detail: detail ?? stage })
+    }))
 
   const profileId = await installFabricProfile(
     settings.installDir,

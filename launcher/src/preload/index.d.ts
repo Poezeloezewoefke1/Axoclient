@@ -19,6 +19,7 @@ import type {
 type SyncCounts = { downloaded: number; kept: number; removed: number }
 type JvmPreset = { id: string; label: string; description: string; args: string }
 type AppliedProfile = { settings: AxoSettings; versionId: string | null }
+type JavaPick = { ok: true; path: string } | { ok: false; reason: string } | null
 
 declare global {
   interface Window {
@@ -34,6 +35,7 @@ declare global {
       removeAccount(uuid: string): Promise<SessionInfo | null>
       getSettings(): Promise<AxoSettings>
       updateSettings(patch: Partial<AxoSettings>): Promise<AxoSettings>
+      pickJava(): Promise<JavaPick>
       listServers(): Promise<SavedServer[]>
       saveServer(server: SavedServer): Promise<SavedServer[]>
       removeServer(address: string): Promise<SavedServer[]>

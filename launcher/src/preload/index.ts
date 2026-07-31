@@ -19,6 +19,7 @@ import type {
 
 type SyncCounts = { downloaded: number; kept: number; removed: number }
 type AppliedProfile = { settings: AxoSettings; versionId: string | null }
+type JavaPick = { ok: true; path: string } | { ok: false; reason: string } | null
 type JvmPreset = { id: string; label: string; description: string; args: string }
 
 /** The only surface the renderer can call. Keep it small and typed. */
@@ -37,6 +38,7 @@ const api = {
   getSettings: (): Promise<AxoSettings> => ipcRenderer.invoke('settings:get'),
   updateSettings: (patch: Partial<AxoSettings>): Promise<AxoSettings> =>
     ipcRenderer.invoke('settings:update', patch),
+  pickJava: (): Promise<JavaPick> => ipcRenderer.invoke('system:pickJava'),
   listServers: (): Promise<SavedServer[]> => ipcRenderer.invoke('servers:list'),
   saveServer: (server: SavedServer): Promise<SavedServer[]> =>
     ipcRenderer.invoke('servers:save', server),

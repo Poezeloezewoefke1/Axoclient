@@ -37,7 +37,7 @@ In-game controls and the full feature list live in
 [`docs/client-features.md`](docs/client-features.md) — start with **Right
 Shift** to open the ClickGUI.
 
-> Version pins in `client/gradle.properties` (Loom, Fabric Loader) were written without network access to Fabric's servers — verify them against https://fabricmc.net/develop before the first build (roadmap task P1-01).
+> The version pins in `client/gradle.properties` (Loom, Fabric Loader, Fabric API) are verified on every push — the **Client build** CI job resolves the whole toolchain against Fabric's real servers, so a stale pin turns the build red. The same job prints the current versions for 1.21.11, so when you do need to bump them the values are in the log.
 
 ### Launcher (`launcher/`)
 
@@ -64,6 +64,23 @@ npx serve .
 
 ## Status
 
-Bootstrap phase. The scaffolds build the skeleton described in the architecture doc; features land by executing roadmap tasks in order (completed tasks carry a **Status** line in the roadmap).
+Well past scaffold. The client ships ~78 modules (HUD, combat, quality-of-life, cosmetics) with an in-game ClickGUI, a drag-to-place HUD editor and custom menu artwork; the launcher does multi-account Microsoft login, hash-verified installs, skins, mods, screenshots, profiles, saved servers, crash diagnosis and self-update. Completed roadmap tasks carry a **Status** line.
 
-CI (`.github/workflows/ci.yml`) runs on every push: launcher typecheck + build, client Gradle build (this doubles as roadmap task P1-01's toolchain-pin verification), and manifest validation via `node manifest/validate.mjs --allow-placeholders`. Tagged releases are built by `client-release.yml` / `launcher-release.yml` — see [`docs/releasing.md`](docs/releasing.md).
+Remaining big-ticket items: porting the mod to further Minecraft versions, a code-signed installer, and macOS/Linux builds.
+
+CI (`.github/workflows/ci.yml`) runs on every push: manifest validation (`node manifest/validate.mjs`, strict), launcher typecheck + tests + build, and the client Gradle build — which doubles as toolchain-pin verification. Tagged releases are built by `client-release.yml` / `launcher-release.yml`; both refuse a tag that disagrees with the version file. See [`docs/releasing.md`](docs/releasing.md).
+
+## Reference
+
+| Doc | When you need it |
+|---|---|
+| [`docs/architecture.md`](docs/architecture.md) | How the three systems connect, and the rules each follows |
+| [`docs/client-features.md`](docs/client-features.md) | Every module, the in-game controls, how to change the menu artwork |
+| [`docs/adding-a-version.md`](docs/adding-a-version.md) | Supporting a new Minecraft version, step by step |
+| [`docs/releasing.md`](docs/releasing.md) | Cutting a release; producing the `.exe` |
+| [`docs/discord-presence.md`](docs/discord-presence.md) | Turning on "Playing Axo Client" on Discord |
+| [`docs/crash-handling.md`](docs/crash-handling.md) | How crashes are caught and explained to players |
+
+## Community
+
+[Discord](https://discord.gg/nKXpBaeeyy) · [Issues](https://github.com/Poezeloezewoefke1/Axoclient/issues)

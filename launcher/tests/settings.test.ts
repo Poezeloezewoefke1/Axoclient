@@ -12,7 +12,8 @@ const DEFAULTS: AxoSettings = {
   jvmArgs: '',
   onboarded: false,
   playtimeMinutes: 0,
-  discordRpc: true
+  discordRpc: true,
+  javaPath: ''
 }
 
 describe('SettingsStore', () => {

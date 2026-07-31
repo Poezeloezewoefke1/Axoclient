@@ -64,6 +64,7 @@ export class SettingsStore {
       onboarded: typeof source.onboarded === 'boolean' ? source.onboarded : this.defaults.onboarded,
       discordRpc:
         typeof source.discordRpc === 'boolean' ? source.discordRpc : this.defaults.discordRpc,
+      javaPath: typeof source.javaPath === 'string' ? source.javaPath : this.defaults.javaPath,
       // Monotonic counter — never let a corrupt file wind playtime backwards.
       playtimeMinutes:
         typeof source.playtimeMinutes === 'number' &&
