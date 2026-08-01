@@ -121,7 +121,9 @@ enabled wins" was the only thing resolving it. One toggle with a picker is
 both smaller in the menu and unambiguous.
 
 Halo and Wings are still drawn with particles rather than 3D models. Making
-them modelled geometry is planned and not done yet.
+them modelled geometry is planned and not done yet — see
+`docs/3d-cosmetics-plan.md` for what has been established and what has to be
+resolved first.
 
 All cosmetics are local-only: they render on your screen, not other players'.
 Showing them to anyone else would need a server hosting the textures, which
