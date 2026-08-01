@@ -1,5 +1,6 @@
 package dev.axoclient.modules.qol;
 
+import dev.axoclient.camera.Zoom;
 import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
@@ -10,26 +11,27 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Hold-to-zoom: holding C eases the FOV down, releasing eases it back to the
- * exact value you started on.
+ * Hold a key to zoom. The easing lives in {@link Zoom} and is applied per
+ * frame by {@code FovMixin}, so the ramp is smooth instead of stepping once
+ * per tick through whole-degree FOV values.
  *
- * The easing runs on the client tick rather than per frame, so it is FPS
- * independent — at 20 ticks a second the default 4-tick ramp is about 200ms,
- * which reads as instant without the jarring snap.
+ * The fallback path below is what runs if that mixin ever stops applying: it
+ * writes {@code options.fov()} on the tick, like the original implementation.
+ * Visibly steppy, but zoom still works.
  *
  * Config (module "zoom"):
- *   fov    — zoomed field of view
- *   smooth — ticks the ramp takes; 1 disables easing (snap zoom)
+ *   fov  — zoomed field of view
+ *   ease — ramp length in milliseconds
+ *   key  — hold-to-zoom key
  */
 public final class ZoomModule extends AxoModule {
-    private static final int ZOOM_KEY = GLFW.GLFW_KEY_C;
+    private static final int DEFAULT_KEY = GLFW.GLFW_KEY_C;
     private static final int DEFAULT_ZOOM_FOV = 30;
-    private static final int DEFAULT_SMOOTH_TICKS = 4;
+    private static final int DEFAULT_EASE_MS = 180;
 
-    /** FOV before we touched it — the value we must restore exactly. */
+    /** Fallback path only: FOV before we touched it, to be restored exactly. */
     private Integer baseFov;
-    /** 0 = fully out, 1 = fully zoomed. */
-    private double progress;
+    private double fallbackProgress;
 
     public ZoomModule() {
         super("zoom", "Zoom", ModuleCategory.QOL, true);
@@ -39,62 +41,71 @@ public final class ZoomModule extends AxoModule {
     public List<ModuleSetting> settings() {
         return List.of(
             ModuleSetting.plain(id(), "fov", "Zoomed FOV", 1, 110, DEFAULT_ZOOM_FOV),
-            new ModuleSetting(
-                id(), "smooth", "Ease time", 1, 20, 1, DEFAULT_SMOOTH_TICKS, ModuleSetting.Format.TICKS
-            )
+            new ModuleSetting(id(), "ease", "Ease time", 0, 600, 20, DEFAULT_EASE_MS, ModuleSetting.Format.PLAIN),
+            ModuleSetting.key(id(), "zoom_key", "Zoom key", DEFAULT_KEY)
         );
     }
 
     @Override
     public void onTick() {
         Minecraft minecraft = Minecraft.getInstance();
-        boolean held = minecraft.screen == null && Keys.isDown(ZOOM_KEY);
+        int key = ModuleManager.get().config().getModuleInt(id(), "zoom_key", DEFAULT_KEY);
+        boolean held = key > 0 && minecraft.screen == null && Keys.isDown(key);
 
+        Zoom.configure(zoomFov(), easeMillis());
+        Zoom.setActive(held);
+
+        if (Zoom.hookAlive()) {
+            // The renderer hook owns the FOV now. If we had previously taken
+            // the fallback path, hand the player's own setting back.
+            restoreFallback();
+            return;
+        }
+        tickFallback(minecraft, held);
+    }
+
+    @Override
+    protected void onDisable() {
+        Zoom.reset();
+        restoreFallback();
+    }
+
+    /** Tick-driven, integer-stepped zoom. Only used when FovMixin is absent. */
+    private void tickFallback(Minecraft minecraft, boolean held) {
         if (held && baseFov == null) {
             baseFov = minecraft.options.fov().get();
         }
         if (baseFov == null) {
             return;
         }
+        // Ease time is in milliseconds; a client tick is 50ms.
+        double step = 1.0 / Math.max(1.0, easeMillis() / 50.0);
+        fallbackProgress = held
+            ? Math.min(1.0, fallbackProgress + step)
+            : Math.max(0.0, fallbackProgress - step);
 
-        double step = 1.0 / smoothTicks();
-        progress = held ? Math.min(1.0, progress + step) : Math.max(0.0, progress - step);
-
-        if (progress <= 0.0) {
-            // Fully back out: restore the original value and let go of it, so a
-            // change made in the options menu isn't clobbered by the next zoom.
-            minecraft.options.fov().set(baseFov);
-            baseFov = null;
+        if (fallbackProgress <= 0.0) {
+            restoreFallback();
             return;
         }
-        minecraft.options.fov().set(lerpFov(baseFov, zoomFov(), ease(progress)));
+        int from = baseFov;
+        minecraft.options.fov().set((int) Math.round(from + (zoomFov() - from) * fallbackProgress));
     }
 
-    @Override
-    protected void onDisable() {
+    private void restoreFallback() {
         if (baseFov != null) {
             Minecraft.getInstance().options.fov().set(baseFov);
             baseFov = null;
         }
-        progress = 0.0;
+        fallbackProgress = 0.0;
     }
 
     private int zoomFov() {
         return clamp(ModuleManager.get().config().getModuleInt(id(), "fov", DEFAULT_ZOOM_FOV), 1, 110);
     }
 
-    private int smoothTicks() {
-        return clamp(ModuleManager.get().config().getModuleInt(id(), "smooth", DEFAULT_SMOOTH_TICKS), 1, 20);
-    }
-
-    private static int lerpFov(int from, int to, double t) {
-        return (int) Math.round(from + (to - from) * t);
-    }
-
-    /** Ease-out cubic: quick off the mark, settles gently. */
-    private static double ease(double t) {
-        double inverted = 1.0 - t;
-        return 1.0 - inverted * inverted * inverted;
+    private int easeMillis() {
+        return clamp(ModuleManager.get().config().getModuleInt(id(), "ease", DEFAULT_EASE_MS), 1, 600);
     }
 
     private static int clamp(int value, int min, int max) {

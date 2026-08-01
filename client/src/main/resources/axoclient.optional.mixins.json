@@ -8,6 +8,8 @@
     "CameraMixin",
     "ChatMixin",
     "EntityTurnMixin",
+    "FovMixin",
+    "ScreenEffectMixin",
     "TitleBackgroundMixin"
   ],
   "mixins": [],
