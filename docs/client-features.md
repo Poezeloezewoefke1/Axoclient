@@ -92,31 +92,36 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Module | Default | What it does |
 | --- | --- | --- |
 | Fullbright | off | Maximum brightness without touching your video settings |
-| Zoom | on | Hold **C** to zoom, with smooth easing |
+| Zoom | on | Hold **C** to zoom, eased per frame (rebindable) |
 | Toggle Sprint | off | Sprint stays on without holding the key |
-| Unfocused FPS | off | Caps frames when the window isn't focused |
-| Copy Coords | on | **F8** copies your position to the clipboard |
+| Copy Coords | on | **F8** copies your position to the clipboard (rebindable) |
 | Chat Timestamps | off | Dim [HH:mm] in front of each chat line |
 | Chat Anti-Spam | off | Hides an exact repeat of the previous line within ~1s |
 | Chat History | off | Keeps sent messages across servers and restarts |
-| Freelook | off | Hold **Left Alt** to look around while you keep running the same way |
+| Freelook | off | Hold **Left Alt** to look around while you keep running the same way (rebindable, hold or toggle) |
+| Clear Water & Lava | off | Removes the full-screen liquid overlays |
+| Durability Tooltips | on | Exact durability on damageable items, coloured by wear |
+| Shulker Tooltips | on | Lists a shulker box's contents on its tooltip |
 
 ### Cosmetics
 
-Ten bundled capes, twenty particle trails and auras, plus:
+Four cosmetic modules, each with its variant chosen in its own settings:
 
-- **Custom Cape** — drop a 64×32 PNG into `<game dir>/axoclient/capes/` and
-  enable it. The first PNG alphabetically is used, so naming one
-  `1-favourite.png` picks it.
-- **Colour Trail** — a trail in your accent colour, with size and density
-  settings.
+- **Capes** — ten bundled colours, picked with the **Cape** setting.
+- **Trails** — twenty-two trails and auras, picked with the **Trail** setting.
 - **Halo** — a ring that turns above your head.
 - **Wings** — two swept arcs behind your shoulders that follow your facing.
+- **Custom Cape** — drop a 64x32 PNG into `<game dir>/axoclient/capes/` and
+  enable it. The first PNG alphabetically is used, so naming one
+  `1-favourite.png` picks it.
 
-Halo and Wings are drawn with particles, not 3D models. A modelled accessory
-needs a player-renderer mixin plus hand-built geometry — a lot of surface area
-to break on a Minecraft update, and it looks wrong unless the model is
-properly made. Particles give a clean readable shape for no port risk.
+Capes and Trails used to be thirty-two separate toggles. They were really two
+decisions, and nothing stopped you enabling three capes at once — "last one
+enabled wins" was the only thing resolving it. One toggle with a picker is
+both smaller in the menu and unambiguous.
+
+Halo and Wings are still drawn with particles rather than 3D models. Making
+them modelled geometry is planned and not done yet.
 
 All cosmetics are local-only: they render on your screen, not other players'.
 Showing them to anyone else would need a server hosting the textures, which
@@ -127,8 +132,10 @@ so the list grows without touching the GUI or config code.
 
 ## Module settings
 
-Modules with something to tune show a small **>** on the right of their row
-in the ClickGUI. Click it to fold the settings open, then use **-** and **+**.
+Each module card in the mod menu has a gear button. Click it for that
+module's settings, then use **-** and **+** to change a value. Pickers (Cape,
+Trail, and so on) cycle when you click the middle of the value. Key settings
+are rebound by clicking them and pressing the key you want.
 
 Everything saves as you click. Nothing here needs the config file edited by
 hand.
@@ -136,15 +143,20 @@ hand.
 | Module | You can change |
 | --- | --- |
 | Crosshair | style (dot / cross / ring), size, centre gap |
-| Zoom | zoomed FOV, how long the ease takes |
-| Colour Trail | particle size, how often it emits |
+| Zoom | zoomed FOV, ease time in milliseconds, key |
+| Capes | which cape |
+| Trails | which trail, how often it emits |
 | Halo | radius, number of points, how often it emits |
 | Wings | span, points per wing, how often it emits |
-| Any particle trail | how often it emits |
+| Copy Coords | key, coordinate format, where it confirms |
+| Freelook | key, hold or toggle |
+| Clear Water & Lava | water, lava and powder snow overlays separately |
+| Durability Tooltips | absolute, percentage, or both |
+| Shulker Tooltips | how many lines, whether to merge duplicate stacks |
 
-The Colour Trail's colour follows your ClickGUI accent, so picking a swatch
-in the top bar recolours it. A fixed `0xRRGGBB` override is available in the
-config file for anyone who wants one.
+The Themed Dust trail follows your ClickGUI accent, so picking a swatch in
+settings recolours it. A fixed `0xRRGGBB` override is available in the config
+file for anyone who wants one.
 
 ## Look and feel
 
