@@ -42,6 +42,8 @@ are in `releasing.md`.
 
 **Improvements to existing modules**
 
+- Zoom: scroll the mouse wheel while holding the zoom key to zoom further
+  in or out (resets each time you let go).
 - Keystrokes shows clicks per second on the mouse keys; optional space bar.
 - Crosshair turns red (or white/gold) on a mob or player; style is a proper
   Dot / Cross / Ring picker.
@@ -72,6 +74,8 @@ test install, check:
 - [ ] **HUD Style** background box lines up with the text.
 - [ ] **Chat Mentions:** someone saying your name pings; your own messages don't.
 - [ ] **Hit Sound** plays on a landed hit and not on a miss.
+- [ ] **Zoom scroll:** while holding C, the wheel changes zoom and not the
+      hotbar slot; without C held, the wheel changes slot as normal.
 - [ ] Turn every module on at once for a minute: no error notifications
       ("… hit an error and was turned off"). If one appears, `latest.log`
       has the stack trace under `Module '<id>' failed`.

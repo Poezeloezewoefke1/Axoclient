@@ -34,6 +34,12 @@ public final class Zoom {
     private static int zoomFov = 30;
     private static int easeMillis = 200;
 
+    /** Per-notch zoom step for the scroll wheel; 0.8 = 20% tighter per notch in. */
+    private static final double SCROLL_STEP = 0.8;
+    private static boolean scrollEnabled = true;
+    /** Multiplier on zoomFov from scrolling during this hold; back to 1 on release. */
+    private static double scrollFactor = 1.0;
+
     private Zoom() {
     }
 
@@ -51,8 +57,32 @@ public final class Zoom {
         easeMillis = Math.max(1, millis);
     }
 
+    public static void setScrollEnabled(boolean value) {
+        scrollEnabled = value;
+    }
+
     public static void setActive(boolean value) {
+        if (!value) {
+            // Each hold starts from the configured zoom, as players expect.
+            scrollFactor = 1.0;
+        }
         active = value;
+    }
+
+    /**
+     * Mouse wheel while zoomed: scroll up to zoom further in, down to back
+     * off. Returns true when it used the scroll, so the hotbar doesn't also
+     * move. Called by {@code ScrollMixin}; when that hook is missing, scrolling
+     * simply keeps changing hotbar slots as in vanilla.
+     */
+    public static boolean scroll(double amount) {
+        if (!scrollEnabled || !active || amount == 0.0) {
+            return false;
+        }
+        scrollFactor *= amount > 0 ? SCROLL_STEP : 1.0 / SCROLL_STEP;
+        // Keep the effective FOV inside vanilla's 1..110 range.
+        scrollFactor = Math.max(1.0 / zoomFov, Math.min(110.0 / zoomFov, scrollFactor));
+        return true;
     }
 
     /** True while the ramp is anywhere other than fully zoomed out. */
@@ -77,7 +107,8 @@ public final class Zoom {
         if (progress <= EPSILON) {
             return baseFov;
         }
-        return baseFov + (zoomFov - baseFov) * ease(progress);
+        double target = Math.max(1.0, Math.min(110.0, zoomFov * scrollFactor));
+        return baseFov + (target - baseFov) * ease(progress);
     }
 
     private static void advance() {

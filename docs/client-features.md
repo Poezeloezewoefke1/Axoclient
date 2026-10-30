@@ -145,7 +145,7 @@ it off later still restores them.
 | Module | Default | What it does |
 | --- | --- | --- |
 | Fullbright | off | Maximum brightness without touching your video settings |
-| Zoom | on | Hold **C** to zoom, eased per frame (rebindable) |
+| Zoom | on | Hold **C** to zoom, eased per frame; scroll while holding to zoom further in or out (rebindable) |
 | Toggle Sprint | off | Sprint stays on without holding the key |
 | Copy Coords | on | **F8** copies your position to the clipboard (rebindable) |
 | Chat Timestamps | off | Dim [HH:mm] in front of each chat line |
@@ -323,8 +323,8 @@ So there are two rules:
    `defaultRequire: 0`). If it stops matching, the feature quietly stops
    working and the game still boots.
 
-The chat, freelook and menu-background mixins live in the optional config for
-exactly this reason. The five mixins in the required config are the ones the
+The chat, freelook, menu-background and zoom-scroll mixins live in the
+optional config for exactly this reason. The five mixins in the required config are the ones the
 client genuinely cannot work without.
 
 The menu background is a good example of the split paying off. It has two

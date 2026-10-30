@@ -23,6 +23,7 @@ import org.lwjgl.glfw.GLFW;
  *   fov  — zoomed field of view
  *   ease — ramp length in milliseconds
  *   key  — hold-to-zoom key
+ *   scroll — mouse wheel adjusts the zoom while held (needs ScrollMixin)
  */
 public final class ZoomModule extends AxoModule {
     private static final int DEFAULT_KEY = GLFW.GLFW_KEY_C;
@@ -42,7 +43,8 @@ public final class ZoomModule extends AxoModule {
         return List.of(
             ModuleSetting.plain(id(), "fov", "Zoomed FOV", 1, 110, DEFAULT_ZOOM_FOV),
             new ModuleSetting(id(), "ease", "Ease time", 0, 600, 20, DEFAULT_EASE_MS, ModuleSetting.Format.PLAIN),
-            ModuleSetting.key(id(), "zoom_key", "Zoom key", DEFAULT_KEY)
+            ModuleSetting.key(id(), "zoom_key", "Zoom key", DEFAULT_KEY),
+            ModuleSetting.choice(id(), "scroll", "Scroll to adjust", List.of("On", "Off"), 0)
         );
     }
 
@@ -53,6 +55,7 @@ public final class ZoomModule extends AxoModule {
         boolean held = key > 0 && minecraft.screen == null && Keys.isDown(key);
 
         Zoom.configure(zoomFov(), easeMillis());
+        Zoom.setScrollEnabled(ModuleManager.get().config().getModuleInt(id(), "scroll", 0) == 0);
         Zoom.setActive(held);
 
         if (Zoom.hookAlive()) {
