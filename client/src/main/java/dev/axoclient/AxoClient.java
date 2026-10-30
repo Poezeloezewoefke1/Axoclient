@@ -36,6 +36,7 @@ import dev.axoclient.modules.hud.HungerWarningModule;
 import dev.axoclient.modules.hud.InventoryFullModule;
 import dev.axoclient.modules.hud.LightLevelModule;
 import dev.axoclient.modules.hud.MemoryHudModule;
+import dev.axoclient.modules.hud.MinimapModule;
 import dev.axoclient.modules.hud.ModuleListHudModule;
 import dev.axoclient.modules.hud.MountInfoModule;
 import dev.axoclient.modules.hud.MovementStateModule;
@@ -115,6 +116,7 @@ public final class AxoClient implements ClientModInitializer {
 
         modules.register(new FpsHudModule());
         modules.register(new HudStyleModule());
+        modules.register(new MinimapModule());
         modules.register(new CoordinatesModule());
         modules.register(new CpsCounterModule());
         modules.register(new TimeHudModule());

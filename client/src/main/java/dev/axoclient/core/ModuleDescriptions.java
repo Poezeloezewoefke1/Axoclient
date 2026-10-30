@@ -58,6 +58,7 @@ public final class ModuleDescriptions {
         Map.entry("hunger_warning", "Tells you to eat before you can't sprint."),
         Map.entry("armor_points", "Total armour and armour toughness."),
         Map.entry("hud_style", "Colour, background box and shadow for all HUD text."),
+        Map.entry("minimap", "A north-up map of the area around you, with your waypoints."),
         // Cosmetic
         Map.entry("trails", "Particle trails and auras; pick one in settings."),
         Map.entry("halo", "A ring turning above your head."),

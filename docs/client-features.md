@@ -97,6 +97,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Hunger Warning | off | Tells you to eat; separate warning when you're too hungry to sprint |
 | Armor Points | off | Total armour and armour toughness |
 | HUD Style | off | Restyle all HUD text: colour (six choices), dark background box, shadow on/off |
+| Minimap | off | North-up map of the area around you with your heading and waypoints; corner, zoom and size in settings |
 | Module List | on | Which modules are active |
 
 ### Combat
@@ -179,6 +180,21 @@ resolved first.
 All cosmetics are local-only: they render on your screen, not other players'.
 Showing them to anyone else would need a server hosting the textures, which
 Axo deliberately does not have.
+
+### Minimap
+
+A north-up map in a screen corner (bottom right by default), coloured like a
+vanilla map from the top block of each column your client has loaded.
+Higher ground is drawn lighter and lower ground darker, so hills and
+riverbanks read at a glance. The white dot and tick are you and your
+heading; gold dots are your waypoints, with the one the HUD arrow follows
+in your accent colour. Waypoints off the edge of the map stay pinned to the
+edge in their direction.
+
+Settings: **Corner**, **Zoom** (64, 128 or 256 blocks across) and **Size**.
+The map refreshes about twice a second, spread over several ticks so it
+never costs you a frame. It's hidden in the Nether, where the top block
+of every column is the bedrock roof.
 
 ### Waypoints
 
