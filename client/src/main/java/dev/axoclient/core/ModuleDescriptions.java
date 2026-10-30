@@ -112,7 +112,24 @@ public final class ModuleDescriptions {
         Map.entry("effect_expiry", "A heads-up 10 seconds before a potion effect ends.")
     );
 
+    /** Modules added in this release: the menu's NEW badge and filter. */
+    private static final java.util.Set<String> NEW = java.util.Set.of(
+        "anvil_cost_tooltip", "armor_icons", "armor_points", "auto_walk", "block_info", "bow_charge",
+        "break_reminder", "chat_mentions", "chunk_info", "clock_hud", "combat_timer", "day_cycle",
+        "depth_guide", "effect_expiry", "elytra_info", "entity_count", "explosion_warning", "fall_warning",
+        "food_tooltip", "fps_graph", "hide_hud", "hit_sound", "hostile_counter", "hud_style",
+        "hunger_warning", "inventory_full", "item_counter", "kill_counter", "light_level",
+        "low_health_warning", "minimap", "mount_info", "movement_state", "nearby_players", "nether_coords",
+        "pearl_cooldown", "performance_mode", "ping_graph", "reach_display", "saturation_hud",
+        "session_stats", "sleep_reminder", "stopwatch", "stutter_alert", "totem_warning", "waypoints",
+        "weather"
+    );
+
     private ModuleDescriptions() {
+    }
+
+    public static boolean isNew(String moduleId) {
+        return NEW.contains(moduleId);
     }
 
     /** The description for a module id, or "" when there is none. */

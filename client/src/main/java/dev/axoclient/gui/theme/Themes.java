@@ -4,25 +4,13 @@ import dev.axoclient.core.AxoConfig;
 import dev.axoclient.core.ModuleManager;
 
 /**
- * Current-theme provider. Reads the accent colour, light/dark choice, and
- * GUI scale from the "gui" config section, so the accent picker and theme
- * toggle in the ClickGUI persist across restarts.
+ * Current-theme provider. The player picks one of the {@link Palette} presets
+ * on the menu's Themes page; it is stored in the "gui" config section, and
+ * every Axo screen — the menu, the HUD editor, notifications — derives its
+ * colours from it through {@link #current()}.
  */
 public final class Themes {
     public static final String SECTION = "gui";
-    public static final int DEFAULT_ACCENT = 0xFF38BDF8;
-
-    /** A few ready-made accent swatches for the picker. */
-    public static final int[] ACCENT_SWATCHES = {
-        0xFF38BDF8, // axo blue
-        0xFF8B5CF6, // violet
-        0xFF4ADE80, // green
-        0xFFF472B6, // pink
-        0xFFFBBF24, // amber
-        0xFFF87171, // red
-        0xFF22D3EE, // cyan
-        0xFFFFFFFF // white
-    };
 
     private Themes() {
     }
@@ -31,36 +19,41 @@ public final class Themes {
         return ModuleManager.get().config();
     }
 
-    public static int accent() {
-        return config().getModuleInt(SECTION, "accent", DEFAULT_ACCENT);
+    public static Palette palette() {
+        return Palette.byId(config().getModuleString(SECTION, "palette", Palette.ALL.get(0).id()));
     }
 
-    public static void setAccent(int argb) {
-        config().setModuleInt(SECTION, "accent", argb);
+    public static void setPalette(Palette palette) {
+        config().setModuleString(SECTION, "palette", palette.id());
     }
 
-    public static boolean isDark() {
-        return config().getModuleBool(SECTION, "dark", true);
-    }
-
-    public static void setDark(boolean dark) {
-        config().setModuleBool(SECTION, "dark", dark);
-    }
-
-    /** GUI scale as a fraction (1.0 = 100%). Clamped to a sane range. */
-    public static float scale() {
-        int pct = config().getModuleInt(SECTION, "scale_pct", 100);
-        pct = Math.max(60, Math.min(160, pct));
-        return pct / 100.0f;
-    }
-
-    public static void setScalePercent(int pct) {
-        config().setModuleInt(SECTION, "scale_pct", Math.max(60, Math.min(160, pct)));
-    }
-
-    /** The live theme built from current config. */
+    /**
+     * The flat colour set older screens draw with, mapped from the palette:
+     * panels and text come across directly, "off" rows use the raised
+     * surface, and the outline is the card colour nudged toward the text so
+     * it reads as an edge on both dark and light themes.
+     */
     public static GuiTheme current() {
-        int accent = accent();
-        return isDark() ? GuiTheme.dark(accent) : GuiTheme.light(accent);
+        Palette p = palette();
+        return new GuiTheme(
+            (0xC0 << 24) | (p.ground() & 0x00FFFFFF),
+            p.panel(),
+            p.side(),
+            p.accent(),
+            p.text(),
+            p.sub(),
+            p.accent(),
+            p.raised(),
+            p.light() ? 0x14000000 : 0x14FFFFFF,
+            blend(p.card(), p.text(), 0.14f),
+            !p.light()
+        );
+    }
+
+    private static int blend(int from, int to, float t) {
+        int r = Math.round(((from >> 16) & 0xFF) + (((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t);
+        int g = Math.round(((from >> 8) & 0xFF) + (((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * t);
+        int b = Math.round((from & 0xFF) + ((to & 0xFF) - (from & 0xFF)) * t);
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }

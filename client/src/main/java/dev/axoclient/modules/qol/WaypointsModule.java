@@ -3,7 +3,7 @@ package dev.axoclient.modules.qol;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
 import dev.axoclient.core.ModuleSetting;
-import dev.axoclient.gui.WaypointsScreen;
+import dev.axoclient.gui.menu.ClientMenuScreen;
 import dev.axoclient.gui.notify.Notification;
 import dev.axoclient.gui.notify.Notifications;
 import dev.axoclient.hud.HudAnchor;
@@ -31,7 +31,7 @@ import org.lwjgl.glfw.GLFW;
  *   mark_key   — save your current position
  *   next_key   — cycle which waypoint the HUD points at
  *   remove_key — delete the waypoint the HUD points at (unbound by default)
- *   list_key   — open the waypoint list to rename, point to or delete
+ *   list_key   — open the menu's Waypoints page to rename, hide or delete
  *   mark_deaths — keep a "Death" waypoint where you last died (on by default)
  */
 public final class WaypointsModule extends HudModule {
@@ -105,7 +105,7 @@ public final class WaypointsModule extends HudModule {
         listWasDown = listDown;
 
         if (list) {
-            minecraft.setScreen(new WaypointsScreen(this));
+            minecraft.setScreen(new ClientMenuScreen(ClientMenuScreen.TAB_WAYPOINTS));
             return;
         }
         List<Waypoint> here = pointsIn(world, dim);
@@ -220,10 +220,23 @@ public final class WaypointsModule extends HudModule {
         if (index < 0 || trimmed.isEmpty()) {
             return point;
         }
-        Waypoint renamed = new Waypoint(trimmed, point.world(), point.dim(), point.x(), point.y(), point.z());
+        Waypoint renamed = point.withName(trimmed);
         points.set(index, renamed);
         save();
         return renamed;
+    }
+
+    /** Hidden waypoints stay saved but the HUD arrow and minimap skip them. */
+    public Waypoint setVisible(Waypoint point, boolean visible) {
+        int index = points.indexOf(point);
+        if (index < 0) {
+            return point;
+        }
+        Waypoint changed = point.withVisible(visible);
+        points.set(index, changed);
+        selected = 0;
+        save();
+        return changed;
     }
 
     public void remove(Waypoint point) {
@@ -268,7 +281,7 @@ public final class WaypointsModule extends HudModule {
     private List<Waypoint> pointsIn(String world, String dim) {
         List<Waypoint> here = new ArrayList<>();
         for (Waypoint point : points) {
-            if (point.isIn(world, dim)) {
+            if (point.isIn(world, dim) && point.visible()) {
                 here.add(point);
             }
         }

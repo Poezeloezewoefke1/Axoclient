@@ -10,12 +10,26 @@ import java.util.Locale;
  *
  * {@code world} identifies the server or singleplayer save and {@code dim}
  * the dimension, so a "Home" in one world never points you across another.
+ * A hidden waypoint stays saved but isn't pointed at or drawn on the minimap.
  */
-public record Waypoint(String name, String world, String dim, int x, int y, int z) {
+public record Waypoint(String name, String world, String dim, int x, int y, int z, boolean visible) {
     private static final String ENTRY_SEP = "\n";
     private static final String FIELD_SEP = "\t";
 
     private static final String[] ARROWS = {"↑", "↗", "→", "↘", "↓", "↙", "←", "↖"};
+
+    /** A visible waypoint, the common case. */
+    public Waypoint(String name, String world, String dim, int x, int y, int z) {
+        this(name, world, dim, x, y, z, true);
+    }
+
+    public Waypoint withVisible(boolean value) {
+        return new Waypoint(name, world, dim, x, y, z, value);
+    }
+
+    public Waypoint withName(String value) {
+        return new Waypoint(value, world, dim, x, y, z, visible);
+    }
 
     public boolean isIn(String currentWorld, String currentDim) {
         return world.equals(currentWorld) && dim.equals(currentDim);
@@ -72,12 +86,17 @@ public record Waypoint(String name, String world, String dim, int x, int y, int 
                 .append(clean(point.dim())).append(FIELD_SEP)
                 .append(point.x()).append(FIELD_SEP)
                 .append(point.y()).append(FIELD_SEP)
-                .append(point.z());
+                .append(point.z()).append(FIELD_SEP)
+                .append(point.visible() ? "1" : "0");
         }
         return out.toString();
     }
 
-    /** Inverse of {@link #encode}; malformed entries are skipped, never fatal. */
+    /**
+     * Inverse of {@link #encode}; malformed entries are skipped, never fatal.
+     * Entries saved before the visibility field existed (six fields) load as
+     * visible.
+     */
     public static List<Waypoint> decode(String encoded) {
         List<Waypoint> points = new ArrayList<>();
         if (encoded == null || encoded.isEmpty()) {
@@ -85,7 +104,7 @@ public record Waypoint(String name, String world, String dim, int x, int y, int 
         }
         for (String entry : encoded.split(ENTRY_SEP)) {
             String[] fields = entry.split(FIELD_SEP, -1);
-            if (fields.length != 6) {
+            if (fields.length != 6 && fields.length != 7) {
                 continue;
             }
             try {
@@ -95,7 +114,8 @@ public record Waypoint(String name, String world, String dim, int x, int y, int 
                     fields[2],
                     Integer.parseInt(fields[3].trim()),
                     Integer.parseInt(fields[4].trim()),
-                    Integer.parseInt(fields[5].trim())
+                    Integer.parseInt(fields[5].trim()),
+                    fields.length < 7 || !"0".equals(fields[6].trim())
                 ));
             } catch (NumberFormatException ignored) {
                 // One bad line shouldn't cost the player every other waypoint.

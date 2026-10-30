@@ -9,6 +9,11 @@ are in `releasing.md`.
 
 **Big new features**
 
+- **A new menu**, built from the *Axo Client GUI* design: a sidebar with
+  Modules, Cosmetics, Waypoints, Themes and Settings pages; module cards or a
+  list with filter chips; an options page for every module with switches,
+  buttons, sliders, a keybind button and a live preview; a cosmetics page
+  with your own player as the preview; and fifteen themes.
 - **Waypoints.** Press **B** to mark a spot; the HUD points you back with an
   arrow, distance and height difference. **N** cycles, **J** opens a list to
   rename, point to or delete. A **Death** waypoint is dropped automatically
@@ -70,6 +75,10 @@ test install, check:
 
 - [ ] Game boots with the menu showing about 90 modules; hovering a card shows its description.
 - [ ] Main menu shows the Axo artwork, not the rotating vanilla panorama.
+- [ ] **New menu** at GUI scale 2 and 3: sidebar, cards and options rows fit
+      without overlapping; the slider drags; the keybind button captures a
+      key; the player preview shows your skin and cape and turns when dragged;
+      every theme recolours it; the menu key closes it.
 - [ ] **Waypoints:** B marks, the arrow points the right way while turning
       (it's maths-tested, but check on screen), N cycles, J opens the list,
       renaming with Enter works, dying creates a Death waypoint.

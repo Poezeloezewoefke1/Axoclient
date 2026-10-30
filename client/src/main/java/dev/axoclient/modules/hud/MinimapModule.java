@@ -195,7 +195,7 @@ public final class MinimapModule extends AxoModule implements HudRenderable {
         Waypoint target = waypoints.target();
         float pixelsPerBlock = size / (float) (RES * shownStep);
         for (Waypoint point : waypoints.pointsInCurrentWorld()) {
-            if (!point.dim().equals(dim)) {
+            if (!point.dim().equals(dim) || !point.visible()) {
                 continue;
             }
             // Off-map waypoints sit on the edge, so you can still see which way they are.

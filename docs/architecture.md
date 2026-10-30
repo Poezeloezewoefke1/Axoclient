@@ -58,7 +58,7 @@ dev.axoclient
 ├── core/
 │   ├── AxoModule        base class: id, name, category, onEnable/onDisable/onTick, settings()
 │   ├── ModuleManager    registry, tick dispatch, enable/disable, HUD dispatch
-│   ├── ModuleSetting    one adjustable integer, rendered as -/+ in the ClickGUI
+│   ├── ModuleSetting    one adjustable integer, rendered as a switch, buttons, slider or key in the menu
 │   ├── HudRenderable    opt-in interface for modules that draw
 │   ├── ModuleCategory   PVP / PERFORMANCE / QOL / COSMETIC / HUD
 │   └── AxoConfig        versioned JSON config (Gson), per-module sections, atomic save

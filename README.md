@@ -35,7 +35,7 @@ cd client
 
 In-game controls and the full feature list live in
 [`docs/client-features.md`](docs/client-features.md) — start with **Right
-Shift** to open the ClickGUI.
+Shift** to open the client menu.
 
 > The version pins in `client/gradle.properties` (Loom, Fabric Loader, Fabric API) are verified on every push — the **Client build** CI job resolves the whole toolchain against Fabric's real servers, so a stale pin turns the build red. The same job prints the current versions for 1.21.11, so when you do need to bump them the values are in the log.
 
@@ -64,7 +64,7 @@ npx serve .
 
 ## Status
 
-Well past scaffold. The client ships 94 modules (HUD, combat, quality-of-life, cosmetics, waypoints) with an in-game ClickGUI, a drag-to-place HUD editor and custom menu artwork; the launcher does multi-account Microsoft login, hash-verified installs, skins, mods, screenshots, profiles, saved servers, crash diagnosis and self-update. Completed roadmap tasks carry a **Status** line.
+Well past scaffold. The client ships 94 modules (HUD, combat, quality-of-life, cosmetics, waypoints) with an in-game client menu (modules, cosmetics, waypoints, 15 themes), a drag-to-place HUD editor and custom menu artwork; the launcher does multi-account Microsoft login, hash-verified installs, skins, mods, screenshots, profiles, saved servers, crash diagnosis and self-update. Completed roadmap tasks carry a **Status** line.
 
 Remaining big-ticket items: porting the mod to further Minecraft versions, a code-signed installer, and macOS/Linux builds.
 

@@ -38,6 +38,14 @@ class WaypointTest {
     }
 
     @Test
+    void visibilityRoundTripsAndOldSavesLoadVisible() {
+        List<Waypoint> points = List.of(new Waypoint("Hidden", "w", "nether", 1, 2, 3).withVisible(false));
+        assertEquals(points, Waypoint.decode(Waypoint.encode(points)));
+        // A six-field line from before the visibility field existed.
+        assertTrue(Waypoint.decode("Old\tw\toverworld\t1\t2\t3").get(0).visible());
+    }
+
+    @Test
     void straightAheadIsUpArrow() {
         // Yaw 0 faces south (+Z); a point due south is dead ahead.
         Waypoint south = new Waypoint("s", "w", "overworld", 0, 64, 100);

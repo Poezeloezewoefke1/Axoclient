@@ -37,6 +37,11 @@ public final class CapesModule extends AxoModule {
         "textures/capes/carbon.png"
     );
 
+    /** Texture of the cape at {@code index} in the Cape setting, for menu thumbnails. */
+    public static Identifier texture(int index) {
+        return Identifier.fromNamespaceAndPath("axoclient", PATHS.get(Math.floorMod(index, PATHS.size())));
+    }
+
     /** The cape currently pushed to {@link Capes}, so we can clear exactly it. */
     private ClientAsset.ResourceTexture applied;
     private int appliedIndex = -1;

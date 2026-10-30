@@ -8,39 +8,50 @@ these work in a normal Minecraft 1.21.11 instance.
 
 | Key | Action |
 | --- | --- |
-| **Right Shift** | Open / close the **ClickGUI** (the main control panel) |
+| **Right Shift** | Open / close the **client menu** (rebindable) |
 | **C** (hold) | **Zoom** (when the Zoom module is on — it is by default) |
 | Any key you bind | Toggle the module you bound it to (see *Keybinds* below) |
 
-## ClickGUI
+## Client menu
 
-Press **Right Shift** in-game to open it. Modules are laid out as a grid of
-cards, and the theme, accent colour and favourites persist between sessions.
+Press **Right Shift** in-game to open it (rebindable on its Settings page).
+It follows the *Axo Client GUI* design: a sidebar with the logo and five
+pages, and a main area with a title, a one-line summary and, on most pages,
+a search box. Everything you change saves as you click, to
+`config/axoclient.json`.
 
-- **Category tabs** along the top (All, PvP, Performance, Quality of Life,
-  Cosmetic, HUD) narrow the grid to one category.
-- **Hover a card** to see a one-line description of what the module does.
-- **Click Enabled / Disabled** on a card to toggle it. Enabled cards get an
-  accent outline.
-- **Gear button** opens that module's settings (see below).
-- **Right-click a card** to bind a toggle key — the next key you press
-  becomes its hotkey (press **Esc** while binding to clear it). The bound key
-  shows under the module name.
-  If the key is already used — by a Minecraft control or another Axo key —
-  a notification names what else it's bound to. The bind still goes
-  through; whether a clash matters is your call.
-- **Star** a card to favourite it. Favourites sort first, and the star
-  button next to the search box shows only favourites.
-- **Search box** filters live as you type, matching names and descriptions,
-  so searching "spawn" finds Light Level.
-- **Dark / Light** button toggles the theme.
-- **HUD** button opens the HUD editor (below).
-- **Accent swatches** pick the highlight colour. The choice — like the theme
-  and every panel position — is written to `config/axoclient.json`.
+- **Modules** — every module as a card (icon, name, key, **OPTIONS**, and an
+  **ENABLED / DISABLED** bar you click to toggle) or, with the switch at the
+  top right, as a list with on/off switches. Filter chips: **All**, **New**
+  (added this release), **HUD**, **PvP**, **QoL**, **Performance**. Search
+  matches names and descriptions, so "spawn" finds Light Level.
+- **Module options** — click OPTIONS. A back button, the module's keybind
+  (click it, then press a key; **Esc** clears it) and its on/off switch, then
+  one row per setting. A **live preview** on the right shows the module's
+  real output: the actual crosshair, or the HUD line in your HUD Style.
+  **Reset to defaults** puts every setting back.
+- **Cosmetics** — capes (with their real textures as thumbnails), trails,
+  Halo, Wings and your custom cape. Click one to wear it; the preview is your
+  own player, which you can drag to turn, scroll to zoom, set spinning, or
+  reset. **Options** jumps to that cosmetic's settings. Everything is free:
+  there's no store, and cosmetics are only visible to you.
+- **Waypoints** — every waypoint in the world you're in, with coordinates,
+  dimension and distance. Click a name to rename it; the eye hides or shows it
+  (hidden ones stay saved but the HUD arrow and minimap skip them); copy puts
+  it on the clipboard; the bin deletes it. **J** opens this page directly.
+- **Themes** — fifteen themes (twelve dark, three light). Picking one
+  recolours the whole menu and every other Axo screen.
+- **Settings** — menu size, background blur, the slide-in animation, toggle
+  notifications, keybinds on cards, pausing singleplayer while the menu is
+  open, the menu key, and a button to the HUD editor.
+
+When you bind a key that's already used by a Minecraft control or another
+Axo key, a notification names what else uses it. The bind still goes
+through; whether a clash matters is your call.
 
 ## HUD editor
 
-Open the ClickGUI and click **HUD**. Every HUD element becomes a draggable
+Open the menu's **Settings** page and click **Open editor** next to *HUD layout*. Every HUD element becomes a draggable
 handle:
 
 - **Drag** a handle anywhere. On release it **snaps to the nearest of nine
@@ -54,7 +65,7 @@ handle:
 
 ## Modules
 
-Everything is a module. Toggle any of them in the ClickGUI.
+Everything is a module. Toggle any of them on the menu's Modules page.
 
 ### HUD
 
@@ -249,10 +260,10 @@ so the list grows without touching the GUI or config code.
 
 ## Module settings
 
-Each module card in the mod menu has a gear button. Click it for that
-module's settings, then use **-** and **+** to change a value. Pickers (Cape,
-Trail, and so on) cycle when you click the middle of the value. Key settings
-are rebound by clicking them and pressing the key you want.
+Click **OPTIONS** on any module card. The rows are built from the module's
+own settings: on/off choices are switches, short pick-one choices are a row
+of buttons (long lists get arrows), numbers are sliders, and keys are
+rebound by clicking and pressing the key you want.
 
 Everything saves as you click. Nothing here needs the config file edited by
 hand.
@@ -271,8 +282,8 @@ hand.
 | Durability Tooltips | absolute, percentage, or both |
 | Shulker Tooltips | how many lines, whether to merge duplicate stacks |
 
-The Themed Dust trail follows your ClickGUI accent, so picking a swatch in
-settings recolours it. A fixed `0xRRGGBB` override is available in the config
+The Themed Dust trail follows your menu theme's accent, so picking a theme
+recolours it. A fixed `0xRRGGBB` override is available in the config
 file for anyone who wants one.
 
 ## Look and feel
@@ -280,7 +291,7 @@ file for anyone who wants one.
 The main menu uses Axo artwork instead of the vanilla rotating panorama, and
 the Axo hub screen sits on the same image behind a dark panel.
 
-Panels across the ClickGUI and HUD editor get a soft drop shadow, a light
+Panels across the menu and HUD editor get a soft drop shadow, a light
 top-edge gradient and bitten-out corners so they read as rounded. All of it is
 drawn with `fill()` — no gradient or rounded-rect helper from vanilla — so the
 styling cannot break on a Minecraft update.

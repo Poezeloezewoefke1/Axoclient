@@ -96,7 +96,8 @@ import dev.axoclient.modules.qol.StopwatchModule;
 import dev.axoclient.modules.qol.ToggleSprintModule;
 import dev.axoclient.modules.qol.WaypointsModule;
 import dev.axoclient.modules.qol.ZoomModule;
-import dev.axoclient.gui.ClickGuiScreen;
+import dev.axoclient.gui.menu.ClientMenuScreen;
+import dev.axoclient.gui.menu.MenuSettings;
 import dev.axoclient.input.Keybinds;
 import dev.axoclient.update.UpdateChecker;
 import dev.axoclient.util.Keys;
@@ -104,7 +105,6 @@ import dev.axoclient.util.Tooltips;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,10 +234,10 @@ public final class AxoClient implements ClientModInitializer {
             modules.tickAll();
             Keybinds.tick();
 
-            // Right Shift opens the ClickGUI.
-            boolean down = Keys.isDown(GLFW.GLFW_KEY_RIGHT_SHIFT);
+            // The menu key (Right Shift unless rebound in Settings) opens the client menu.
+            boolean down = Keys.isDown(MenuSettings.menuKey());
             if (down && !settingsKeyWasDown && client.screen == null) {
-                client.setScreen(new ClickGuiScreen());
+                client.setScreen(new ClientMenuScreen());
             }
             settingsKeyWasDown = down;
         });

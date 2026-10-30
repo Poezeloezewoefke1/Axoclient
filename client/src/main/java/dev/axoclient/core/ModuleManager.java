@@ -97,6 +97,9 @@ public final class ModuleManager {
             return;
         }
         config.setEnabled(module.id(), state);
+        if (!dev.axoclient.gui.menu.MenuSettings.toggleNotifications()) {
+            return;
+        }
         dev.axoclient.gui.notify.Notifications.push(
             module.displayName() + (state ? " enabled" : " disabled"),
             state ? dev.axoclient.gui.notify.Notification.Type.SUCCESS

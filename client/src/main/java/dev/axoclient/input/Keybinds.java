@@ -64,6 +64,9 @@ public final class Keybinds {
                 out.add(Component.translatable(mapping.getName()).getString());
             }
         }
+        if (glfwKey == dev.axoclient.gui.menu.MenuSettings.menuKey() && !selfId.equals("menu")) {
+            out.add("Open Axo menu");
+        }
         for (AxoModule module : ModuleManager.get().all()) {
             if (keyOf(module) == glfwKey && !selfId.equals("toggle:" + module.id())) {
                 out.add(module.displayName() + " (toggle)");

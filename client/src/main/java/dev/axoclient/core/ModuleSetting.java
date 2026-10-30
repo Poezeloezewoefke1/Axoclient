@@ -102,6 +102,57 @@ public final class ModuleSetting {
         return format;
     }
 
+    public int min() {
+        return min;
+    }
+
+    public int max() {
+        return max;
+    }
+
+    public int step() {
+        return step;
+    }
+
+    /** Back to the module's built-in default ("Reset to defaults" in the menu). */
+    public void reset() {
+        ModuleManager.get().config().setModuleInt(moduleId, key, fallback);
+    }
+
+    /**
+     * Sets the value from a 0..1 position along a slider, snapped to the step
+     * so dragging lands on the same values the arrows would.
+     */
+    public void setFraction(double fraction) {
+        double clamped = Math.max(0.0, Math.min(1.0, fraction));
+        int raw = min + (int) Math.round(clamped * (max - min) / step) * step;
+        set(raw);
+    }
+
+    /** Where the current value sits between min and max, 0..1. */
+    public double fraction() {
+        return max == min ? 0.0 : (get() - min) / (double) (max - min);
+    }
+
+    /** True for a two-option On/Off choice, which the menu draws as a switch. */
+    public boolean isSwitch() {
+        return format == Format.CHOICE && choices.size() == 2
+            && (choices.contains("On") && choices.contains("Off"));
+    }
+
+    /** For {@link #isSwitch()} settings: whether the "On" option is selected. */
+    public boolean switchOn() {
+        return isSwitch() && "On".equals(choices.get(clamp(get())));
+    }
+
+    /** For {@link #isSwitch()} settings: select "On" or "Off". */
+    public void setSwitch(boolean on) {
+        int index = choices.indexOf(on ? "On" : "Off");
+        if (index >= 0) {
+            set(index);
+        }
+    }
+
     public String moduleId() {
         return moduleId;
     }

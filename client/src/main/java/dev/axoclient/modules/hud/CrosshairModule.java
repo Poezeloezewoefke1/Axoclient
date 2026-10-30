@@ -63,6 +63,14 @@ public final class CrosshairModule extends AxoModule implements HudRenderable {
         if (targetColour != 0 && minecraft.crosshairPickEntity instanceof LivingEntity) {
             colour = targetColour;
         }
+        drawAt(graphics, cx, cy, colour);
+    }
+
+    /**
+     * Draws the crosshair as configured, centred on (cx, cy). Also used by the
+     * menu's live preview, so the preview is the real thing.
+     */
+    public void drawAt(GuiGraphics graphics, int cx, int cy, int colour) {
         int style = ModuleManager.get().config().getModuleInt(id(), "style", STYLE_DOT);
         int size = clamp(ModuleManager.get().config().getModuleInt(id(), "size", 4), 1, 12);
         int gap = clamp(ModuleManager.get().config().getModuleInt(id(), "gap", 2), 0, 8);
