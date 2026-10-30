@@ -55,6 +55,13 @@ are in `releasing.md`.
 - The second "Clock" module (an exact duplicate) is now **Game Clock**,
   showing in-game time.
 
+**Fixes**
+
+- Main-menu artwork: the vanilla panorama was most likely being drawn over
+  it in 0.3.0. The hook that hides the panorama never matched on 1.21.11
+  (the build log said so on every build). It now hooks the class that
+  actually declares that method, and CI confirms it resolves.
+
 ## Before shipping: in-game checklist
 
 CI proves this compiles against 1.21.11 and passes the unit tests. It can't
@@ -62,6 +69,7 @@ prove anything looks right. In a dev client (`./gradlew runClient`) or a
 test install, check:
 
 - [ ] Game boots with the menu showing about 90 modules; hovering a card shows its description.
+- [ ] Main menu shows the Axo artwork, not the rotating vanilla panorama.
 - [ ] **Waypoints:** B marks, the arrow points the right way while turning
       (it's maths-tested, but check on screen), N cycles, J opens the list,
       renaming with Enter works, dying creates a Death waypoint.
