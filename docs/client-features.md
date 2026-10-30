@@ -103,6 +103,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | HUD Style | off | Restyle all HUD text: colour (six choices), dark background box, shadow on/off |
 | Minimap | off | North-up map of the area around you with your heading and waypoints; corner, zoom and size in settings |
 | Hide Axo HUD | off | While on, hides every Axo HUD element (vanilla HUD untouched); bind a key to flip it for screenshots |
+| Explosion Warning | off | Warns when you hold or look at a bed in the Nether/End, or a respawn anchor outside the Nether |
 | Module List | on | Which modules are active |
 
 ### Combat

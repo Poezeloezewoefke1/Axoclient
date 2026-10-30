@@ -26,6 +26,7 @@ import dev.axoclient.modules.hud.DirectionHudModule;
 import dev.axoclient.modules.hud.DurabilityWarningModule;
 import dev.axoclient.modules.hud.ElytraInfoModule;
 import dev.axoclient.modules.hud.ExperienceHudModule;
+import dev.axoclient.modules.hud.ExplosionWarningModule;
 import dev.axoclient.modules.hud.FallWarningModule;
 import dev.axoclient.modules.hud.FpsGraphModule;
 import dev.axoclient.modules.hud.FpsHudModule;
@@ -126,6 +127,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new HudStyleModule());
         modules.register(new MinimapModule());
         modules.register(new HideHudModule());
+        modules.register(new ExplosionWarningModule());
         modules.register(new CoordinatesModule());
         modules.register(new CpsCounterModule());
         modules.register(new TimeHudModule());

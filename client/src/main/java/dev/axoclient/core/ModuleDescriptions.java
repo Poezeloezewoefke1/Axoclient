@@ -61,6 +61,7 @@ public final class ModuleDescriptions {
         Map.entry("hud_style", "Colour, background box and shadow for all HUD text."),
         Map.entry("minimap", "A north-up map of the area around you, with your waypoints."),
         Map.entry("hide_hud", "Hides every Axo HUD element at once; bind a key to flip it."),
+        Map.entry("explosion_warning", "Warns before using a bed or respawn anchor where it explodes."),
         // Cosmetic
         Map.entry("trails", "Particle trails and auras; pick one in settings."),
         Map.entry("halo", "A ring turning above your head."),

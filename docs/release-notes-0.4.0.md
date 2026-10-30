@@ -25,12 +25,13 @@ are in `releasing.md`.
 - **Crash protection.** If a module hits an error it is switched off with a
   notification instead of crashing the game.
 
-**New modules (45)**
+**New modules (46)**
 
 - *HUD:* Light Level, Nether Coords, Session Stats, Chunk Info, Weather, Day
   Cycle, Block Info, Hostile Counter, Depth Guide, Fall Warning,
   Inventory Full, Saturation, Elytra Info, Mount Info, Movement State, Hunger
-  Warning, Armor Points, Armor Icons, HUD Style, Minimap, Hide Axo HUD
+  Warning, Armor Points, Armor Icons, HUD Style, Minimap, Hide Axo HUD,
+  Explosion Warning
 - *Combat:* Reach Display, Item Counter, Low Health Warning, Bow Charge,
   Nearby Players, Hit Sound, Pearl Cooldown, Totem Warning (with totem-pop
   alerts), Kill Counter, Combat Timer
