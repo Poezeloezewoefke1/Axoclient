@@ -64,7 +64,7 @@ npx serve .
 
 ## Status
 
-Well past scaffold. The client ships 85 modules (HUD, combat, quality-of-life, cosmetics, waypoints) with an in-game ClickGUI, a drag-to-place HUD editor and custom menu artwork; the launcher does multi-account Microsoft login, hash-verified installs, skins, mods, screenshots, profiles, saved servers, crash diagnosis and self-update. Completed roadmap tasks carry a **Status** line.
+Well past scaffold. The client ships 86 modules (HUD, combat, quality-of-life, cosmetics, waypoints) with an in-game ClickGUI, a drag-to-place HUD editor and custom menu artwork; the launcher does multi-account Microsoft login, hash-verified installs, skins, mods, screenshots, profiles, saved servers, crash diagnosis and self-update. Completed roadmap tasks carry a **Status** line.
 
 Remaining big-ticket items: porting the mod to further Minecraft versions, a code-signed installer, and macOS/Linux builds.
 

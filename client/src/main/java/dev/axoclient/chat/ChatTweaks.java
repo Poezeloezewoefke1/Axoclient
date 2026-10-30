@@ -3,10 +3,14 @@ package dev.axoclient.chat;
 import dev.axoclient.core.ModuleManager;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.sounds.SoundEvents;
 
 /**
  * The logic behind the chat mixin, kept out of the mixin itself.
@@ -18,6 +22,7 @@ import net.minecraft.network.chat.TextColor;
 public final class ChatTweaks {
     public static final String TIMESTAMPS_ID = "chat_timestamps";
     public static final String ANTI_SPAM_ID = "chat_anti_spam";
+    public static final String MENTIONS_ID = "chat_mentions";
 
     private static final DateTimeFormatter CLOCK = DateTimeFormatter.ofPattern("HH:mm");
     /** Duplicate window. Long enough to catch spam, short enough that a repeated "gg" still shows. */
@@ -33,14 +38,38 @@ public final class ChatTweaks {
         return ModuleManager.get().byId(moduleId).map(m -> ModuleManager.get().isEnabled(m)).orElse(false);
     }
 
-    /** Prefix a dim [HH:mm] when the timestamps module is on, else pass through. */
+    /**
+     * Marks a line that mentions you (when Chat Mentions is on), then prefixes
+     * a dim [HH:mm] (when timestamps are on). Either can be off independently.
+     */
     public static Component decorate(Component message) {
-        if (message == null || !enabled(TIMESTAMPS_ID)) {
-            return message;
+        if (message == null) {
+            return null;
+        }
+        Component out = markMention(message);
+        if (!enabled(TIMESTAMPS_ID)) {
+            return out;
         }
         MutableComponent stamp = Component.literal("[" + LocalTime.now().format(CLOCK) + "] ")
             .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0x8A8A8A)));
-        return stamp.append(message);
+        return stamp.append(out);
+    }
+
+    /** A gold "» " in front of lines that say your name, plus a ping unless muted. See {@link Mentions}. */
+    private static Component markMention(Component message) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null || !enabled(MENTIONS_ID)
+            || !Mentions.isMention(message.getString(), player.getName().getString())) {
+            return message;
+        }
+        if (ModuleManager.get().config().getModuleInt(MENTIONS_ID, "sound", 0) == 0) {
+            Minecraft.getInstance().getSoundManager().play(
+                SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.6F)
+            );
+        }
+        return Component.literal("» ")
+            .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xFBBF24)))
+            .append(message);
     }
 
     /**

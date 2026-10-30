@@ -143,6 +143,7 @@ it off later still restores them.
 | Copy Coords | on | **F8** copies your position to the clipboard (rebindable) |
 | Chat Timestamps | off | Dim [HH:mm] in front of each chat line |
 | Chat Anti-Spam | off | Hides an exact repeat of the previous line within ~1s |
+| Chat Mentions | off | Gold » marker and a ping when someone says your name (not your own messages) |
 | Chat History | off | Keeps sent messages across servers and restarts |
 | Freelook | off | Hold **Left Alt** to look around while you keep running the same way (rebindable, hold or toggle) |
 | Clear Water & Lava | off | Removes the full-screen liquid overlays |

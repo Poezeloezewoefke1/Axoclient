@@ -90,6 +90,7 @@ public final class ModuleDescriptions {
         Map.entry("copy_coords", "Copy your position to the clipboard with one key."),
         Map.entry("chat_timestamps", "A dim [HH:mm] in front of each chat line."),
         Map.entry("chat_anti_spam", "Hides a message repeated straight after itself."),
+        Map.entry("chat_mentions", "Highlights and pings chat lines that say your name."),
         Map.entry("chat_history", "Remembers messages you sent across restarts."),
         Map.entry("freelook", "Hold a key to look around while moving the same way."),
         Map.entry("clear_liquids", "Removes the full-screen water and lava overlays."),

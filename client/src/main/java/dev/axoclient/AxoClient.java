@@ -74,6 +74,7 @@ import dev.axoclient.modules.qol.AutoWalkModule;
 import dev.axoclient.modules.qol.BreakReminderModule;
 import dev.axoclient.modules.qol.ChatAntiSpamModule;
 import dev.axoclient.modules.qol.ChatHistoryModule;
+import dev.axoclient.modules.qol.ChatMentionsModule;
 import dev.axoclient.modules.qol.ChatTimestampsModule;
 import dev.axoclient.modules.qol.ClearLiquidsModule;
 import dev.axoclient.modules.qol.CopyCoordsModule;
@@ -189,6 +190,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new CopyCoordsModule());
         modules.register(new ChatTimestampsModule());
         modules.register(new ChatAntiSpamModule());
+        modules.register(new ChatMentionsModule());
         modules.register(new ChatHistoryModule());
         modules.register(new FreelookModule());
         modules.register(new ClearLiquidsModule());
