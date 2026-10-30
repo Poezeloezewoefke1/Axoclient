@@ -15,7 +15,10 @@ these work in a normal Minecraft 1.21.11 instance.
 ## Client menu
 
 Press **Right Shift** in-game to open it (rebindable on its Settings page).
-It follows the *Axo Client GUI* design: a sidebar with the logo and five
+It is drawn to the *Axo Client GUI* design at the design's own 1280×720
+layout, scaled to fit your window, with the design's fonts (Inter and
+Instrument Serif, bundled under the SIL Open Font License) and its line
+icons. It follows the design: a sidebar with the logo and five
 pages, and a main area with a title, a one-line summary and, on most pages,
 a search box. Everything you change saves as you click, to
 `config/axoclient.json`.

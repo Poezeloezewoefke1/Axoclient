@@ -33,40 +33,6 @@ public final class ModuleIcons {
         }
     }
 
-    /**
-     * A 12-pixel version of each category's pictogram, centred in the box —
-     * for list rows and icon tiles too small for the full-size ones.
-     */
-    public static void drawSmall(GuiGraphics g, ModuleCategory category, int x, int y, int w, int h, int colour) {
-        int cx = x + w / 2;
-        int cy = y + h / 2;
-        switch (category) {
-            case HUD -> {
-                GuiRender.rect(g, cx - 6, cy - 5, 12, 2, colour);
-                GuiRender.rect(g, cx - 6, cy - 1, 8, 2, colour);
-                GuiRender.rect(g, cx - 6, cy + 3, 10, 2, colour);
-            }
-            case PVP -> {
-                GuiRender.rect(g, cx - 5, cy - 6, 10, 5, colour);
-                for (int i = 0; i < 6; i++) {
-                    GuiRender.rect(g, cx - 5 + i, cy - 1 + i, (5 - i) * 2, 1, colour);
-                }
-            }
-            case COSMETIC -> {
-                GuiRender.rect(g, cx - 1, cy - 6, 2, 12, colour);
-                GuiRender.rect(g, cx - 6, cy - 1, 12, 2, colour);
-                GuiRender.rect(g, cx - 2, cy - 2, 4, 4, colour);
-            }
-            case PERFORMANCE -> {
-                int[] heights = {3, 6, 9, 12};
-                for (int i = 0; i < heights.length; i++) {
-                    GuiRender.rect(g, cx - 6 + i * 3, cy + 6 - heights[i], 2, heights[i], colour);
-                }
-            }
-            case QOL -> gear(g, cx, cy, 4, colour);
-        }
-    }
-
     /** Three stacked bars, like a readout. */
     private static void hud(GuiGraphics g, int cx, int cy, int colour) {
         int[] widths = {20, 14, 17};

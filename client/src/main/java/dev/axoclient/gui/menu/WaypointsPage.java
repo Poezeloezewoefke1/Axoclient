@@ -1,6 +1,7 @@
 package dev.axoclient.gui.menu;
 
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.gui.menu.Ui.Type;
 import dev.axoclient.gui.notify.Notification;
 import dev.axoclient.gui.notify.Notifications;
 import dev.axoclient.gui.theme.Palette;
@@ -16,14 +17,13 @@ import net.minecraft.client.player.LocalPlayer;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * The Waypoints page: every waypoint saved for the world you're in, with its
- * coordinates, dimension and distance. Click a name to rename it; the eye hides
- * or shows it (hidden ones stay saved but the HUD arrow and minimap skip them);
- * copy puts it on the clipboard; the bin deletes it.
+ * The Waypoints page: every waypoint saved for the world you're in. Click a
+ * name to rename it; the eye hides or shows it (hidden ones stay saved but the
+ * HUD arrow and minimap skip them); copy puts it on the clipboard; the bin
+ * deletes it.
  */
 final class WaypointsPage implements MenuPage {
-    private static final int ROW_H = 30;
-    /** Diamond colours, cycled per row, from the design. */
+    private static final int ROW_H = 62;
     private static final int[] COLOURS = {0xFF8B7CF6, 0xFF4FBF7A, 0xFFF08A4B, 0xFF3CC3D6, 0xFFEE6E9F};
 
     private int scroll;
@@ -68,8 +68,7 @@ final class WaypointsPage implements MenuPage {
     @Override
     public String subtitle() {
         List<Waypoint> all = all();
-        long visible = all.stream().filter(Waypoint::visible).count();
-        return all.size() + " waypoints · " + visible + " visible";
+        return all.size() + " waypoints · " + all.stream().filter(Waypoint::visible).count() + " visible";
     }
 
     @Override
@@ -90,25 +89,25 @@ final class WaypointsPage implements MenuPage {
             return;
         }
         if (!active()) {
-            Draw.centered(g, "The Waypoints module is off.", x + w / 2, y + 30, p.sub());
-            String label = "Turn it on";
-            int bw = Draw.width(label) + 20;
-            Draw.round(g, x + w / 2 - bw / 2, y + 44, bw, 18, 5, p.accent());
-            Draw.boldCentered(g, label, x + w / 2, y + 49, p.onAccent());
-            hits.add(x + w / 2 - bw / 2, y + 44, bw, 18, () -> ModuleManager.get().setEnabled(module, true));
+            Ui.midCentered(g, Type.R13, "The Waypoints module is off.", x + w / 2, y + 60, p.sub());
+            int bw = Ui.width(Type.B12, "Turn it on") + 32;
+            Ui.round(g, x + w / 2 - bw / 2, y + 80, bw, 36, 9, p.accent());
+            Ui.midCentered(g, Type.B12, "Turn it on", x + w / 2, y + 98, p.onAccent());
+            hits.add(x + w / 2 - bw / 2, y + 80, bw, 36, () -> ModuleManager.get().setEnabled(module, true));
             return;
         }
         if (player == null || WorldInfo.worldId() == null) {
-            Draw.centered(g, "Join a world to see its waypoints.", x + w / 2, y + 30, p.sub());
+            Ui.midCentered(g, Type.R13, "Join a world to see its waypoints.", x + w / 2, y + 60, p.sub());
             return;
         }
 
-        // Add button and the current position.
-        String add = "+  Add waypoint at my position";
-        int aw = Draw.boldWidth(add) + 20;
-        Draw.round(g, x, y, aw, 18, 5, p.accent());
-        Draw.bold(g, add, x + 10, y + 5, p.onAccent());
-        hits.add(x, y, aw, 18, () -> {
+        // "Add waypoint at my position": 36px, padding 0 16, radius 9, plus icon 14 then 8px gap.
+        String add = "Add waypoint at my position";
+        int aw = 16 + 14 + 8 + Ui.spacedWidth(Type.B12, add, 0.04f) + 16;
+        Ui.round(g, x, y, aw, 36, 9, p.accent());
+        Ui.icon(g, MenuIcon.PLUS, x + 16, y + 11, 14, p.onAccent());
+        Ui.spaced(g, Type.B12, add, x + 16 + 14 + 8, y + 18, p.onAccent(), 0.04f);
+        hits.add(x, y, aw, 36, () -> {
             Waypoint point = module.markHere();
             if (point != null) {
                 renaming = point;
@@ -118,7 +117,7 @@ final class WaypointsPage implements MenuPage {
         });
         String here = String.format(Locale.ROOT, "Current: X %d · Y %d · Z %d",
             (int) Math.floor(player.getX()), (int) Math.floor(player.getY()), (int) Math.floor(player.getZ()));
-        Draw.text(g, here, x + w - Draw.width(here), y + 5, p.sub());
+        Ui.midRight(g, Type.R12, here, x + w, y + 18, p.sub());
 
         String needle = query.toLowerCase(Locale.ROOT).trim();
         List<Waypoint> rows = new ArrayList<>();
@@ -127,15 +126,14 @@ final class WaypointsPage implements MenuPage {
                 rows.add(point);
             }
         }
-
-        int top = y + 26;
-        int viewH = h - 26;
+        int top = y + 36 + 14;
+        int viewH = y + h - top;
         if (rows.isEmpty()) {
-            Draw.centered(g, needle.isEmpty() ? "No waypoints in this world yet." : "No waypoints match your search.",
-                x + w / 2, top + 30, p.sub());
+            Ui.midCentered(g, Type.R13, needle.isEmpty() ? "No waypoints in this world yet." : "No waypoints match your search.",
+                x + w / 2, top + 60, p.sub());
             return;
         }
-        int contentH = rows.size() * (ROW_H + 5) - 5;
+        int contentH = rows.size() * (ROW_H + 8) - 8 + 24;
         maxScroll = Math.max(0, contentH - viewH);
         scroll = Math.max(0, Math.min(scroll, maxScroll));
         String dim = WorldInfo.dimensionId();
@@ -143,72 +141,77 @@ final class WaypointsPage implements MenuPage {
         g.enableScissor(x, top, x + w, top + viewH);
         hits.clip(x, top, w, viewH);
         for (int i = 0; i < rows.size(); i++) {
-            Waypoint point = rows.get(i);
-            int ry = top - scroll + i * (ROW_H + 5);
-            row(g, p, hits, module, point, COLOURS[i % COLOURS.length], x, ry, w, dim, player);
+            int ry = top - scroll + i * (ROW_H + 8);
+            row(g, p, hits, module, rows.get(i), COLOURS[i % COLOURS.length], x, ry, w - 4, dim, player);
         }
         hits.unclip();
         g.disableScissor();
+        ModulesPage.scrollbar(g, x + w, top, viewH, contentH, scroll);
     }
 
-    private void row(
-        GuiGraphics g, Palette p, Hits hits, WaypointsModule module, Waypoint point, int colour,
-        int x, int y, int w, String dim, LocalPlayer player
-    ) {
+    private void row(GuiGraphics g, Palette p, Hits hits, WaypointsModule module, Waypoint point, int colour,
+                     int x, int y, int w, String dim, LocalPlayer player) {
         boolean visible = point.visible();
-        Draw.card(g, x, y, w, ROW_H, 6, p.card(), p.border());
-        // A diamond marker, dimmed for hidden waypoints.
-        int dc = visible ? colour : ((0x70 << 24) | (colour & 0x00FFFFFF));
-        for (int k = -4; k <= 4; k++) {
-            int half = 4 - Math.abs(k);
-            g.fill(x + 12 - half, y + 15 + k, x + 13 + half, y + 16 + k, dc);
+        int mid = y + ROW_H / 2;
+        // opacity 0.55 for hidden rows: dim every colour toward the card.
+        int text = visible ? p.text() : blend(p.card(), p.text(), 0.55f);
+        int sub = visible ? p.sub() : blend(p.card(), p.sub(), 0.55f);
+        Ui.box(g, x, y, w, ROW_H, 12, p.card(), p.border());
+
+        // 12px square rotated 45°, radius 4: a softened diamond, 17px across.
+        int dc = visible ? colour : blend(p.card(), colour, 0.55f);
+        int dx = x + 16 + 6;
+        for (int k = -8; k <= 8; k++) {
+            int half = Math.max(0, 8 - Math.abs(k) - (Math.abs(k) > 6 ? 1 : 0));
+            if (half > 0) {
+                g.fill(dx - half, mid + k, dx + half, mid + k + 1, dc);
+            }
         }
 
-        int textColour = visible ? p.text() : p.muted();
-        if (point.equals(renaming)) {
-            boolean caret = (System.currentTimeMillis() / 500) % 2 == 0;
-            Draw.text(g, draft + (caret ? "_" : ""), x + 24, y + 5, p.accent());
-        } else {
-            Draw.text(g, Draw.trim(point.name(), w - 230), x + 24, y + 5, textColour);
-        }
-        String coords = "X " + point.x() + " · Y " + point.y() + " · Z " + point.z();
-        Draw.text(g, Draw.trim(coords, w - 230), x + 24, y + 16, p.sub());
-        hits.add(x + 20, y, Math.max(40, w - 230), ROW_H, () -> {
-            renaming = point;
-            draft = point.name();
-        });
-
-        // Right side, right to left: delete, copy, eye, distance, dimension badge.
-        int rx = x + w - 6;
-        rx -= 16;
-        iconBin(g, rx + 3, y + 9, p.sub());
-        hits.add(rx, y + 5, 16, 20, () -> {
+        // Right side, right to left: bin, eye, copy, distance (70px), dimension badge.
+        int right = x + w - 16;
+        int bx = right - 34;
+        Ui.icon(g, MenuIcon.TRASH, bx + 9, mid - 8, 16, sub);
+        hits.add(bx, mid - 17, 34, 34, () -> {
             module.remove(point);
             Notifications.push(point.name() + " deleted", Notification.Type.INFO);
         });
-        rx -= 18;
-        iconCopy(g, rx + 3, y + 9, p.sub(), p.card());
-        hits.add(rx, y + 5, 16, 20, () -> {
-            String text = point.name() + ": " + point.x() + " " + point.y() + " " + point.z() + " (" + dimName(point.dim()) + ")";
-            Minecraft.getInstance().keyboardHandler.setClipboard(text);
+        int ex = bx - 14 - 34;
+        Ui.icon(g, visible ? MenuIcon.EYE : MenuIcon.EYE_OFF, ex + 9, mid - 8, 16, visible ? p.accent() : p.muted());
+        hits.add(ex, mid - 17, 34, 34, () -> module.setVisible(point, !point.visible()));
+        int cx = ex - 14 - 34;
+        Ui.icon(g, MenuIcon.COPY, cx + 9, mid - 8, 16, sub);
+        hits.add(cx, mid - 17, 34, 34, () -> {
+            String clip = point.name() + ": " + point.x() + " " + point.y() + " " + point.z() + " (" + dimName(point.dim()) + ")";
+            Minecraft.getInstance().keyboardHandler.setClipboard(clip);
             Notifications.push("Copied " + point.name() + " to the clipboard", Notification.Type.SUCCESS);
         });
-        rx -= 18;
-        iconEye(g, rx + 2, y + 11, visible ? p.accent() : p.muted(), !visible, p.card());
-        hits.add(rx, y + 5, 16, 20, () -> module.setVisible(point, !point.visible()));
-
+        int distRight = cx - 14;
         String distance = point.dim().equals(dim)
-            ? Waypoint.formatDistance(point.horizontalDistance(player.getX(), player.getZ()))
+            ? Math.round(point.horizontalDistance(player.getX(), player.getZ())) + "m"
             : "—";
-        rx -= 8;
-        Draw.text(g, distance, rx - Draw.width(distance), y + 11, p.sub());
-        rx -= 46;
-
+        Ui.midRight(g, Type.R12, distance, distRight, mid, sub);
+        int badgeRight = distRight - 70 - 14;
         String badge = dimName(point.dim()).toUpperCase(Locale.ROOT);
         int hue = dimHue(point.dim());
-        int bw = Draw.width(badge) + 10;
-        Draw.round(g, rx - bw, y + 8, bw, 14, 4, (0x29 << 24) | (hue & 0x00FFFFFF));
-        Draw.centered(g, badge, rx - bw / 2, y + 11, p.light() ? darker(hue) : lighter(hue));
+        int bw = Ui.spacedWidth(Type.S10, badge, 0.08f) + 18;
+        Ui.round(g, badgeRight - bw, mid - 10, bw, 20, 6, (0x29 << 24) | (hue & 0x00FFFFFF));
+        Ui.spaced(g, Type.S10, badge, badgeRight - bw + 9, mid, p.light() ? dimDark(point.dim()) : dimLight(point.dim()), 0.08f);
+
+        // Name (click to rename) and coordinates.
+        int textX = x + 16 + 12 + 14;
+        int textW = badgeRight - bw - 14 - textX;
+        if (point.equals(renaming)) {
+            boolean caret = (System.currentTimeMillis() / 500) % 2 == 0;
+            Ui.text(g, Type.S14, draft + (caret ? "|" : ""), textX, mid - 18, p.accent());
+        } else {
+            Ui.text(g, Type.S14, Ui.trim(Type.S14, point.name(), textW), textX, mid - 18, text);
+        }
+        Ui.text(g, Type.R11, "X " + point.x() + " · Y " + point.y() + " · Z " + point.z(), textX, mid + 2, sub);
+        hits.add(textX, y, Math.max(60, textW), ROW_H, () -> {
+            renaming = point;
+            draft = point.name();
+        });
     }
 
     private static String dimName(String dim) {
@@ -220,6 +223,7 @@ final class WaypointsPage implements MenuPage {
         };
     }
 
+    /** The design's AXO_DIMS: hue for the badge fill, light/dark for its text. */
     private static int dimHue(String dim) {
         return switch (dim) {
             case WorldInfo.NETHER -> 0xFFF0714B;
@@ -228,49 +232,27 @@ final class WaypointsPage implements MenuPage {
         };
     }
 
-    private static int lighter(int colour) {
-        return mix(colour, 0xFFFFFFFF, 0.3f);
+    private static int dimLight(String dim) {
+        return switch (dim) {
+            case WorldInfo.NETHER -> 0xFFF59A7C;
+            case WorldInfo.END -> 0xFFC8B6FA;
+            default -> 0xFF7FD9A0;
+        };
     }
 
-    private static int darker(int colour) {
-        return mix(colour, 0xFF000000, 0.35f);
+    private static int dimDark(String dim) {
+        return switch (dim) {
+            case WorldInfo.NETHER -> 0xFFB4441F;
+            case WorldInfo.END -> 0xFF6B4FC4;
+            default -> 0xFF2E7D4F;
+        };
     }
 
-    private static int mix(int a, int b, float t) {
+    private static int blend(int a, int b, float t) {
         int r = Math.round(((a >> 16) & 0xFF) * (1 - t) + ((b >> 16) & 0xFF) * t);
-        int g = Math.round(((a >> 8) & 0xFF) * (1 - t) + ((b >> 8) & 0xFF) * t);
+        int gr = Math.round(((a >> 8) & 0xFF) * (1 - t) + ((b >> 8) & 0xFF) * t);
         int bl = Math.round((a & 0xFF) * (1 - t) + (b & 0xFF) * t);
-        return 0xFF000000 | (r << 16) | (g << 8) | bl;
-    }
-
-    private static void iconBin(GuiGraphics g, int x, int y, int c) {
-        g.fill(x, y + 1, x + 10, y + 2, c);
-        g.fill(x + 3, y, x + 7, y + 1, c);
-        g.fill(x + 1, y + 3, x + 2, y + 11, c);
-        g.fill(x + 8, y + 3, x + 9, y + 11, c);
-        g.fill(x + 1, y + 10, x + 9, y + 11, c);
-        g.fill(x + 4, y + 4, x + 5, y + 9, c);
-        g.fill(x + 6, y + 4, x + 7, y + 9, c);
-    }
-
-    /** Two overlapping sheets; {@code bg} hollows the front one. */
-    private static void iconCopy(GuiGraphics g, int x, int y, int c, int bg) {
-        Draw.round(g, x + 3, y, 7, 8, 1, c);
-        Draw.round(g, x + 4, y + 1, 5, 6, 1, bg);
-        g.fill(x, y + 3, x + 1, y + 11, c);
-        g.fill(x, y + 10, x + 7, y + 11, c);
-    }
-
-    /** An eye; crossed out when the waypoint is hidden. {@code bg} hollows the pupil ring. */
-    private static void iconEye(GuiGraphics g, int x, int y, int c, boolean crossed, int bg) {
-        Draw.round(g, x, y, 12, 8, 4, c);
-        Draw.round(g, x + 1, y + 1, 10, 6, 3, bg);
-        Draw.round(g, x + 4, y + 2, 4, 4, 2, c);
-        if (crossed) {
-            for (int i = 0; i < 12; i++) {
-                g.fill(x + i, y - 2 + i, x + i + 1, y - 1 + i, c);
-            }
-        }
+        return 0xFF000000 | (r << 16) | (gr << 8) | bl;
     }
 
     // ------------------------------------------------------------------
@@ -326,7 +308,7 @@ final class WaypointsPage implements MenuPage {
 
     @Override
     public boolean scroll(double mx, double my, double amount) {
-        scroll = Math.max(0, Math.min(maxScroll, scroll + (int) Math.round(-amount * 24)));
+        scroll = Math.max(0, Math.min(maxScroll, scroll + (int) Math.round(-amount * 40)));
         return true;
     }
 }

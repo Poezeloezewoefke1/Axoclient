@@ -6,8 +6,8 @@ import dev.axoclient.gui.theme.Palette;
 import dev.axoclient.gui.theme.Themes;
 import dev.axoclient.input.Keybinds;
 import java.util.List;
+import java.util.Locale;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
@@ -18,14 +18,13 @@ import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * The Axo client menu, after the "Axo Client GUI" design: a sidebar with the
- * logo and five pages (Modules, Cosmetics, Waypoints, Themes, Settings), and a
- * main area with a title, a one-line summary and, on some pages, a search box.
+ * The Axo client menu, drawn to the "Axo Client GUI" design.
  *
- * The design is laid out for a 1280x720 window. Minecraft GUI space is much
- * smaller (960x540 at GUI scale 2 on a 1080p screen) and its font is fixed,
- * so the window is sized to the screen with caps, and the sidebar and page
- * grids adapt to whatever width they get rather than assuming the design's.
+ * Everything is laid out on the design's own 1280x720 canvas — the 1120x620
+ * window at (80, 50), the 230px sidebar, 44px nav rows and so on, straight
+ * from the design file — and the canvas is scaled to fit the game window.
+ * So the menu has the design's proportions at every resolution and GUI
+ * scale, instead of being squeezed into Minecraft's GUI pixels.
  */
 public final class ClientMenuScreen extends Screen {
     public static final int TAB_MODULES = 0;
@@ -34,10 +33,24 @@ public final class ClientMenuScreen extends Screen {
     public static final int TAB_THEMES = 3;
     public static final int TAB_SETTINGS = 4;
 
-    /** Window caps per Settings › Menu size (small, normal, large), in GUI pixels. */
-    private static final int[][] SIZE_CAPS = {{660, 380}, {780, 440}, {920, 520}};
-    private static final float[] SIZE_FRACTION = {0.82f, 0.9f, 0.97f};
-    private static final long OPEN_ANIMATION_MS = 180;
+    static final int CANVAS_W = 1280;
+    static final int CANVAS_H = 720;
+    /** The window and its parts, in design pixels. */
+    static final int WIN_X = 80;
+    static final int WIN_Y = 50;
+    static final int WIN_W = 1120;
+    static final int WIN_H = 620;
+    static final int SIDE_W = 230;
+    /** Page content area: main's padding is 24 / 26 / 0, under a 58px header and a 16px gap. */
+    static final int CONTENT_X = WIN_X + SIDE_W + 1 + 26;
+    static final int CONTENT_W = WIN_W - SIDE_W - 1 - 52;
+    static final int CONTENT_Y = WIN_Y + 24 + 58 + 16;
+    static final int CONTENT_BOTTOM = WIN_Y + WIN_H - 1;
+
+    private static final long OPEN_ANIMATION_MS = 200;
+    private static final MenuIcon[] NAV_ICONS = {
+        MenuIcon.NAV_MODULES, MenuIcon.NAV_COSMETICS, MenuIcon.NAV_WAYPOINTS, MenuIcon.NAV_THEMES, MenuIcon.NAV_SETTINGS
+    };
 
     private final List<MenuPage> pages;
     private final Hits hits = new Hits();
@@ -45,6 +58,11 @@ public final class ClientMenuScreen extends Screen {
     private String query = "";
     private boolean searchFocused;
     private long openedAt;
+
+    // Canvas placement in GUI pixels, refreshed every frame.
+    private float scale = 1f;
+    private float originX;
+    private float originY;
 
     public ClientMenuScreen() {
         this(TAB_MODULES);
@@ -74,42 +92,39 @@ public final class ClientMenuScreen extends Screen {
     }
 
     private void switchTo(int index) {
-        if (index == tab) {
-            pages.get(tab).shown();
-            return;
+        if (index != tab) {
+            query = "";
+            searchFocused = false;
         }
         tab = index;
-        query = "";
-        searchFocused = false;
         pages.get(tab).shown();
     }
 
-    // ------------------------------------------------------------------
-    // Layout
-    // ------------------------------------------------------------------
+    private float designX(double mouseX) {
+        return (float) ((mouseX - originX) / scale);
+    }
 
-    private int windowW() {
+    private float designY(double mouseY) {
+        return (float) ((mouseY - originY) / scale);
+    }
+
+    /** Menu size setting: 0.86 / 1.0 / 1.0 of the fit scale, and Large drops the margin around the window. */
+    private void layout() {
+        float fit = Math.min(width / (float) CANVAS_W, height / (float) CANVAS_H);
         int size = MenuSettings.size();
-        return Math.min(SIZE_CAPS[size][0], Math.round(width * SIZE_FRACTION[size]));
-    }
-
-    private int windowH() {
-        int size = MenuSettings.size();
-        return Math.min(SIZE_CAPS[size][1], Math.round(height * SIZE_FRACTION[size]));
-    }
-
-    private int sidebarW(int windowW) {
-        return Math.max(108, Math.min(150, windowW / 5));
-    }
-
-    /** Slide-in offset while the menu opens, 0 once settled or with animations off. */
-    private int openOffset() {
-        if (!MenuSettings.animations()) {
-            return 0;
+        if (size == 2) {
+            fit = Math.min(width / (float) (WIN_W + 24), height / (float) (WIN_H + 24));
+        } else if (size == 0) {
+            fit *= 0.86f;
         }
-        float t = Math.min(1f, (System.currentTimeMillis() - openedAt) / (float) OPEN_ANIMATION_MS);
-        float eased = 1f - (1f - t) * (1f - t) * (1f - t);
-        return Math.round((1f - eased) * 12);
+        scale = fit;
+        originX = (width - CANVAS_W * scale) / 2f;
+        originY = (height - CANVAS_H * scale) / 2f;
+        if (MenuSettings.animations()) {
+            float t = Math.min(1f, (System.currentTimeMillis() - openedAt) / (float) OPEN_ANIMATION_MS);
+            float eased = 1f - (1f - t) * (1f - t) * (1f - t);
+            originY += (1f - eased) * 14f * scale;
+        }
     }
 
     // ------------------------------------------------------------------
@@ -119,7 +134,6 @@ public final class ClientMenuScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
         if (minecraft != null && minecraft.level == null) {
-            // From the title screen there's no world to show: use the menu art.
             MenuBackground.render(g, width, height);
             return;
         }
@@ -131,99 +145,114 @@ public final class ClientMenuScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
         Palette p = Themes.palette();
+        layout();
         hits.clear();
-        g.fill(0, 0, width, height, (0x70 << 24) | (p.ground() & 0x00FFFFFF));
 
-        int w = windowW();
-        int h = windowH();
-        int x = (width - w) / 2;
-        int y = (height - h) / 2 + openOffset();
+        // The design's backdrop: the theme's ground colour with a faint 48px
+        // grid. Slightly see-through in a world, so the game reads behind it.
+        boolean inWorld = minecraft != null && minecraft.level != null;
+        int groundAlpha = inWorld ? 0xE0 : 0xC8;
+        g.fill(0, 0, width, height, (groundAlpha << 24) | (p.ground() & 0x00FFFFFF));
 
-        // Soft drop shadow, then the window itself.
-        for (int i = 4; i >= 1; i--) {
-            Draw.round(g, x - i, y - i + 3, w + i * 2, h + i * 2, 10 + i, (0x10 + (4 - i) * 0x08) << 24);
+        g.pose().pushMatrix();
+        g.pose().translate(originX, originY);
+        g.pose().scale(scale, scale);
+        int mx = Math.round(designX(mouseX));
+        int my = Math.round(designY(mouseY));
+
+        for (int gx = 0; gx <= CANVAS_W; gx += 48) {
+            g.fill(gx, 0, gx + 1, CANVAS_H, 0x12808080);
         }
-        Draw.card(g, x, y, w, h, 9, p.panel(), p.border());
+        for (int gy = 0; gy <= CANVAS_H; gy += 48) {
+            g.fill(0, gy, CANVAS_W, gy + 1, 0x12808080);
+        }
 
-        int sideW = sidebarW(w);
-        renderSidebar(g, p, x, y, sideW, h, mouseX, mouseY);
+        // Window: box-shadow 0 30px 80px rgba(0,0,0,.45), radius 18, 1px border.
+        Ui.shadow(g, WIN_X, WIN_Y, WIN_W, WIN_H, 18, 40, 30, 0x73);
+        Ui.box(g, WIN_X, WIN_Y, WIN_W, WIN_H, 18, p.panel(), p.border());
 
-        int cx = x + sideW + 14;
-        int cw = w - sideW - 28;
-        int headerH = renderHeader(g, p, cx, y + 12, cw, mouseX, mouseY);
-        int pageY = y + 12 + headerH + 8;
-        pages.get(tab).render(g, p, hits, cx, pageY, cw, y + h - 10 - pageY, mouseX, mouseY, query);
+        renderSidebar(g, p, mx, my);
+        renderHeader(g, p);
+        pages.get(tab).render(g, p, hits, CONTENT_X, CONTENT_Y, CONTENT_W, CONTENT_BOTTOM - CONTENT_Y, mx, my, query);
 
+        g.pose().popMatrix();
         super.render(g, mouseX, mouseY, delta);
     }
 
-    private void renderSidebar(GuiGraphics g, Palette p, int x, int y, int w, int h, int mx, int my) {
-        // Side panel with its right-hand border; the window's own rounding is
-        // restored by redrawing the left corners in the side colour.
-        Draw.round(g, x + 1, y + 1, w, h - 2, 8, p.side());
-        g.fill(x + w - 8, y + 1, x + w, y + h - 1, p.side());
-        g.fill(x + w, y + 1, x + w + 1, y + h - 1, p.border());
+    private void renderSidebar(GuiGraphics g, Palette p, int mx, int my) {
+        int x = WIN_X + 1;
+        int y = WIN_Y + 1;
+        int h = WIN_H - 2;
+        // Rounded on the window's side, square where it meets the main area; 1px border-right.
+        Ui.round(g, x, y, SIDE_W, h, 17, p.side());
+        Ui.rect(g, x + SIDE_W - 18, y, 18, h, p.side());
+        Ui.rect(g, x + SIDE_W - 1, y, 1, h, p.border());
 
-        // Logo tile and wordmark.
-        int lx = x + 10;
-        int ly = y + 12;
-        Draw.round(g, lx, ly, 18, 18, 5, p.accentSoft());
-        Draw.logo(g, lx + 9, ly + 9, p.accent());
-        Component word = Component.literal("Axo ").withStyle(ChatFormatting.BOLD)
-            .append(Component.literal("Client").withStyle(s -> s.withItalic(true).withBold(false).withColor(p.accent() & 0xFFFFFF)));
-        g.drawString(Draw.font(), word, lx + 24, ly + 1, p.text(), false);
-        Draw.label(g, "Version " + version(), lx + 24, ly + 11, p.muted());
+        int cx = x + 14;
+        int cw = SIDE_W - 1 - 28;
 
-        int navY = ly + 30;
-        Draw.label(g, "Menu", x + 12, navY, p.muted());
-        navY += 12;
-        int rowH = 20;
+        // Logo: 34px tile, wordmark, release line.
+        int lx = cx + 8;
+        int ly = y + 22;
+        Ui.round(g, lx, ly, 34, 34, 10, p.accentSoft());
+        Ui.icon(g, MenuIcon.LOGO, lx + 8, ly + 8, 18, p.accent());
+        int tx = lx + 34 + 10;
+        int baselineTop = ly - 2;
+        Ui.text(g, Ui.Type.S17, "Axo", tx, baselineTop + 2, p.text());
+        int axoW = Ui.width(Ui.Type.S17, "Axo ");
+        Ui.text(g, Ui.Type.SERIF19, "Client", tx + axoW, baselineTop, p.accent());
+        Ui.spaced(g, Ui.Type.R10, "BETA RELEASE " + version(), tx, ly + 31, p.muted(), 0.08f);
+
+        // MENU label, then the five nav buttons (44px, 6px apart).
+        int labelY = ly + 34 + 18 + 6;
+        Ui.spaced(g, Ui.Type.R10, "MENU", cx + 10, labelY + 4 + 6, p.muted(), 0.1f);
+        int navY = labelY + 4 + 12 + 6 + 6;
         for (int i = 0; i < pages.size(); i++) {
             MenuPage page = pages.get(i);
             boolean on = i == tab;
-            int ry = navY + i * (rowH + 2);
-            boolean hover = Hits.over(mx, my, x + 6, ry, w - 12, rowH);
-            if (on || hover) {
-                Draw.round(g, x + 6, ry, w - 12, rowH, 5, on ? p.accentSoft() : (p.light() ? 0x10000000 : 0x10FFFFFF));
+            int ry = navY + i * 50;
+            boolean hover = Hits.over(mx, my, cx, ry, cw, 44);
+            if (on) {
+                Ui.round(g, cx, ry, cw, 44, 10, p.accentSoft());
+            } else if (hover) {
+                Ui.round(g, cx, ry, cw, 44, 10, 0x29808080);
             }
-            int iconColour = on ? p.accent() : p.sub();
-            int ix = x + 12;
-            int iy = ry + 4;
-            switch (i) {
-                case TAB_MODULES -> Draw.iconModules(g, ix, iy, iconColour);
-                case TAB_COSMETICS -> Draw.iconCosmetics(g, ix, iy, iconColour);
-                case TAB_WAYPOINTS -> Draw.iconWaypoints(g, ix, iy, iconColour);
-                case TAB_THEMES -> Draw.iconThemes(g, ix, iy, iconColour, p.side());
-                default -> Draw.iconSettings(g, ix, iy, iconColour);
-            }
-            Draw.text(g, page.navLabel(), x + 30, ry + 6, on ? p.text() : p.sub());
+            Ui.icon(g, NAV_ICONS[i], cx + 12, ry + 13, 18, on ? p.accent() : p.sub());
+            Ui.mid(g, Ui.Type.M14, page.navLabel(), cx + 12 + 18 + 12, ry + 22, on ? p.text() : p.sub());
             String count = page.navCount();
             if (!count.isEmpty()) {
-                Draw.text(g, count, x + w - 10 - Draw.width(count), ry + 6, p.muted());
+                Ui.midRight(g, Ui.Type.R11, count, cx + cw - 12, ry + 22, p.muted());
             }
             int index = i;
-            hits.add(x + 6, ry, w - 12, rowH, () -> switchTo(index));
+            hits.add(cx, ry, cw, 44, () -> switchTo(index));
         }
 
-        // Player card and the close hint at the bottom.
-        int cardH = 30;
-        int cardY = y + h - cardH - 22;
-        Draw.card(g, x + 8, cardY, w - 16, cardH, 6, p.card(), p.border());
-        String name = minecraft != null ? minecraft.getUser().getName() : "Player";
-        Draw.round(g, x + 13, cardY + 6, 18, 18, 4, p.accentSoft());
-        Draw.boldCentered(g, name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase(java.util.Locale.ROOT),
-            x + 22, cardY + 11, p.accent());
-        Draw.text(g, Draw.trim(name, w - 52), x + 36, cardY + 6, p.text());
-        Draw.text(g, Draw.trim(statusLine(), w - 52), x + 36, cardY + 17, p.muted());
+        // Close hint at the bottom, the player card above it.
+        int bottom = y + h - 18;
+        String keyName = Keybinds.keyName(MenuSettings.menuKey()).toUpperCase(Locale.ROOT);
+        int hintMid = bottom - 7;
+        int w1 = Ui.width(Ui.Type.R11, "Press ");
+        int w2 = Ui.width(Ui.Type.S11, keyName);
+        int w3 = Ui.width(Ui.Type.R11, " to close");
+        int hx = cx + (cw - (w1 + w2 + w3)) / 2;
+        Ui.mid(g, Ui.Type.R11, "Press ", hx, hintMid, p.muted());
+        Ui.mid(g, Ui.Type.S11, keyName, hx + w1, hintMid, p.sub());
+        Ui.mid(g, Ui.Type.R11, " to close", hx + w1 + w2, hintMid, p.muted());
 
-        String keyName = Keybinds.keyName(MenuSettings.menuKey()).toUpperCase(java.util.Locale.ROOT);
-        String hint = "Press " + keyName + " to close";
-        Draw.centered(g, Draw.trim(hint, w - 8), x + w / 2, y + h - 14, p.muted());
+        int cardH = 58;
+        int cardY = bottom - 14 - 8 - 6 - cardH;
+        Ui.box(g, cx, cardY, cw, cardH, 12, p.card(), p.border());
+        String name = minecraft != null ? minecraft.getUser().getName() : "Player";
+        Ui.round(g, cx + 13, cardY + 13, 32, 32, 8, p.accentSoft());
+        Ui.midCentered(g, Ui.Type.S13, name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase(Locale.ROOT),
+            cx + 13 + 16, cardY + 29, p.accent());
+        Ui.text(g, Ui.Type.M13, Ui.trim(Ui.Type.M13, name, cw - 70), cx + 13 + 32 + 10, cardY + 13, p.text());
+        Ui.text(g, Ui.Type.R11, statusLine(), cx + 13 + 32 + 10, cardY + 31, p.muted());
     }
 
     private String statusLine() {
         if (minecraft == null || minecraft.level == null) {
-            return "Main menu";
+            return "Main menu · 1.21.11";
         }
         ServerData server = minecraft.getCurrentServer();
         return (server != null ? "Online" : "Singleplayer") + " · 1.21.11";
@@ -235,35 +264,38 @@ public final class ClientMenuScreen extends Screen {
             .orElse("dev");
     }
 
-    /** Title, summary line and search box. Returns the header's height. */
-    private int renderHeader(GuiGraphics g, Palette p, int x, int y, int w, int mx, int my) {
+    /** h1 (italic serif accent word + semibold rest), the summary line, and the search box. */
+    private void renderHeader(GuiGraphics g, Palette p) {
         MenuPage page = pages.get(tab);
-        Component title = Component.literal(page.titleAccent())
-            .withStyle(s -> s.withItalic(true).withColor(p.accent() & 0xFFFFFF))
-            .append(Component.literal(" " + page.titleRest()).withStyle(s -> s.withItalic(false).withBold(true).withColor(p.text() & 0xFFFFFF)));
-        g.drawString(Draw.font(), title, x, y + 2, p.text(), false);
-        Draw.text(g, Draw.trim(page.subtitle(), w - 140), x, y + 15, p.sub());
+        int x = CONTENT_X;
+        int top = WIN_Y + 24;
+        Ui.text(g, Ui.Type.SERIF30, page.titleAccent(), x, top, p.accent());
+        int aw = Ui.width(Ui.Type.SERIF30, page.titleAccent()) + Ui.width(Ui.Type.S26, " ");
+        // Same baseline as the serif word: shift by the difference in ascents.
+        int restTop = top + Math.round(Ui.Type.SERIF30.ascent() - Ui.Type.S26.ascent());
+        Ui.text(g, Ui.Type.S26, page.titleRest(), x + aw, restTop, p.text());
+        Ui.text(g, Ui.Type.R12, Ui.trim(Ui.Type.R12, page.subtitle(), CONTENT_W - 260), x, top + 39 + 4, p.sub());
 
         String placeholder = page.searchPlaceholder();
-        if (placeholder != null) {
-            int sw = Math.min(130, w / 3);
-            int sx = x + w - sw;
-            int sy = y;
-            Draw.card(g, sx, sy, sw, 20, 5, p.raised(), searchFocused ? p.accent() : p.border());
-            // A small magnifier: ring plus handle.
-            Draw.round(g, sx + 7, sy + 6, 7, 7, 3, p.sub());
-            Draw.round(g, sx + 8, sy + 7, 5, 5, 2, p.raised());
-            g.fill(sx + 13, sy + 12, sx + 15, sy + 14, p.sub());
-            boolean empty = query.isEmpty();
-            String shown = empty && !searchFocused ? placeholder : query;
-            Draw.text(g, Draw.trim(shown, sw - 26), sx + 20, sy + 6, empty && !searchFocused ? p.muted() : p.text());
-            if (searchFocused && (System.currentTimeMillis() / 500) % 2 == 0) {
-                int caret = sx + 20 + Draw.width(Draw.trim(query, sw - 26));
-                g.fill(caret + 1, sy + 5, caret + 2, sy + 15, p.text());
-            }
-            hits.add(sx, sy, sw, 20, () -> searchFocused = true);
+        if (placeholder == null) {
+            return;
         }
-        return 26;
+        int sw = 240;
+        int sh = 38;
+        int sx = x + CONTENT_W - sw;
+        int sy = top + 58 - sh;
+        Ui.box(g, sx, sy, sw, sh, 10, p.raised(), searchFocused ? p.accent() : p.border());
+        Ui.icon(g, MenuIcon.SEARCH, sx + 12, sy + 11, 15, p.sub());
+        boolean empty = query.isEmpty();
+        String shown = empty && !searchFocused ? placeholder : query;
+        int textX = sx + 12 + 15 + 8;
+        String visible = Ui.trim(Ui.Type.R13, shown, sw - 50);
+        Ui.mid(g, Ui.Type.R13, visible, textX, sy + sh / 2, empty && !searchFocused ? p.muted() : p.text());
+        if (searchFocused && (System.currentTimeMillis() / 500) % 2 == 0) {
+            int caret = textX + Ui.width(Ui.Type.R13, empty ? "" : visible) + 1;
+            Ui.rect(g, caret, sy + 11, 1, 16, p.text());
+        }
+        hits.add(sx, sy, sw, sh, () -> searchFocused = true);
     }
 
     // ------------------------------------------------------------------
@@ -275,18 +307,16 @@ public final class ClientMenuScreen extends Screen {
         if (event.buttonInfo().button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             return super.mouseClicked(event, doubleClick);
         }
-        boolean wasFocused = searchFocused;
         searchFocused = false;
-        if (hits.click(event.x(), event.y())) {
+        if (hits.click(designX(event.x()), designY(event.y()))) {
             return true;
         }
-        searchFocused = false;
-        return wasFocused || super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
-        pages.get(tab).drag(event.x(), event.y());
+        pages.get(tab).drag(designX(event.x()), designY(event.y()));
         return true;
     }
 
@@ -298,7 +328,8 @@ public final class ClientMenuScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        return pages.get(tab).scroll(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return pages.get(tab).scroll(designX(mouseX), designY(mouseY), scrollY)
+            || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
@@ -318,9 +349,8 @@ public final class ClientMenuScreen extends Screen {
             }
             if (key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_ENTER) {
                 searchFocused = false;
-                return true;
             }
-            // Other keys type through charTyped; don't let the menu key close the menu mid-word.
+            // Letters arrive through charTyped; don't let the menu key close the menu mid-word.
             return true;
         }
         if (key == MenuSettings.menuKey()) {

@@ -4,7 +4,7 @@ import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
 import dev.axoclient.core.ModuleSetting;
-import dev.axoclient.gui.render.ModuleIcons;
+import dev.axoclient.gui.menu.Ui.Type;
 import dev.axoclient.gui.theme.Palette;
 import dev.axoclient.modules.cosmetic.CapesModule;
 import java.util.ArrayList;
@@ -18,21 +18,20 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 
 /**
- * The Cosmetics page: a grid of everything you can wear, and your own player
- * on the right wearing it.
+ * The Cosmetics page: a 4-column grid of items on little stands, and a
+ * preview panel with your own player wearing them.
  *
- * Items come from the cosmetic modules themselves. A module whose first
- * setting is a pick-one choice (Capes, Trails) contributes one item per
- * option; the others (Halo, Wings, Custom Cape) are one item each. Picking an
- * item puts it on straight away — the preview is your real player, so what
- * you see is what you're wearing. Everything is free: Axo has no store and no
- * server, so there is nothing to buy.
+ * Items come from the cosmetic modules. A module whose first setting is a
+ * pick-one choice (Capes, Trails) contributes one item per option; the others
+ * (Halo, Wings, Custom Cape) are one item each. Picking an item puts it on —
+ * the preview is your real player, so what you see is what you wear. There is
+ * no coin store: Axo has no server, so everything is free.
  */
 final class CosmeticsPage implements MenuPage {
-    private static final String[] CHIPS = {"All", "Capes", "Trails", "Extras"};
-    private static final int CARD_MIN_W = 76;
-    private static final int CARD_H = 82;
-    private static final int GAP = 7;
+    private static final String[] CHIPS = {"ALL", "CAPES", "TRAILS", "EXTRAS"};
+    private static final int PANEL_W = 270;
+    private static final int CARD_H = 150;
+    private static final int GAP = 10;
 
     private record Item(AxoModule module, ModuleSetting variant, int index, String name, String slot) {
         boolean worn() {
@@ -60,8 +59,7 @@ final class CosmeticsPage implements MenuPage {
     private int maxScroll;
     private Item selected;
 
-    // Player preview state.
-    private float yaw = -25f;
+    private float yaw = -28f;
     private float zoom = 1f;
     private boolean spin;
     private boolean dragging;
@@ -89,7 +87,11 @@ final class CosmeticsPage implements MenuPage {
                     break;
                 }
             }
-            String slot = slotOf(module).toUpperCase(Locale.ROOT);
+            String slot = switch (module.id()) {
+                case "capes", "cape_custom" -> "CAPE";
+                case "trails" -> "TRAIL";
+                default -> module.displayName().toUpperCase(Locale.ROOT);
+            };
             if (variant == null) {
                 out.add(new Item(module, null, 0, module.displayName(), slot));
                 continue;
@@ -101,14 +103,6 @@ final class CosmeticsPage implements MenuPage {
             }
         }
         return out;
-    }
-
-    private static String slotOf(AxoModule module) {
-        return switch (module.id()) {
-            case "capes", "cape_custom" -> "Cape";
-            case "trails" -> "Trail";
-            default -> module.displayName();
-        };
     }
 
     private boolean matchesChip(Item item) {
@@ -143,8 +137,7 @@ final class CosmeticsPage implements MenuPage {
     @Override
     public String subtitle() {
         List<Item> all = items();
-        long worn = all.stream().filter(Item::worn).count();
-        return all.size() + " cosmetics · " + worn + " equipped · only you can see them";
+        return all.size() + " owned · " + all.stream().filter(Item::worn).count() + " equipped";
     }
 
     @Override
@@ -154,18 +147,18 @@ final class CosmeticsPage implements MenuPage {
 
     @Override
     public void render(GuiGraphics g, Palette p, Hits hits, int x, int y, int w, int h, int mx, int my, String query) {
-        int panelW = Math.max(130, Math.min(170, w * 3 / 10));
-        int gridW = w - panelW - 10;
+        int bottom = y + h - 22;
+        int gridW = w - PANEL_W - 16;
 
         int cx = x;
         for (int i = 0; i < CHIPS.length; i++) {
-            int cw = Draw.chip(g, CHIPS[i], cx, y, 16, chip == i, p);
+            int cw = Ui.chip(g, p, CHIPS[i], cx, y, chip == i, 12);
             int index = i;
-            hits.add(cx, y, cw, 16, () -> {
+            hits.add(cx, y, cw, 30, () -> {
                 chip = index;
                 scroll = 0;
             });
-            cx += cw + 4;
+            cx += cw + 8;
         }
 
         String needle = query.toLowerCase(Locale.ROOT).trim();
@@ -179,67 +172,72 @@ final class CosmeticsPage implements MenuPage {
             selected = items().stream().filter(Item::worn).findFirst().orElse(shown.isEmpty() ? null : shown.get(0));
         }
 
-        int top = y + 24;
-        int viewH = h - 24;
-        int cols = Math.max(2, Math.min(5, (gridW + GAP) / (CARD_MIN_W + GAP)));
-        int cardW = (gridW - GAP * (cols - 1)) / cols;
-        g.enableScissor(x, top, x + gridW, top + viewH);
+        int top = y + 30 + 14;
+        int viewH = bottom - top;
+        int innerW = gridW - 4;
+        int cardW = (innerW - GAP * 3) / 4;
+        g.enableScissor(x, top, x + gridW, bottom);
         hits.clip(x, top, gridW, viewH);
         for (int i = 0; i < shown.size(); i++) {
-            int ix = x + (i % cols) * (cardW + GAP);
-            int iy = top - scroll + (i / cols) * (CARD_H + GAP);
+            int ix = x + (i % 4) * (cardW + GAP);
+            int iy = top - scroll + (i / 4) * (CARD_H + GAP);
             card(g, p, hits, shown.get(i), ix, iy, cardW, mx, my);
         }
         if (shown.isEmpty()) {
-            Draw.centered(g, "Nothing matches your search.", x + gridW / 2, top + 30, p.sub());
+            Ui.midCentered(g, Type.R13, "Nothing matches your search.", x + innerW / 2, top + 75, p.sub());
         }
         hits.unclip();
         g.disableScissor();
-        int rows = (shown.size() + cols - 1) / cols;
-        maxScroll = Math.max(0, rows * (CARD_H + GAP) - GAP - viewH);
+        int rows = (shown.size() + 3) / 4;
+        int contentH = rows * (CARD_H + GAP) - GAP;
+        maxScroll = Math.max(0, contentH - viewH);
         scroll = Math.min(scroll, maxScroll);
+        ModulesPage.scrollbar(g, x + gridW, top, viewH, contentH, scroll);
 
-        renderPanel(g, p, hits, x + gridW + 10, y, panelW, h, mx, my);
+        renderPanel(g, p, hits, x + gridW + 16, y, PANEL_W, bottom - y, mx);
     }
 
     private void card(GuiGraphics g, Palette p, Hits hits, Item item, int x, int y, int w, int mx, int my) {
         boolean isSelected = item.same(selected);
         boolean hover = Hits.over(mx, my, x, y, w, CARD_H);
-        Draw.card(g, x, y, w, CARD_H, 7, p.card(), isSelected ? p.accent() : (hover ? p.line() : p.border()));
-        if (isSelected) {
-            Draw.card(g, x + 1, y + 1, w - 2, CARD_H - 2, 6, p.card(), p.accent());
-        }
+        y += hover ? -2 : 0;
+        int bg = isSelected ? blend(p.card(), p.accent(), 0.08f) : p.card();
+        Ui.box(g, x, y, w, CARD_H, 12, bg, isSelected ? p.accent() : p.border(), 2);
 
-        // Thumbnail on a little stand.
-        int standY = y + CARD_H - 26;
-        Draw.round(g, x + w / 2 - 16, standY, 32, 7, 2, p.raised());
-        g.fill(x + w / 2 - 16, standY, x + w / 2 + 16, standY + 2, p.border());
+        // Name strip: padding 7 10, 12px medium, raised, along the bottom.
+        int stripH = 29;
+        int stripY = y + CARD_H - 2 - stripH;
+        Ui.round(g, x + 2, stripY, w - 4, stripH, 10, p.raised());
+        Ui.rect(g, x + 2, stripY, w - 4, 11, p.raised());
+        Ui.mid(g, Type.M12, Ui.trim(Type.M12, item.name(), w - 24), x + 2 + 10, stripY + stripH / 2, p.text());
+
+        // The stand: 58x22, radius 4, raised with a 3px top edge; 10px above the strip.
+        int standY = stripY - 10 - 22;
+        int standX = x + w / 2 - 29;
+        Ui.round(g, standX, standY, 58, 22, 4, p.raised());
+        Ui.round(g, standX, standY, 58, 6, 3, p.border());
+        Ui.rect(g, standX, standY + 3, 58, 3, p.raised());
+
+        // The item itself, resting on the stand.
         if (item.module() instanceof CapesModule) {
-            // The real texture: the cape's front face, 10x16 pixels at (1,1) of a 64x32 sheet.
+            // The cape's front face: 10x16 pixels at (1,1) of its 64x32 texture, at 4x.
             g.blit(RenderPipelines.GUI_TEXTURED, CapesModule.texture(item.index()),
-                x + w / 2 - 10, standY - 34, 1.0F, 1.0F, 20, 32, 10, 16, 64, 32);
+                x + w / 2 - 20, standY - 64 + 4, 1.0F, 1.0F, 40, 64, 10, 16, 64, 32);
         } else {
-            int tint = item.worn() ? p.accent() : p.sub();
-            ModuleIcons.draw(g, ModuleCategory.COSMETIC, x, standY - 34, w, 32, tint);
+            MenuIcon icon = switch (item.module().id()) {
+                case "trails" -> MenuIcon.M_ACTIVITY;
+                case "halo" -> MenuIcon.M_SUN;
+                default -> MenuIcon.M_SHIRT;
+            };
+            Ui.icon(g, icon, x + w / 2 - 24, standY - 50, 48, item.worn() ? p.accent() : p.sub());
         }
 
         if (item.worn()) {
-            int bx = x + w - 15;
-            int by = y + 6;
-            Draw.round(g, bx, by, 10, 10, 5, p.accent());
-            // A small tick.
-            g.fill(bx + 2, by + 5, bx + 3, by + 6, p.onAccent());
-            g.fill(bx + 3, by + 6, bx + 4, by + 7, p.onAccent());
-            g.fill(bx + 4, by + 5, bx + 5, by + 6, p.onAccent());
-            g.fill(bx + 5, by + 4, bx + 6, by + 5, p.onAccent());
-            g.fill(bx + 6, by + 3, bx + 7, by + 4, p.onAccent());
+            int bx = x + w - 8 - 18;
+            int by = stripY - 8 - 18;
+            Ui.round(g, bx, by, 18, 18, 9, p.accent());
+            Ui.icon(g, MenuIcon.CHECK, bx + 4, by + 4, 11, p.onAccent());
         }
-
-        // Name strip along the bottom.
-        int nameY = y + CARD_H - 15;
-        Draw.round(g, x + 1, nameY, w - 2, 14, 6, p.raised());
-        g.fill(x + 1, nameY, x + w - 1, nameY + 6, p.raised());
-        Draw.text(g, Draw.trim(item.name(), w - 10), x + 5, nameY + 3, p.text());
 
         hits.add(x, y, w, CARD_H, () -> {
             selected = item;
@@ -247,41 +245,53 @@ final class CosmeticsPage implements MenuPage {
         });
     }
 
-    private void renderPanel(GuiGraphics g, Palette p, Hits hits, int x, int y, int w, int h, int mx, int my) {
-        Draw.card(g, x, y, w, h, 8, p.card(), p.border());
-        Draw.label(g, "Preview", x + 9, y + 9, p.muted());
+    private void renderPanel(GuiGraphics g, Palette p, Hits hits, int x, int y, int w, int h, int mx) {
+        Ui.box(g, x, y, w, h, 14, p.card(), p.border());
+        int ix = x + 17;
+        int iw = w - 34;
+        Ui.spaced(g, Type.S10, "PREVIEW", ix, y + 17 + 7, p.muted(), 0.12f);
+        long worn = items().stream().filter(Item::worn).count();
+        String count = worn + " equipped";
+        int dotW = 10 + 5;
+        Ui.midRight(g, Type.S12, count, x + w - 17, y + 17 + 7, p.sub());
+        Ui.round(g, x + w - 17 - Ui.width(Type.S12, count) - dotW, y + 17 + 2, 10, 10, 5, p.accent());
 
-        previewX = x + 8;
-        previewY = y + 21;
-        previewW = w - 16;
-        previewH = Math.max(60, h - 21 - 78);
-        Draw.round(g, previewX, previewY, previewW, previewH, 6, p.raised());
-        Draw.text(g, Draw.trim("Drag to rotate · scroll to zoom", previewW - 8), previewX + 4, previewY + 4, p.muted());
+        // Bottom-up: action button, controls row, name block; the preview fills the rest.
+        int actionY = y + h - 17 - 38;
+        int controlsY = actionY - 12 - 32;
+        int nameY = controlsY - 12 - 34;
+        previewX = ix;
+        previewY = y + 17 + 14 + 12;
+        previewW = iw;
+        previewH = nameY - 12 - previewY;
+        Ui.round(g, previewX, previewY, previewW, previewH, 10, p.raised());
+        Ui.text(g, Type.R10, "Drag to rotate · scroll to zoom", previewX + 10, previewY + 9, p.muted());
 
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
-            Draw.centered(g, "Join a world", previewX + previewW / 2, previewY + previewH / 2 - 4, p.sub());
+            Ui.midCentered(g, Type.R13, "Join a world to preview", previewX + previewW / 2, previewY + previewH / 2, p.sub());
         } else {
             if (spin && !dragging) {
-                yaw = (float) Math.sin(System.currentTimeMillis() / 1400.0) * 60f;
+                yaw = (float) Math.sin(System.currentTimeMillis() / 1500.0) * 65f;
             }
-            // The vanilla renderer turns the player toward a point; aim that point
-            // to get the yaw we want. It caps the turn, so this covers about ±70°.
+            // The vanilla renderer turns the player toward a point; aim it to get our yaw.
             int centreX = previewX + previewW / 2;
             int centreY = previewY + previewH / 2;
-            float lookX = centreX - (float) Math.tan(Math.toRadians(yaw)) * 40f;
-            int scale = Math.round(Math.min(previewW, previewH) * 0.42f * zoom);
+            float lookX = centreX - (float) Math.tan(Math.toRadians(yaw)) * 60f;
+            int scale = Math.round(previewH * 0.36f * zoom);
             g.enableScissor(previewX, previewY, previewX + previewW, previewY + previewH);
             InventoryScreen.renderEntityInInventoryFollowsMouse(
-                g, previewX, previewY + 12, previewX + previewW, previewY + previewH - 4,
-                scale, 0.0625F, lookX, centreY - 10, player
+                g, previewX, previewY + 24, previewX + previewW, previewY + previewH - 10,
+                scale, 0.0625F, lookX, centreY - 20, player
             );
             g.disableScissor();
-            String name = Draw.trim(player.getName().getString(), previewW - 24);
-            int tagW = Draw.width(name) + 14;
-            Draw.round(g, previewX + 4, previewY + previewH - 15, tagW, 11, 3, p.card());
-            Draw.round(g, previewX + 7, previewY + previewH - 12, 4, 4, 2, 0xFF4FBF7A);
-            Draw.text(g, name, previewX + 13, previewY + previewH - 13, p.sub());
+            // Name tag: padding 4 8, radius 6, green online dot.
+            String name = Ui.trim(Type.S10, player.getName().getString(), previewW - 40);
+            int tagW = Ui.width(Type.S10, name) + 16 + 6 + 6;
+            int tagY = previewY + previewH - 10 - 20;
+            Ui.round(g, previewX + 10, tagY, tagW, 20, 6, p.card());
+            Ui.round(g, previewX + 18, tagY + 7, 6, 6, 3, 0xFF4FBF7A);
+            Ui.mid(g, Type.S10, name, previewX + 30, tagY + 10, p.sub());
         }
         hits.add(previewX, previewY, previewW, previewH, () -> {
             dragging = true;
@@ -290,38 +300,35 @@ final class CosmeticsPage implements MenuPage {
             dragStartYaw = yaw;
         });
 
-        int iy = previewY + previewH + 6;
         if (selected != null) {
-            Draw.text(g, Draw.trim(selected.name(), w - 16), x + 9, iy, p.text());
-            Draw.label(g, selected.slot(), x + 9, iy + 11, p.muted());
+            Ui.text(g, Type.S15, Ui.trim(Type.S15, selected.name(), iw), ix, nameY, p.text());
+            Ui.spaced(g, Type.S10, selected.slot(), ix, nameY + 18 + 3 + 6, p.muted(), 0.12f);
         }
 
-        // Spin / Reset, plus a link to the item's module options.
-        int by = iy + 24;
-        int[] edges = Draw.segmented(g, x + 8, by, 15, List.of("Spin", "Reset"), spin ? 0 : -1, p, 5);
-        hits.add(edges[0], by, edges[1] - edges[0], 15, () -> spin = !spin);
-        hits.add(edges[1], by, edges[2] - edges[1], 15, () -> {
-            yaw = -25f;
+        // Controls row: Options (when the item has settings) on the left, Spin / Reset on the right.
+        int[] edges = Ui.segmented(g, p, x + w - 17, controlsY, 32, List.of("Spin", "Reset"), spin ? 0 : -1,
+            Type.S11, 10, 6);
+        hits.add(edges[0], controlsY, edges[1] - edges[0], 32, () -> spin = !spin);
+        hits.add(edges[1], controlsY, edges[2] - edges[1], 32, () -> {
+            yaw = -28f;
             zoom = 1f;
             spin = false;
         });
         if (selected != null && !selected.module().settings().isEmpty()) {
-            String options = "Options";
-            int ow = Draw.width(options) + 12;
-            Draw.card(g, x + w - 8 - ow, by, ow, 15, 4, p.raised(), p.border());
-            Draw.centered(g, options, x + w - 8 - ow / 2, by + 4, p.sub());
+            int ow = Ui.width(Type.S11, "Options") + 20;
+            Ui.box(g, ix, controlsY, ow, 32, 8, p.card(), p.border());
+            Ui.midCentered(g, Type.S11, "Options", ix + ow / 2, controlsY + 16, p.sub());
             AxoModule module = selected.module();
-            hits.add(x + w - 8 - ow, by, ow, 15, () -> openOptions.accept(module));
+            hits.add(ix, controlsY, ow, 32, () -> openOptions.accept(module));
         }
 
-        // Equip / unequip.
-        int ay = by + 21;
         if (selected != null) {
-            boolean worn = selected.worn();
+            boolean wearing = selected.worn();
             Item item = selected;
-            Draw.card(g, x + 8, ay, w - 16, 18, 5, worn ? p.raised() : p.accent(), worn ? p.border() : p.accent());
-            Draw.boldCentered(g, worn ? "UNEQUIP" : "EQUIP", x + w / 2, ay + 5, worn ? p.sub() : p.onAccent());
-            hits.add(x + 8, ay, w - 16, 18, () -> {
+            String label = wearing ? "TAKE OFF" : "EQUIP";
+            Ui.box(g, ix, actionY, iw, 38, 9, wearing ? p.raised() : p.accent(), wearing ? p.border() : p.accent());
+            Ui.spacedCentered(g, Type.B11, label, ix + iw / 2, actionY + 19, wearing ? p.text() : p.onAccent(), 0.16f);
+            hits.add(ix, actionY, iw, 38, () -> {
                 if (item.worn()) {
                     ModuleManager.get().setEnabled(item.module(), false);
                 } else {
@@ -331,10 +338,17 @@ final class CosmeticsPage implements MenuPage {
         }
     }
 
+    private static int blend(int a, int b, float t) {
+        int r = Math.round(((a >> 16) & 0xFF) * (1 - t) + ((b >> 16) & 0xFF) * t);
+        int gr = Math.round(((a >> 8) & 0xFF) * (1 - t) + ((b >> 8) & 0xFF) * t);
+        int bl = Math.round((a & 0xFF) * (1 - t) + (b & 0xFF) * t);
+        return 0xFF000000 | (r << 16) | (gr << 8) | bl;
+    }
+
     @Override
     public void drag(double mx, double my) {
         if (dragging) {
-            yaw = Math.max(-70f, Math.min(70f, dragStartYaw - (float) (mx - dragStartX) * 0.8f));
+            yaw = Math.max(-75f, Math.min(75f, dragStartYaw - (float) (mx - dragStartX) * 0.6f));
         }
     }
 
@@ -349,7 +363,7 @@ final class CosmeticsPage implements MenuPage {
             zoom = Math.max(0.6f, Math.min(1.5f, zoom * (amount > 0 ? 1.08f : 0.92f)));
             return true;
         }
-        scroll = Math.max(0, Math.min(maxScroll, scroll + (int) Math.round(-amount * 24)));
+        scroll = Math.max(0, Math.min(maxScroll, scroll + (int) Math.round(-amount * 40)));
         return true;
     }
 }

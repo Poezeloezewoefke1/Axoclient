@@ -1,0 +1,12 @@
+The fonts in this folder are used by the Axo client menu.
+
+inter_400.ttf, inter_500.ttf, inter_600.ttf, inter_700.ttf
+  Inter, Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter).
+  Static Latin instances cut from the variable font.
+
+serif_italic.ttf
+  Instrument Serif Italic, Copyright (c) 2022 The Instrument Serif Project Authors
+  (https://github.com/Instrument/instrument-serif).
+
+Both are licensed under the SIL Open Font License, Version 1.1:
+https://openfontlicense.org/open-font-license-official-text/

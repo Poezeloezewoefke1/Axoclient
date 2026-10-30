@@ -1,6 +1,7 @@
 package dev.axoclient.gui.menu;
 
 import dev.axoclient.gui.HudEditorScreen;
+import dev.axoclient.gui.menu.Ui.Type;
 import dev.axoclient.gui.theme.Palette;
 import dev.axoclient.input.Keybinds;
 import java.util.List;
@@ -11,20 +12,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import org.lwjgl.glfw.GLFW;
 
-/** The Settings page: how the menu itself looks and behaves. */
+/** The Settings page: how the menu itself looks and behaves. Rows are the design's 66px cards. */
 final class SettingsPage implements MenuPage {
-    private static final int ROW_H = 32;
+    private static final int ROW_H = 66;
 
     private record Switch(String label, String desc, Supplier<Boolean> get, Consumer<Boolean> set) {}
 
     private static final List<Switch> SWITCHES = List.of(
         new Switch("Background blur", "Blur the game world behind the menu",
             MenuSettings::blur, MenuSettings::setBlur),
-        new Switch("Menu animations", "Slide the menu in when it opens",
+        new Switch("Menu animations", "Smooth transitions when opening the menu",
             MenuSettings::animations, MenuSettings::setAnimations),
-        new Switch("Module notifications", "Show a toast when a module is switched on or off",
+        new Switch("Module notifications", "Show a toast when a module is toggled",
             MenuSettings::toggleNotifications, MenuSettings::setToggleNotifications),
-        new Switch("Show keybinds on cards", "Display each module's key under its name",
+        new Switch("Show keybinds on cards", "Display each module key under its name",
             MenuSettings::keybindsOnCards, MenuSettings::setKeybindsOnCards),
         new Switch("Pause singleplayer", "Pause your world while the menu is open",
             MenuSettings::pauseGame, MenuSettings::setPauseGame)
@@ -67,56 +68,61 @@ final class SettingsPage implements MenuPage {
     @Override
     public void render(GuiGraphics g, Palette p, Hits hits, int x, int y, int w, int h, int mx, int my, String query) {
         int rows = 1 + SWITCHES.size() + 2;
-        maxScroll = Math.max(0, rows * (ROW_H + 5) - 5 - h);
+        int contentH = rows * (ROW_H + 8) - 8 + 24;
+        maxScroll = Math.max(0, contentH - h);
         scroll = Math.min(scroll, maxScroll);
+        int rowW = w - 4;
+        int right = x + rowW - 18;
         g.enableScissor(x, y, x + w, y + h);
         hits.clip(x, y, w, h);
         int ry = y - scroll;
 
-        // Menu size.
-        row(g, p, x, ry, w, "Menu size", "How much of the screen the menu takes");
+        // GUI scale → Menu size: Small / Normal / Large, buttons 30px, padding 0 14.
+        row(g, p, x, ry, rowW, "Menu size", "Size of the client menu on your screen");
         List<String> sizes = List.of("Small", "Normal", "Large");
-        int segW = Draw.segmentedWidth(sizes, 7);
-        int[] edges = Draw.segmented(g, x + w - 10 - segW, ry + 8, 16, sizes, MenuSettings.size(), p, 7);
+        int[] edges = Ui.segmented(g, p, right, ry + ROW_H / 2 - 18, 36, sizes, MenuSettings.size(), Type.S12, 14, 7);
         for (int i = 0; i < sizes.size(); i++) {
             int index = i;
-            hits.add(edges[i], ry + 8, edges[i + 1] - edges[i], 16, () -> MenuSettings.setSize(index));
+            hits.add(edges[i], ry + ROW_H / 2 - 18, edges[i + 1] - edges[i], 36, () -> MenuSettings.setSize(index));
         }
-        ry += ROW_H + 5;
+        ry += ROW_H + 8;
 
         for (Switch s : SWITCHES) {
-            row(g, p, x, ry, w, s.label(), s.desc());
-            boolean on = s.get().get();
-            Draw.toggle(g, x + w - 34, ry + 10, 24, 13, on, p);
-            hits.add(x + w - 40, ry, 40, ROW_H, () -> s.set().accept(!s.get().get()));
-            ry += ROW_H + 5;
+            row(g, p, x, ry, rowW, s.label(), s.desc());
+            Ui.toggle(g, right - 38, ry + ROW_H / 2 - 11, 38, 22, s.get().get(), p);
+            hits.add(right - 44, ry, 50, ROW_H, () -> s.set().accept(!s.get().get()));
+            ry += ROW_H + 8;
         }
 
-        // Menu keybind.
-        row(g, p, x, ry, w, "Menu keybind", "Key that opens and closes this menu");
+        row(g, p, x, ry, rowW, "Menu keybind", "Key that opens and closes this menu");
         String key = listening ? "PRESS A KEY" : Keybinds.keyName(MenuSettings.menuKey()).toUpperCase(Locale.ROOT);
-        int kw = Math.max(56, Draw.width(key) + 16);
-        Draw.card(g, x + w - 10 - kw, ry + 8, kw, 16, 4, p.raised(), listening ? p.accent() : p.border());
-        Draw.centered(g, key, x + w - 10 - kw / 2, ry + 12, listening ? p.accent() : p.text());
-        hits.add(x + w - 10 - kw, ry + 8, kw, 16, () -> listening = true);
-        ry += ROW_H + 5;
+        keyButton(g, p, right, ry + ROW_H / 2, key, listening);
+        int kw = Ui.spacedWidth(Type.B11, key, 0.14f) + 28;
+        hits.add(right - kw, ry + ROW_H / 2 - 16, kw, 32, () -> listening = true);
+        ry += ROW_H + 8;
 
-        // HUD layout editor.
-        row(g, p, x, ry, w, "HUD layout", "Drag your HUD elements to where you want them");
-        String open = "Open editor";
-        int ow = Draw.width(open) + 16;
-        Draw.card(g, x + w - 10 - ow, ry + 8, ow, 16, 4, p.raised(), p.border());
-        Draw.centered(g, open, x + w - 10 - ow / 2, ry + 12, p.text());
-        hits.add(x + w - 10 - ow, ry + 8, ow, 16, () -> Minecraft.getInstance().setScreen(new HudEditorScreen()));
+        row(g, p, x, ry, rowW, "HUD layout", "Drag your HUD elements to where you want them");
+        keyButton(g, p, right, ry + ROW_H / 2, "OPEN EDITOR", false);
+        int ow = Ui.spacedWidth(Type.B11, "OPEN EDITOR", 0.14f) + 28;
+        hits.add(right - ow, ry + ROW_H / 2 - 16, ow, 32, () -> Minecraft.getInstance().setScreen(new HudEditorScreen()));
 
         hits.unclip();
         g.disableScissor();
+        ModulesPage.scrollbar(g, x + w, y, h, contentH, scroll);
     }
 
     private static void row(GuiGraphics g, Palette p, int x, int y, int w, String label, String desc) {
-        Draw.card(g, x, y, w, ROW_H, 6, p.card(), p.border());
-        Draw.text(g, label, x + 10, y + 7, p.text());
-        Draw.text(g, Draw.trim(desc, w - 150), x + 10, y + 18, p.sub());
+        Ui.box(g, x, y, w, ROW_H, 12, p.card(), p.border());
+        int mid = y + ROW_H / 2;
+        Ui.text(g, Type.S14, label, x + 19, mid - 17, p.text());
+        Ui.text(g, Type.R11, desc, x + 19, mid + 3, p.sub());
+    }
+
+    /** The design's keybind button: 32px, padding 0 14, radius 8, raised, 11px bold letter-spaced. */
+    private static void keyButton(GuiGraphics g, Palette p, int right, int mid, String label, boolean active) {
+        int w = Ui.spacedWidth(Type.B11, label, 0.14f) + 28;
+        Ui.box(g, right - w, mid - 16, w, 32, 8, p.raised(), active ? p.accent() : p.border());
+        Ui.spacedCentered(g, Type.B11, label, right - w / 2, mid, active ? p.accent() : p.text(), 0.14f);
     }
 
     @Override
@@ -139,7 +145,7 @@ final class SettingsPage implements MenuPage {
 
     @Override
     public boolean scroll(double mx, double my, double amount) {
-        scroll = Math.max(0, Math.min(maxScroll, scroll + (int) Math.round(-amount * 24)));
+        scroll = Math.max(0, Math.min(maxScroll, scroll + (int) Math.round(-amount * 40)));
         return true;
     }
 }
