@@ -222,8 +222,9 @@ cycles through your waypoints. **Remove key** deletes the one being shown; it
 has no key until you set one, so you can't delete a waypoint by accident.
 
 Press **J** to open the waypoint list for the world you're in. Click a name
-to rename it (Enter to save), **Point** to make the HUD arrow follow it, or
-**Delete** to remove it. **+ Add here** saves your position and lets you name
+to rename it (Enter to save), **Point** to make the HUD arrow follow it,
+**Copy** to put its name and coordinates on the clipboard (ready to paste
+to a friend), or **Delete** to remove it. **+ Add here** saves your position and lets you name
 it straight away. Waypoints in your current dimension are listed first; ones
 in other dimensions are shown dimmed, since the arrow can't point across
 dimensions.

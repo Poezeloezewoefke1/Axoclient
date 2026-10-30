@@ -1,5 +1,7 @@
 package dev.axoclient.gui;
 
+import dev.axoclient.gui.notify.Notification;
+import dev.axoclient.gui.notify.Notifications;
 import dev.axoclient.gui.render.GuiRender;
 import dev.axoclient.gui.theme.GuiTheme;
 import dev.axoclient.gui.theme.Themes;
@@ -20,8 +22,8 @@ import org.lwjgl.glfw.GLFW;
 
 /**
  * Every waypoint for the world you're in: click a name to rename it, Point to
- * make the HUD arrow follow it, Delete to drop it, Add here to save where you
- * stand. Waypoints in your current dimension are listed first, since they're
+ * make the HUD arrow follow it, Copy to put its coordinates on the clipboard
+ * for sharing, Delete to drop it, Add here to save where you stand. Waypoints in your current dimension are listed first, since they're
  * the only ones the HUD can point to.
  *
  * Drawn with the same flat helpers as the mod menu so it reads as part of it.
@@ -79,6 +81,10 @@ public final class WaypointsScreen extends Screen {
 
     private int[] pointButton(int y) {
         return new int[] {panelX() + PANEL_W - 10 - 46 - 6 - 42, y + 3, 42, 18};
+    }
+
+    private int[] copyButton(int y) {
+        return new int[] {panelX() + PANEL_W - 10 - 46 - 6 - 42 - 6 - 38, y + 3, 38, 18};
     }
 
     private int[] nameArea(int y) {
@@ -154,6 +160,11 @@ public final class WaypointsScreen extends Screen {
                 GuiRender.rect(g, pb[0], pb[1], pb[2], pb[3], on ? theme.accent : hover ? theme.hover : theme.panel);
                 GuiRender.centered(g, on ? "Active" : "Point", pb[0] + pb[2] / 2, pb[1] + 5, on ? 0xFFFFFFFF : theme.text);
             }
+            int[] cb = copyButton(y);
+            boolean copyHover = GuiRender.inside(mouseX, mouseY, cb[0], cb[1], cb[2], cb[3]);
+            GuiRender.rect(g, cb[0], cb[1], cb[2], cb[3], copyHover ? theme.hover : theme.panel);
+            GuiRender.centered(g, "Copy", cb[0] + cb[2] / 2, cb[1] + 5, theme.text);
+
             int[] db = deleteButton(y);
             boolean delHover = GuiRender.inside(mouseX, mouseY, db[0], db[1], db[2], db[3]);
             GuiRender.rect(g, db[0], db[1], db[2], db[3], delHover ? 0xFFDC2626 : theme.panel);
@@ -209,6 +220,14 @@ public final class WaypointsScreen extends Screen {
             int[] db = deleteButton(y);
             if (GuiRender.inside(mx, my, db[0], db[1], db[2], db[3])) {
                 module.remove(point);
+                return true;
+            }
+            int[] cb = copyButton(y);
+            if (GuiRender.inside(mx, my, cb[0], cb[1], cb[2], cb[3])) {
+                String text = point.name() + ": " + point.x() + " " + point.y() + " " + point.z()
+                    + " (" + dimLabel(point.dim()) + ")";
+                Minecraft.getInstance().keyboardHandler.setClipboard(text);
+                Notifications.push("Copied " + point.name() + " to the clipboard", Notification.Type.SUCCESS);
                 return true;
             }
             int[] pb = pointButton(y);
