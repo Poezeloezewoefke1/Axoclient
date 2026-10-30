@@ -102,6 +102,15 @@ public final class ModuleSetting {
         return format;
     }
 
+    public String moduleId() {
+        return moduleId;
+    }
+
+    /** The config key this setting is stored under, unique within its module. */
+    public String key() {
+        return key;
+    }
+
     public java.util.List<String> choices() {
         return choices;
     }

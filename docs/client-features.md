@@ -26,6 +26,9 @@ cards, and the theme, accent colour and favourites persist between sessions.
 - **Right-click a card** to bind a toggle key — the next key you press
   becomes its hotkey (press **Esc** while binding to clear it). The bound key
   shows under the module name.
+  If the key is already used — by a Minecraft control or another Axo key —
+  a notification names what else it's bound to. The bind still goes
+  through; whether a clash matters is your call.
 - **Star** a card to favourite it. Favourites sort first, and the star
   button next to the search box shows only favourites.
 - **Search box** filters live as you type, matching names and descriptions,

@@ -549,11 +549,17 @@ public final class ClickGuiScreen extends Screen {
 
         if (awaitingBind != null) {
             awaitingBind.set(keyCode == GLFW.GLFW_KEY_ESCAPE ? 0 : keyCode);
+            if (keyCode != GLFW.GLFW_KEY_ESCAPE) {
+                Keybinds.warnConflicts(keyCode, awaitingBind.moduleId() + "." + awaitingBind.key());
+            }
             awaitingBind = null;
             return true;
         }
         if (awaitingModuleBind != null) {
             Keybinds.setKey(awaitingModuleBind, keyCode == GLFW.GLFW_KEY_ESCAPE ? -1 : keyCode);
+            if (keyCode != GLFW.GLFW_KEY_ESCAPE) {
+                Keybinds.warnConflicts(keyCode, "toggle:" + awaitingModuleBind.id());
+            }
             awaitingModuleBind = null;
             return true;
         }

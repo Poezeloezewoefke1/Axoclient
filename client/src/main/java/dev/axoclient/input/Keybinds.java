@@ -3,10 +3,17 @@ package dev.axoclient.input;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.core.ModuleSetting;
+import dev.axoclient.gui.notify.Notification;
+import dev.axoclient.gui.notify.Notifications;
 import dev.axoclient.util.Keys;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 /**
  * Config-backed module toggle keys (rebindable from the ClickGUI). A per-tick
@@ -37,6 +44,49 @@ public final class Keybinds {
             return InputConstants.Type.KEYSYM.getOrCreate(glfwKey).getDisplayName().getString();
         } catch (RuntimeException e) {
             return "?";
+        }
+    }
+
+    /**
+     * Everything else that uses {@code glfwKey}: vanilla controls by their
+     * on-screen name, module toggle keys, and module key settings. The binding
+     * being set is excluded by {@code selfId} — "toggle:&lt;module id&gt;" for a
+     * toggle key, "&lt;module id&gt;.&lt;setting key&gt;" for a key setting.
+     */
+    public static List<String> conflicts(int glfwKey, String selfId) {
+        List<String> out = new ArrayList<>();
+        if (glfwKey <= 0) {
+            return out;
+        }
+        String keyName = InputConstants.Type.KEYSYM.getOrCreate(glfwKey).getName();
+        for (KeyMapping mapping : Minecraft.getInstance().options.keyMappings) {
+            if (mapping.saveString().equals(keyName)) {
+                out.add(Component.translatable(mapping.getName()).getString());
+            }
+        }
+        for (AxoModule module : ModuleManager.get().all()) {
+            if (keyOf(module) == glfwKey && !selfId.equals("toggle:" + module.id())) {
+                out.add(module.displayName() + " (toggle)");
+            }
+            for (ModuleSetting setting : module.settings()) {
+                if (setting.format() == ModuleSetting.Format.KEY
+                    && setting.get() == glfwKey
+                    && !selfId.equals(module.id() + "." + setting.key())) {
+                    out.add(module.displayName() + " · " + setting.label());
+                }
+            }
+        }
+        return out;
+    }
+
+    /** Pushes a warning naming every conflict for a key the player just bound. Silent when there are none. */
+    public static void warnConflicts(int glfwKey, String selfId) {
+        List<String> clashes = conflicts(glfwKey, selfId);
+        if (!clashes.isEmpty()) {
+            Notifications.push(
+                keyName(glfwKey) + " is also used by: " + String.join(", ", clashes),
+                Notification.Type.WARN
+            );
         }
     }
 
