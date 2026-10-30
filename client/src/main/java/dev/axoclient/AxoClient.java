@@ -55,6 +55,7 @@ import dev.axoclient.modules.hud.TpsHudModule;
 import dev.axoclient.modules.hud.WeatherModule;
 import dev.axoclient.modules.hud.XpProgressHudModule;
 import dev.axoclient.modules.performance.PerformanceModeModule;
+import dev.axoclient.modules.performance.PingGraphModule;
 import dev.axoclient.modules.performance.StutterAlertModule;
 import dev.axoclient.modules.pvp.AttackCooldownModule;
 import dev.axoclient.modules.pvp.BowChargeModule;
@@ -161,6 +162,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new FpsGraphModule());
         modules.register(new PerformanceModeModule());
         modules.register(new StutterAlertModule());
+        modules.register(new PingGraphModule());
         modules.register(new ElytraInfoModule());
         modules.register(new MountInfoModule());
         modules.register(new MovementStateModule());

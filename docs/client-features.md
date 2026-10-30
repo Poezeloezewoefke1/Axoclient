@@ -131,6 +131,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Memory | off | Heap used / total |
 | Performance Mode | off | Clouds off, minimal particles, no entity shadows or biome blend, shorter entity distance — your settings come back when you turn it off |
 | Stutter Alert | off | Notification when one frame takes longer than a set time (250 ms by default) |
+| Ping Graph | off | Your ping over the last minute, sampled each second; sits above the FPS graph (hidden in singleplayer) |
 
 Performance Mode writes your own video settings to `config/axoclient.json`
 before changing anything, so even if the game crashes while it's on, turning
@@ -198,6 +199,8 @@ in your accent colour. Waypoints off the edge of the map stay pinned to the
 edge in their direction.
 
 Settings: **Corner**, **Zoom** (64, 128 or 256 blocks across) and **Size**.
+If you also use the FPS or Ping graph, which sit bottom right, move the
+minimap to another corner.
 The map refreshes about twice a second, spread over several ticks so it
 never costs you a frame. It's hidden in the Nether, where the top block
 of every column is the bedrock roof.

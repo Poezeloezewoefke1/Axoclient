@@ -83,6 +83,7 @@ public final class ModuleDescriptions {
         // Performance
         Map.entry("performance_mode", "Lighter video settings in one switch; yours come back when off."),
         Map.entry("stutter_alert", "A notification when a single frame freezes."),
+        Map.entry("ping_graph", "Your ping over the last minute, so spikes stand out."),
         // Quality of life
         Map.entry("fullbright", "See in the dark without changing your video settings."),
         Map.entry("zoom", "Hold a key to zoom in, eased smoothly."),
