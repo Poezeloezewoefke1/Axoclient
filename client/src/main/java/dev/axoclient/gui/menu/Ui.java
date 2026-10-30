@@ -27,7 +27,7 @@ final class Ui {
     enum Type {
         R10, R11, R12, R13,
         M12, M13, M14,
-        S9, S10, S11, S13, S14, S15, S16, S17, S26,
+        S9, S10, S11, S12, S13, S14, S15, S16, S17, S26,
         B9, B10, B11, B12,
         SERIF19, SERIF30;
 
