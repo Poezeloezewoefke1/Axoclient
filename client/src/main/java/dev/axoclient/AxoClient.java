@@ -20,8 +20,10 @@ import dev.axoclient.modules.hud.DirectionHudModule;
 import dev.axoclient.modules.hud.ExperienceHudModule;
 import dev.axoclient.modules.hud.HealthHudModule;
 import dev.axoclient.modules.hud.HungerHudModule;
+import dev.axoclient.modules.hud.LightLevelModule;
 import dev.axoclient.modules.hud.MemoryHudModule;
 import dev.axoclient.modules.hud.ModuleListHudModule;
+import dev.axoclient.modules.hud.NetherCoordsModule;
 import dev.axoclient.modules.hud.DeathCoordsModule;
 import dev.axoclient.modules.hud.DurabilityWarningModule;
 import dev.axoclient.modules.hud.PickupLogModule;
@@ -37,7 +39,10 @@ import dev.axoclient.modules.hud.XpProgressHudModule;
 import dev.axoclient.modules.pvp.AttackCooldownModule;
 import dev.axoclient.modules.pvp.ComboCounterModule;
 import dev.axoclient.modules.pvp.DamageNumbersModule;
+import dev.axoclient.modules.pvp.ItemCounterModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
+import dev.axoclient.modules.pvp.LowHealthWarningModule;
+import dev.axoclient.modules.pvp.ReachDisplayModule;
 import dev.axoclient.modules.pvp.TargetHudModule;
 import dev.axoclient.modules.qol.ChatAntiSpamModule;
 import dev.axoclient.modules.qol.ChatHistoryModule;
@@ -49,6 +54,7 @@ import dev.axoclient.modules.qol.FreelookModule;
 import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ShulkerTooltipModule;
 import dev.axoclient.modules.qol.ToggleSprintModule;
+import dev.axoclient.modules.qol.WaypointsModule;
 import dev.axoclient.modules.qol.ZoomModule;
 import dev.axoclient.gui.ClickGuiScreen;
 import dev.axoclient.input.Keybinds;
@@ -104,6 +110,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new BiomeHudModule());
         modules.register(new PickupLogModule());
         modules.register(new CrosshairModule());
+        modules.register(new LightLevelModule());
+        modules.register(new NetherCoordsModule());
         // Cosmetics: one toggle each, with the variant picked in settings.
         modules.register(new TrailsModule());
         modules.register(new HaloModule());
@@ -115,6 +123,9 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new AttackCooldownModule());
         modules.register(new DamageNumbersModule());
         modules.register(new ComboCounterModule());
+        modules.register(new ReachDisplayModule());
+        modules.register(new ItemCounterModule());
+        modules.register(new LowHealthWarningModule());
         modules.register(new FullbrightModule());
         modules.register(new ZoomModule());
         modules.register(new ToggleSprintModule());
@@ -126,6 +137,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new ClearLiquidsModule());
         modules.register(new DurabilityTooltipModule());
         modules.register(new ShulkerTooltipModule());
+        modules.register(new WaypointsModule());
         // New modules register here and nowhere else (see docs/architecture.md).
 
         // One tooltip callback shared by every tooltip module.

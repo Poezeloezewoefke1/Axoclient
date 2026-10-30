@@ -75,6 +75,8 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Pickup Log | off | Short list of what you just picked up |
 | Ping Spike | off | Flags the moment latency jumps |
 | Crosshair | off | Dot / cross / circle in your accent colour |
+| Light Level | off | Block and sky light where you stand; says when mobs can spawn |
+| Nether Coords | off | Your matching Nether position (or Overworld, in the Nether) |
 | Module List | on | Which modules are active |
 
 ### Combat
@@ -86,6 +88,9 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Attack Cooldown | off | Weapon charge bar |
 | Damage Numbers | off | Floating damage dealt |
 | Combo Counter | off | Consecutive hits |
+| Reach Display | off | How far your last hit landed from |
+| Item Counter | off | Totems, pearls, golden apples and arrows left |
+| Low Health Warning | off | Pulsing red screen edge at low health (threshold in settings) |
 
 ### Quality of life
 
@@ -102,6 +107,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Clear Water & Lava | off | Removes the full-screen liquid overlays |
 | Durability Tooltips | on | Exact durability on damageable items, coloured by wear |
 | Shulker Tooltips | on | Lists a shulker box's contents on its tooltip |
+| Waypoints | off | **B** marks a spot, **N** cycles; the HUD shows an arrow and distance back (all rebindable) |
 
 ### Cosmetics
 
@@ -128,6 +134,28 @@ resolved first.
 All cosmetics are local-only: they render on your screen, not other players'.
 Showing them to anyone else would need a server hosting the textures, which
 Axo deliberately does not have.
+
+### Waypoints
+
+Press **B** to save where you're standing. The HUD then points to it:
+
+```
+↗ Waypoint 1  152m  +12y
+```
+
+The arrow is which way to turn, then the distance across the ground and how
+far up or down it is (shown once the difference is 3 blocks or more). **N**
+cycles through your waypoints. **Remove key** deletes the one being shown; it
+has no key until you set one, so you can't delete a waypoint by accident.
+
+Waypoints are saved separately for each server or singleplayer world and
+each dimension. You only cycle through the ones for where you are, so a
+Nether waypoint never points you across the Overworld. They live in
+`config/axoclient.json` under `waypoints.points`.
+
+They appear on the HUD only, with no beam or marker in the world. That keeps
+them free of world rendering, the same constraint that keeps Halo and Wings
+as particles for now.
 
 New modules are registered in one place — `AxoClient.onInitializeClient()` —
 so the list grows without touching the GUI or config code.
