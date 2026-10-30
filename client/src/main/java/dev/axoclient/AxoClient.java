@@ -52,6 +52,8 @@ import dev.axoclient.modules.hud.TimeHudModule;
 import dev.axoclient.modules.hud.TpsHudModule;
 import dev.axoclient.modules.hud.WeatherModule;
 import dev.axoclient.modules.hud.XpProgressHudModule;
+import dev.axoclient.modules.performance.PerformanceModeModule;
+import dev.axoclient.modules.performance.StutterAlertModule;
 import dev.axoclient.modules.pvp.AttackCooldownModule;
 import dev.axoclient.modules.pvp.BowChargeModule;
 import dev.axoclient.modules.pvp.ComboCounterModule;
@@ -59,11 +61,13 @@ import dev.axoclient.modules.pvp.DamageNumbersModule;
 import dev.axoclient.modules.pvp.HitSoundModule;
 import dev.axoclient.modules.pvp.ItemCounterModule;
 import dev.axoclient.modules.pvp.KeystrokesModule;
+import dev.axoclient.modules.pvp.KillCounterModule;
 import dev.axoclient.modules.pvp.LowHealthWarningModule;
 import dev.axoclient.modules.pvp.NearbyPlayersModule;
 import dev.axoclient.modules.pvp.PearlCooldownModule;
 import dev.axoclient.modules.pvp.ReachDisplayModule;
 import dev.axoclient.modules.pvp.TargetHudModule;
+import dev.axoclient.modules.pvp.TotemWarningModule;
 import dev.axoclient.modules.qol.AutoWalkModule;
 import dev.axoclient.modules.qol.BreakReminderModule;
 import dev.axoclient.modules.qol.ChatAntiSpamModule;
@@ -76,6 +80,7 @@ import dev.axoclient.modules.qol.EffectExpiryModule;
 import dev.axoclient.modules.qol.FreelookModule;
 import dev.axoclient.modules.qol.FullbrightModule;
 import dev.axoclient.modules.qol.ShulkerTooltipModule;
+import dev.axoclient.modules.qol.SleepReminderModule;
 import dev.axoclient.modules.qol.StopwatchModule;
 import dev.axoclient.modules.qol.ToggleSprintModule;
 import dev.axoclient.modules.qol.WaypointsModule;
@@ -147,6 +152,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new InventoryFullModule());
         modules.register(new SaturationHudModule());
         modules.register(new FpsGraphModule());
+        modules.register(new PerformanceModeModule());
+        modules.register(new StutterAlertModule());
         modules.register(new ElytraInfoModule());
         modules.register(new MountInfoModule());
         modules.register(new MovementStateModule());
@@ -170,6 +177,8 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new NearbyPlayersModule());
         modules.register(new HitSoundModule());
         modules.register(new PearlCooldownModule());
+        modules.register(new TotemWarningModule());
+        modules.register(new KillCounterModule());
         modules.register(new FullbrightModule());
         modules.register(new ZoomModule());
         modules.register(new ToggleSprintModule());
@@ -186,6 +195,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new AutoWalkModule());
         modules.register(new BreakReminderModule());
         modules.register(new EffectExpiryModule());
+        modules.register(new SleepReminderModule());
         // New modules register here and nowhere else (see docs/architecture.md).
 
         // One tooltip callback shared by every tooltip module.

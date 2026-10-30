@@ -76,6 +76,11 @@ public final class ModuleDescriptions {
         Map.entry("nearby_players", "The closest players, with distance and health."),
         Map.entry("hit_sound", "A sound only you hear when your hit lands."),
         Map.entry("pearl_cooldown", "Time left before you can throw another pearl."),
+        Map.entry("totem_warning", "Warns when you carry totems but none is in your hand."),
+        Map.entry("kill_counter", "Kills this session, with players counted separately."),
+        // Performance
+        Map.entry("performance_mode", "Lighter video settings in one switch; yours come back when off."),
+        Map.entry("stutter_alert", "A notification when a single frame freezes."),
         // Quality of life
         Map.entry("fullbright", "See in the dark without changing your video settings."),
         Map.entry("zoom", "Hold a key to zoom in, eased smoothly."),
@@ -92,6 +97,7 @@ public final class ModuleDescriptions {
         Map.entry("stopwatch", "A start / pause / reset timer on your HUD."),
         Map.entry("auto_walk", "Keeps walking forward for you; bind a key to toggle."),
         Map.entry("break_reminder", "A gentle reminder to take a break every so often."),
+        Map.entry("sleep_reminder", "Tells you the moment beds start working."),
         Map.entry("effect_expiry", "A heads-up 10 seconds before a potion effect ends.")
     );
 

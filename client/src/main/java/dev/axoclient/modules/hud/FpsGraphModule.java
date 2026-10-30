@@ -29,7 +29,7 @@ public final class FpsGraphModule extends AxoModule implements HudRenderable {
     private long lastFrameNanos;
 
     public FpsGraphModule() {
-        super("fps_graph", "FPS Graph", ModuleCategory.HUD, false);
+        super("fps_graph", "FPS Graph", ModuleCategory.PERFORMANCE, false);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package dev.axoclient.modules.hud;
 
+import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.hud.HudAnchor;
 import dev.axoclient.hud.HudModule;
 import dev.axoclient.hud.HudPosition;
@@ -8,7 +9,7 @@ import dev.axoclient.hud.HudPosition;
 public final class MemoryHudModule extends HudModule {
 
     public MemoryHudModule() {
-        super("memory_hud", "Memory", new HudPosition(HudAnchor.TOP_RIGHT, -4, 16), false);
+        super("memory_hud", "Memory", ModuleCategory.PERFORMANCE, new HudPosition(HudAnchor.TOP_RIGHT, -4, 16), false);
     }
 
     @Override

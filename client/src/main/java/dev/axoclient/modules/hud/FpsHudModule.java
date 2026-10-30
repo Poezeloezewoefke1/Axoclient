@@ -1,5 +1,6 @@
 package dev.axoclient.modules.hud;
 
+import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.hud.HudAnchor;
 import dev.axoclient.hud.HudModule;
 import dev.axoclient.hud.HudPosition;
@@ -9,7 +10,7 @@ import net.minecraft.client.Minecraft;
 public final class FpsHudModule extends HudModule {
 
     public FpsHudModule() {
-        super("fps_hud", "FPS Counter", new HudPosition(HudAnchor.TOP_LEFT, 4, 4));
+        super("fps_hud", "FPS Counter", ModuleCategory.PERFORMANCE, new HudPosition(HudAnchor.TOP_LEFT, 4, 4));
     }
 
     @Override

@@ -57,10 +57,8 @@ Everything is a module. Toggle any of them in the ClickGUI.
 
 | Module | Default | What it does |
 | --- | --- | --- |
-| FPS Counter | on | Frames-per-second readout |
 | Coordinates | on | X / Y / Z and facing direction |
 | CPS Counter | on | Left/right clicks per second (1s window) |
-| Memory | off | Heap used / total |
 | Speed | off | Blocks per second |
 | Ping | off | Latency to the server |
 | Health / Hunger / Experience | off | Exact numbers instead of counting icons |
@@ -77,7 +75,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Server Info | off | Server name and address |
 | TPS | off | How well the server is keeping up |
 | Death Coords | off | Where you last died |
-| Durability Warning | off | Warns before a tool breaks |
+| Durability Warning | off | Warns before a tool breaks, with a one-time sound and notification (can be turned off) |
 | Pickup Log | off | Short list of what you just picked up |
 | Ping Spike | off | Flags the moment latency jumps |
 | Crosshair | off | Dot / cross / circle in your accent colour |
@@ -93,7 +91,6 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Fall Warning | off | How far you're falling and the worst-case damage |
 | Inventory Full | off | Warns when there's no free slot left |
 | Saturation | off | The hidden food stat that decides when you get hungry |
-| FPS Graph | off | Frame-time graph in the bottom-right; stutters show as spikes |
 | Elytra Info | off | While gliding: speed, pitch and elytra durability |
 | Mount Info | off | What you're riding, its real speed and health |
 | Movement State | off | Sprinting / sneaking / swimming / flying / gliding |
@@ -117,6 +114,22 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Nearby Players | off | Closest players with distance and health |
 | Hit Sound | off | A sound only you hear when a hit lands (three to choose from) |
 | Pearl Cooldown | off | Ender pearl cooldown remaining |
+| Totem Warning | off | Warns when you carry totems but none is in your hands |
+| Kill Counter | off | Kills this session, players counted separately (client-side estimate) |
+
+### Performance
+
+| Module | Default | What it does |
+| --- | --- | --- |
+| FPS Counter | on | Frames-per-second readout |
+| FPS Graph | off | Frame-time graph in the bottom-right; stutters show as spikes |
+| Memory | off | Heap used / total |
+| Performance Mode | off | Clouds off, minimal particles, no entity shadows or biome blend, shorter entity distance — your settings come back when you turn it off |
+| Stutter Alert | off | Notification when one frame takes longer than a set time (250 ms by default) |
+
+Performance Mode writes your own video settings to `config/axoclient.json`
+before changing anything, so even if the game crashes while it's on, turning
+it off later still restores them.
 
 ### Quality of life
 
@@ -138,6 +151,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Auto Walk | off | Keeps walking forward; bind a key to tap it on and off |
 | Break Reminder | off | A notification every hour of play (interval in settings) |
 | Effect Expiry Warning | off | Notification 10 seconds before a potion effect runs out |
+| Sleep Reminder | off | Notification the moment beds start working |
 
 ### Cosmetics
 
