@@ -57,6 +57,7 @@ public final class ModuleDescriptions {
         Map.entry("movement_state", "Whether you're sprinting, sneaking, swimming or flying."),
         Map.entry("hunger_warning", "Tells you to eat before you can't sprint."),
         Map.entry("armor_points", "Total armour and armour toughness."),
+        Map.entry("hud_style", "Colour, background box and shadow for all HUD text."),
         // Cosmetic
         Map.entry("trails", "Particle trails and auras; pick one in settings."),
         Map.entry("halo", "A ring turning above your head."),

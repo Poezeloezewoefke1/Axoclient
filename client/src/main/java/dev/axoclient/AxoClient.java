@@ -30,6 +30,7 @@ import dev.axoclient.modules.hud.FpsGraphModule;
 import dev.axoclient.modules.hud.FpsHudModule;
 import dev.axoclient.modules.hud.HealthHudModule;
 import dev.axoclient.modules.hud.HostileCounterModule;
+import dev.axoclient.modules.hud.HudStyleModule;
 import dev.axoclient.modules.hud.HungerHudModule;
 import dev.axoclient.modules.hud.HungerWarningModule;
 import dev.axoclient.modules.hud.InventoryFullModule;
@@ -113,6 +114,7 @@ public final class AxoClient implements ClientModInitializer {
         ModuleManager modules = ModuleManager.init(config);
 
         modules.register(new FpsHudModule());
+        modules.register(new HudStyleModule());
         modules.register(new CoordinatesModule());
         modules.register(new CpsCounterModule());
         modules.register(new TimeHudModule());

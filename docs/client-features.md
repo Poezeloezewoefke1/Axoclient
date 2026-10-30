@@ -96,6 +96,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Movement State | off | Sprinting / sneaking / swimming / flying / gliding |
 | Hunger Warning | off | Tells you to eat; separate warning when you're too hungry to sprint |
 | Armor Points | off | Total armour and armour toughness |
+| HUD Style | off | Restyle all HUD text: colour (six choices), dark background box, shadow on/off |
 | Module List | on | Which modules are active |
 
 ### Combat

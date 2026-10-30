@@ -4,6 +4,7 @@ import dev.axoclient.core.AxoModule;
 import dev.axoclient.core.HudRenderable;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.modules.hud.HudStyleModule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -14,8 +15,6 @@ import net.minecraft.client.gui.GuiGraphics;
  * or restart (live drag-editing is P5-09).
  */
 public abstract class HudModule extends AxoModule implements HudRenderable {
-    protected static final int AXO_BLUE = 0xFF38BDF8;
-
     private final HudPosition defaultPosition;
     private HudPosition position;
 
@@ -91,6 +90,9 @@ public abstract class HudModule extends AxoModule implements HudRenderable {
         Minecraft minecraft = Minecraft.getInstance();
         int x = position.anchor().x(graphics.guiWidth(), minecraft.font.width(text), position.offsetX());
         int y = position.anchor().y(graphics.guiHeight(), minecraft.font.lineHeight, position.offsetY());
-        graphics.drawString(minecraft.font, text, x, y, AXO_BLUE, true);
+        if (HudStyleModule.background()) {
+            graphics.fill(x - 2, y - 2, x + minecraft.font.width(text) + 2, y + minecraft.font.lineHeight, 0x80000000);
+        }
+        graphics.drawString(minecraft.font, text, x, y, HudStyleModule.textColour(), HudStyleModule.shadow());
     }
 }
