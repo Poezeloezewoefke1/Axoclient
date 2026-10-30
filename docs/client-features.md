@@ -107,7 +107,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 
 | Module | Default | What it does |
 | --- | --- | --- |
-| Keystrokes | on | WASD + mouse key overlay |
+| Keystrokes | on | WASD + mouse key overlay; mouse keys show clicks per second while clicking, optional space bar |
 | Target HUD | off | Who you're looking at, with a health bar |
 | Attack Cooldown | off | Weapon charge bar |
 | Damage Numbers | off | Floating damage dealt |
