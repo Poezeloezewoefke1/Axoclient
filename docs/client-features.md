@@ -146,7 +146,7 @@ it off later still restores them.
 | Clear Water & Lava | off | Removes the full-screen liquid overlays |
 | Durability Tooltips | on | Exact durability on damageable items, coloured by wear |
 | Shulker Tooltips | on | Lists a shulker box's contents on its tooltip |
-| Waypoints | off | **B** marks a spot, **N** cycles; the HUD shows an arrow and distance back (all rebindable) |
+| Waypoints | off | **B** marks a spot, **N** cycles, **J** opens the list to rename or delete; the HUD shows an arrow and distance back (all rebindable) |
 | Stopwatch | off | **K** starts and pauses; reset key in settings |
 | Auto Walk | off | Keeps walking forward; bind a key to tap it on and off |
 | Break Reminder | off | A notification every hour of play (interval in settings) |
@@ -191,6 +191,13 @@ The arrow is which way to turn, then the distance across the ground and how
 far up or down it is (shown once the difference is 3 blocks or more). **N**
 cycles through your waypoints. **Remove key** deletes the one being shown; it
 has no key until you set one, so you can't delete a waypoint by accident.
+
+Press **J** to open the waypoint list for the world you're in. Click a name
+to rename it (Enter to save), **Point** to make the HUD arrow follow it, or
+**Delete** to remove it. **+ Add here** saves your position and lets you name
+it straight away. Waypoints in your current dimension are listed first; ones
+in other dimensions are shown dimmed, since the arrow can't point across
+dimensions.
 
 When you die, a **Death** waypoint is placed where it happened, replacing the
 previous one for that world. Turn this off with **Mark deaths** in the

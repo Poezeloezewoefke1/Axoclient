@@ -3,6 +3,7 @@ package dev.axoclient.modules.qol;
 import dev.axoclient.core.ModuleCategory;
 import dev.axoclient.core.ModuleManager;
 import dev.axoclient.core.ModuleSetting;
+import dev.axoclient.gui.WaypointsScreen;
 import dev.axoclient.gui.notify.Notification;
 import dev.axoclient.gui.notify.Notifications;
 import dev.axoclient.hud.HudAnchor;
@@ -30,11 +31,13 @@ import org.lwjgl.glfw.GLFW;
  *   mark_key   — save your current position
  *   next_key   — cycle which waypoint the HUD points at
  *   remove_key — delete the waypoint the HUD points at (unbound by default)
+ *   list_key   — open the waypoint list to rename, point to or delete
  *   mark_deaths — keep a "Death" waypoint where you last died (on by default)
  */
 public final class WaypointsModule extends HudModule {
     private static final int DEFAULT_MARK_KEY = GLFW.GLFW_KEY_B;
     private static final int DEFAULT_NEXT_KEY = GLFW.GLFW_KEY_N;
+    private static final int DEFAULT_LIST_KEY = GLFW.GLFW_KEY_J;
     /** Height difference below which the HUD doesn't bother showing it. */
     private static final int SHOW_DY_FROM = 3;
     private static final String DEATH_NAME = "Death";
@@ -44,6 +47,7 @@ public final class WaypointsModule extends HudModule {
     private boolean markWasDown;
     private boolean nextWasDown;
     private boolean removeWasDown;
+    private boolean listWasDown;
     private boolean wasDead;
 
     public WaypointsModule() {
@@ -56,6 +60,7 @@ public final class WaypointsModule extends HudModule {
             ModuleSetting.key(id(), "mark_key", "Mark key", DEFAULT_MARK_KEY),
             ModuleSetting.key(id(), "next_key", "Next key", DEFAULT_NEXT_KEY),
             ModuleSetting.key(id(), "remove_key", "Remove key", 0),
+            ModuleSetting.key(id(), "list_key", "List key", DEFAULT_LIST_KEY),
             ModuleSetting.choice(id(), "mark_deaths", "Mark deaths", List.of("On", "Off"), 0)
         );
     }
@@ -89,26 +94,23 @@ public final class WaypointsModule extends HudModule {
         boolean markDown = isDown(keyFor("mark_key", DEFAULT_MARK_KEY));
         boolean nextDown = isDown(keyFor("next_key", DEFAULT_NEXT_KEY));
         boolean removeDown = isDown(keyFor("remove_key", 0));
+        boolean listDown = isDown(keyFor("list_key", DEFAULT_LIST_KEY));
         boolean mark = markDown && !markWasDown;
         boolean next = nextDown && !nextWasDown;
         boolean remove = removeDown && !removeWasDown;
+        boolean list = listDown && !listWasDown;
         markWasDown = markDown;
         nextWasDown = nextDown;
         removeWasDown = removeDown;
+        listWasDown = listDown;
 
+        if (list) {
+            minecraft.setScreen(new WaypointsScreen(this));
+            return;
+        }
         List<Waypoint> here = pointsIn(world, dim);
         if (mark) {
-            Waypoint point = new Waypoint(
-                "Waypoint " + (here.size() + 1),
-                world,
-                dim,
-                (int) Math.floor(player.getX()),
-                (int) Math.floor(player.getY()),
-                (int) Math.floor(player.getZ())
-            );
-            points.add(point);
-            selected = here.size();
-            save();
+            Waypoint point = markHere();
             Notifications.push(
                 point.name() + " set at " + point.x() + ", " + point.y() + ", " + point.z(),
                 Notification.Type.SUCCESS
@@ -149,6 +151,103 @@ public final class WaypointsModule extends HudModule {
             line.append("  ").append(dy > 0 ? "+" : "").append(dy).append('y');
         }
         return line.toString();
+    }
+
+    /** Saves your current position as a new waypoint and points the HUD at it. Null outside a world. */
+    public Waypoint markHere() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        String world = WorldInfo.worldId();
+        String dim = WorldInfo.dimensionId();
+        if (player == null || world == null || dim == null) {
+            return null;
+        }
+        List<Waypoint> here = pointsIn(world, dim);
+        Waypoint point = new Waypoint(
+            nextFreeName(world),
+            world,
+            dim,
+            (int) Math.floor(player.getX()),
+            (int) Math.floor(player.getY()),
+            (int) Math.floor(player.getZ())
+        );
+        points.add(point);
+        selected = here.size();
+        save();
+        return point;
+    }
+
+    /** Every waypoint saved for the world you're in, across all its dimensions. */
+    public List<Waypoint> pointsInCurrentWorld() {
+        String world = WorldInfo.worldId();
+        List<Waypoint> out = new ArrayList<>();
+        for (Waypoint point : points) {
+            if (point.world().equals(world)) {
+                out.add(point);
+            }
+        }
+        return out;
+    }
+
+    /** The waypoint the HUD is pointing at, or null. */
+    public Waypoint target() {
+        String world = WorldInfo.worldId();
+        String dim = WorldInfo.dimensionId();
+        if (world == null || dim == null) {
+            return null;
+        }
+        List<Waypoint> here = pointsIn(world, dim);
+        return here.isEmpty() ? null : here.get(Math.min(selected, here.size() - 1));
+    }
+
+    /** Points the HUD at {@code point}. Only works for one in your current dimension. */
+    public boolean pointTo(Waypoint point) {
+        String world = WorldInfo.worldId();
+        String dim = WorldInfo.dimensionId();
+        if (world == null || dim == null || !point.isIn(world, dim)) {
+            return false;
+        }
+        int index = pointsIn(world, dim).indexOf(point);
+        if (index >= 0) {
+            selected = index;
+        }
+        return index >= 0;
+    }
+
+    /** Replaces {@code point}'s name, keeping its place in the list. Blank names are ignored. */
+    public Waypoint rename(Waypoint point, String name) {
+        String trimmed = name == null ? "" : name.trim();
+        int index = points.indexOf(point);
+        if (index < 0 || trimmed.isEmpty()) {
+            return point;
+        }
+        Waypoint renamed = new Waypoint(trimmed, point.world(), point.dim(), point.x(), point.y(), point.z());
+        points.set(index, renamed);
+        save();
+        return renamed;
+    }
+
+    public void remove(Waypoint point) {
+        if (points.remove(point)) {
+            selected = 0;
+            save();
+        }
+    }
+
+    /** "Waypoint N" with the lowest N not already used in this world. */
+    private String nextFreeName(String world) {
+        for (int n = 1; ; n++) {
+            String candidate = "Waypoint " + n;
+            boolean taken = false;
+            for (Waypoint point : points) {
+                if (point.world().equals(world) && point.name().equals(candidate)) {
+                    taken = true;
+                    break;
+                }
+            }
+            if (!taken) {
+                return candidate;
+            }
+        }
     }
 
     /** One "Death" waypoint per world: the latest replaces the last, so the list doesn't fill up with graves. */
