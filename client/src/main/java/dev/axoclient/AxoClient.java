@@ -8,6 +8,7 @@ import dev.axoclient.modules.cosmetic.HaloModule;
 import dev.axoclient.modules.cosmetic.TrailsModule;
 import dev.axoclient.modules.cosmetic.WingsModule;
 import dev.axoclient.modules.hud.ArmorHudModule;
+import dev.axoclient.modules.hud.ArmorIconsModule;
 import dev.axoclient.modules.hud.ArmorPointsModule;
 import dev.axoclient.modules.hud.BiomeHudModule;
 import dev.axoclient.modules.hud.BlockInfoModule;
@@ -136,6 +137,7 @@ public final class AxoClient implements ClientModInitializer {
         modules.register(new DirectionHudModule());
         modules.register(new ClockHudModule());
         modules.register(new ArmorHudModule());
+        modules.register(new ArmorIconsModule());
         modules.register(new PotionEffectsHudModule());
         modules.register(new XpProgressHudModule());
         modules.register(new ServerInfoHudModule());

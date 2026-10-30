@@ -28,6 +28,7 @@ public final class ModuleDescriptions {
         Map.entry("experience_hud", "Your experience level as a number."),
         Map.entry("direction_hud", "Facing as N / E / S / W plus the exact angle."),
         Map.entry("armor_hud", "Durability left on each armour piece."),
+        Map.entry("armor_icons", "Armour and held items as icons with durability left."),
         Map.entry("potion_hud", "Active potion effects and time remaining."),
         Map.entry("xp_progress_hud", "Percentage of the way to your next level."),
         Map.entry("server_info_hud", "Which server you're on and how many are online."),

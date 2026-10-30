@@ -74,6 +74,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Day Counter | off | In-game day number |
 | Session Uptime | off | How long this session has run |
 | Armour | off | Each armour piece with durability left |
+| Armor Icons | off | Armour and held items as item icons with durability (or stack size), green to red |
 | Potion Effects | off | Active effects and time remaining |
 | Server Info | off | Server name and address |
 | TPS | off | How well the server is keeping up |
