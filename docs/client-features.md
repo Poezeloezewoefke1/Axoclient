@@ -120,7 +120,8 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Nearby Players | off | Closest players with distance, health and ping |
 | Hit Sound | off | A sound only you hear when a hit lands (three to choose from) |
 | Pearl Cooldown | off | Ender pearl cooldown remaining |
-| Totem Warning | off | Warns when you carry totems but none is in your hands |
+| Totem Warning | off | Warns when you carry totems but none is in your hands, and announces each totem used with how many are left |
+| Combat Timer | off | Counts down from your last hit given or taken, to match a server's combat tag (length in settings) |
 | Kill Counter | off | Kills this session, players counted separately (client-side estimate) |
 
 ### Performance
@@ -133,6 +134,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Performance Mode | off | Clouds off, minimal particles, no entity shadows or biome blend, shorter entity distance — your settings come back when you turn it off |
 | Stutter Alert | off | Notification when one frame takes longer than a set time (250 ms by default) |
 | Ping Graph | off | Your ping over the last minute, sampled each second; sits above the FPS graph (hidden in singleplayer) |
+| Entity Count | off | Entities your client has loaded, as on F3 |
 
 Performance Mode writes your own video settings to `config/axoclient.json`
 before changing anything, so even if the game crashes while it's on, turning

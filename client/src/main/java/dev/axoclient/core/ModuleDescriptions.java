@@ -79,12 +79,14 @@ public final class ModuleDescriptions {
         Map.entry("nearby_players", "The closest players, with distance, health and ping."),
         Map.entry("hit_sound", "A sound only you hear when your hit lands."),
         Map.entry("pearl_cooldown", "Time left before you can throw another pearl."),
-        Map.entry("totem_warning", "Warns when you carry totems but none is in your hand."),
+        Map.entry("totem_warning", "Warns when no totem is in hand, and when one gets used."),
         Map.entry("kill_counter", "Kills this session, with players counted separately."),
+        Map.entry("combat_timer", "Counts down from your last hit, to match a server's combat tag."),
         // Performance
         Map.entry("performance_mode", "Lighter video settings in one switch; yours come back when off."),
         Map.entry("stutter_alert", "A notification when a single frame freezes."),
         Map.entry("ping_graph", "Your ping over the last minute, so spikes stand out."),
+        Map.entry("entity_count", "How many entities your client has loaded."),
         // Quality of life
         Map.entry("fullbright", "See in the dark without changing your video settings."),
         Map.entry("zoom", "Hold a key to zoom in, eased smoothly."),

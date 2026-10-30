@@ -25,18 +25,20 @@ are in `releasing.md`.
 - **Crash protection.** If a module hits an error it is switched off with a
   notification instead of crashing the game.
 
-**New modules (42)**
+**New modules (44)**
 
 - *HUD:* Light Level, Nether Coords, Session Stats, Chunk Info, Weather, Day
   Cycle, Block Info, Hostile Counter, Depth Guide, Fall Warning,
   Inventory Full, Saturation, Elytra Info, Mount Info, Movement State, Hunger
   Warning, Armor Points, Armor Icons, HUD Style, Minimap
 - *Combat:* Reach Display, Item Counter, Low Health Warning, Bow Charge,
-  Nearby Players, Hit Sound, Pearl Cooldown, Totem Warning, Kill Counter
+  Nearby Players, Hit Sound, Pearl Cooldown, Totem Warning (with totem-pop
+  alerts), Kill Counter, Combat Timer
 - *Quality of life:* Waypoints, Stopwatch, Auto Walk, Break Reminder, Effect
   Expiry Warning, Sleep Reminder, Chat Mentions, Food Tooltips, Anvil Cost
   Tooltips
-- *Performance:* Performance Mode, Stutter Alert, Ping Graph, FPS Graph
+- *Performance:* Performance Mode, Stutter Alert, Ping Graph, FPS Graph,
+  Entity Count
 
 **Improvements to existing modules**
 
