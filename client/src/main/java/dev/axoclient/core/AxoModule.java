@@ -34,6 +34,11 @@ public abstract class AxoModule {
         return enabledByDefault;
     }
 
+    /** One line shown when hovering this module's card; see {@link ModuleDescriptions}. */
+    public String description() {
+        return ModuleDescriptions.of(id);
+    }
+
     /** Called when the module transitions to enabled (including at startup). */
     protected void onEnable() {
     }

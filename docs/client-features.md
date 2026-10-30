@@ -14,17 +14,22 @@ these work in a normal Minecraft 1.21.11 instance.
 
 ## ClickGUI
 
-Press **Right Shift** in-game to open it. The panel is fully themeable and
-its layout persists between sessions.
+Press **Right Shift** in-game to open it. Modules are laid out as a grid of
+cards, and the theme, accent colour and favourites persist between sessions.
 
-- **Category panels** — one per category (PvP, Performance, Quality of Life,
-  HUD). Drag a panel by its title bar to move it; positions are saved.
-- **Left-click a module** to toggle it on/off. Enabled modules show an accent
-  bar and coloured name.
-- **Right-click a module** to bind a toggle key — the next key you press
+- **Category tabs** along the top (All, PvP, Performance, Quality of Life,
+  Cosmetic, HUD) narrow the grid to one category.
+- **Hover a card** to see a one-line description of what the module does.
+- **Click Enabled / Disabled** on a card to toggle it. Enabled cards get an
+  accent outline.
+- **Gear button** opens that module's settings (see below).
+- **Right-click a card** to bind a toggle key — the next key you press
   becomes its hotkey (press **Esc** while binding to clear it). The bound key
-  shows as a badge on the module row.
-- **Search box** (top-left) filters modules live as you type.
+  shows under the module name.
+- **Star** a card to favourite it. Favourites sort first, and the star
+  button next to the search box shows only favourites.
+- **Search box** filters live as you type, matching names and descriptions,
+  so searching "spawn" finds Light Level.
 - **Dark / Light** button toggles the theme.
 - **HUD** button opens the HUD editor (below).
 - **Accent swatches** pick the highlight colour. The choice — like the theme
@@ -63,7 +68,8 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Direction | off | Facing as N/E/S/W plus yaw |
 | Compass | off | Compass strip across the top of the screen |
 | Biome | off | Biome you're standing in |
-| Clock | off | Real-world time |
+| Clock | on | Real-world time |
+| Game Clock | off | In-game time of day as a 24-hour clock |
 | Day Counter | off | In-game day number |
 | Session Uptime | off | How long this session has run |
 | Armour | off | Each armour piece with durability left |

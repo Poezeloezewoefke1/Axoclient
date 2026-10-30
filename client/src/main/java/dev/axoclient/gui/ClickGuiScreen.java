@@ -45,6 +45,7 @@ public final class ClickGuiScreen extends Screen {
     private static final int CARD_H = 118;
     private static final int CARD_GAP = 10;
     private static final int SCROLLBAR_W = 4;
+    private static final int TOOLTIP_TEXT_W = 170;
     /** Rows moved per arrow key press. */
     private static final int KEY_SCROLL = 24;
 
@@ -52,6 +53,8 @@ public final class ClickGuiScreen extends Screen {
     private ModuleCategory activeTab;
     private boolean favouritesOnly;
     private String search = "";
+    /** Card under the mouse this frame, for the description tooltip; null when none. */
+    private AxoModule hoveredCard;
     private boolean searchFocused;
 
     private int scroll;
@@ -93,7 +96,9 @@ public final class ClickGuiScreen extends Screen {
             if (favouritesOnly && !isFavourite(module)) {
                 continue;
             }
-            if (!needle.isEmpty() && !module.displayName().toLowerCase(Locale.ROOT).contains(needle)) {
+            if (!needle.isEmpty()
+                && !module.displayName().toLowerCase(Locale.ROOT).contains(needle)
+                && !module.description().toLowerCase(Locale.ROOT).contains(needle)) {
                 continue;
             }
             out.add(module);
@@ -137,10 +142,13 @@ public final class ClickGuiScreen extends Screen {
 
         renderTopBar(g, theme, mouseX, mouseY);
         renderTabs(g, theme, mouseX, mouseY);
+        hoveredCard = null;
         renderGrid(g, theme, mouseX, mouseY);
 
         if (settingsFor != null) {
             renderSettings(g, theme, mouseX, mouseY);
+        } else if (hoveredCard != null) {
+            renderDescription(g, theme, hoveredCard, mouseX, mouseY);
         }
         super.render(g, mouseX, mouseY, delta);
     }
@@ -235,6 +243,9 @@ public final class ClickGuiScreen extends Screen {
     ) {
         boolean enabled = ModuleManager.get().isEnabled(module);
         boolean hover = GuiRender.inside(mouseX, mouseY, x, y, CARD_W, CARD_H);
+        if (hover && mouseY >= gridTop()) {
+            hoveredCard = module;
+        }
 
         GuiRender.rect(g, x, y, CARD_W, CARD_H, hover ? theme.hover : theme.panel);
         GuiRender.outline(g, x, y, CARD_W, CARD_H, enabled ? theme.accent : theme.outline);
@@ -290,6 +301,50 @@ public final class ClickGuiScreen extends Screen {
             g, enabled ? "Enabled" : "Disabled", stateX + stateW / 2, rowY + 6,
             enabled ? 0xFFFFFFFF : theme.textDim
         );
+    }
+
+    /**
+     * The hovered module's description in a small panel beside the cursor,
+     * word-wrapped and kept on screen. Drawn after the grid so it sits on top.
+     */
+    private void renderDescription(GuiGraphics g, GuiTheme theme, AxoModule module, int mouseX, int mouseY) {
+        String description = module.description();
+        if (description.isEmpty()) {
+            return;
+        }
+        List<String> lines = wrap(description, TOOLTIP_TEXT_W);
+        int w = 0;
+        for (String line : lines) {
+            w = Math.max(w, GuiRender.textWidth(line));
+        }
+        w += 12;
+        int h = lines.size() * 11 + 8;
+        int x = Math.min(mouseX + 12, width - w - 4);
+        int y = Math.min(mouseY + 12, height - h - 4);
+        GuiRender.shadow(g, x, y, w, h);
+        GuiRender.rect(g, x, y, w, h, theme.panel);
+        GuiRender.outline(g, x, y, w, h, theme.accent);
+        for (int i = 0; i < lines.size(); i++) {
+            GuiRender.text(g, lines.get(i), x + 6, y + 5 + i * 11, theme.text);
+        }
+    }
+
+    private static List<String> wrap(String text, int maxWidth) {
+        List<String> lines = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
+        for (String word : text.split(" ")) {
+            String candidate = line.length() == 0 ? word : line + " " + word;
+            if (line.length() > 0 && GuiRender.textWidth(candidate) > maxWidth) {
+                lines.add(line.toString());
+                line = new StringBuilder(word);
+            } else {
+                line = new StringBuilder(candidate);
+            }
+        }
+        if (line.length() > 0) {
+            lines.add(line.toString());
+        }
+        return lines;
     }
 
     // ------------------------------------------------------------------
