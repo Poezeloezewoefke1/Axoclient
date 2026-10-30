@@ -30,18 +30,21 @@ import org.lwjgl.glfw.GLFW;
  *   mark_key   — save your current position
  *   next_key   — cycle which waypoint the HUD points at
  *   remove_key — delete the waypoint the HUD points at (unbound by default)
+ *   mark_deaths — keep a "Death" waypoint where you last died (on by default)
  */
 public final class WaypointsModule extends HudModule {
     private static final int DEFAULT_MARK_KEY = GLFW.GLFW_KEY_B;
     private static final int DEFAULT_NEXT_KEY = GLFW.GLFW_KEY_N;
     /** Height difference below which the HUD doesn't bother showing it. */
     private static final int SHOW_DY_FROM = 3;
+    private static final String DEATH_NAME = "Death";
 
     private final List<Waypoint> points = new ArrayList<>();
     private int selected;
     private boolean markWasDown;
     private boolean nextWasDown;
     private boolean removeWasDown;
+    private boolean wasDead;
 
     public WaypointsModule() {
         super("waypoints", "Waypoints", ModuleCategory.QOL, new HudPosition(HudAnchor.TOP_CENTER, 0, 62), false);
@@ -52,7 +55,8 @@ public final class WaypointsModule extends HudModule {
         return List.of(
             ModuleSetting.key(id(), "mark_key", "Mark key", DEFAULT_MARK_KEY),
             ModuleSetting.key(id(), "next_key", "Next key", DEFAULT_NEXT_KEY),
-            ModuleSetting.key(id(), "remove_key", "Remove key", 0)
+            ModuleSetting.key(id(), "remove_key", "Remove key", 0),
+            ModuleSetting.choice(id(), "mark_deaths", "Mark deaths", List.of("On", "Off"), 0)
         );
     }
 
@@ -70,7 +74,16 @@ public final class WaypointsModule extends HudModule {
         LocalPlayer player = minecraft.player;
         String world = WorldInfo.worldId();
         String dim = WorldInfo.dimensionId();
-        if (player == null || world == null || dim == null || minecraft.screen != null) {
+        if (player == null || world == null || dim == null) {
+            return;
+        }
+        // Before the screen check: dying opens the death screen on the same tick.
+        boolean dead = player.getHealth() <= 0.0F;
+        if (dead && !wasDead && ModuleManager.get().config().getModuleInt(id(), "mark_deaths", 0) == 0) {
+            markDeath(player, world, dim);
+        }
+        wasDead = dead;
+        if (minecraft.screen != null) {
             return;
         }
         boolean markDown = isDown(keyFor("mark_key", DEFAULT_MARK_KEY));
@@ -136,6 +149,21 @@ public final class WaypointsModule extends HudModule {
             line.append("  ").append(dy > 0 ? "+" : "").append(dy).append('y');
         }
         return line.toString();
+    }
+
+    /** One "Death" waypoint per world: the latest replaces the last, so the list doesn't fill up with graves. */
+    private void markDeath(LocalPlayer player, String world, String dim) {
+        points.removeIf(point -> point.world().equals(world) && DEATH_NAME.equals(point.name()));
+        points.add(new Waypoint(
+            DEATH_NAME,
+            world,
+            dim,
+            (int) Math.floor(player.getX()),
+            (int) Math.floor(player.getY()),
+            (int) Math.floor(player.getZ())
+        ));
+        selected = pointsIn(world, dim).size() - 1;
+        save();
     }
 
     private List<Waypoint> pointsIn(String world, String dim) {

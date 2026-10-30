@@ -77,6 +77,22 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Crosshair | off | Dot / cross / circle in your accent colour |
 | Light Level | off | Block and sky light where you stand; says when mobs can spawn |
 | Nether Coords | off | Your matching Nether position (or Overworld, in the Nether) |
+| Session Stats | off | Distance travelled and deaths this session |
+| Chunk Info | off | Chunk, position inside it, and region file |
+| Weather | off | Clear / raining / thunderstorm, even underground |
+| Day Cycle | off | Real-time countdown to nightfall or sunrise |
+| Block Info | off | Name and coordinates of the block you're looking at |
+| Hostile Counter | off | Hostile mobs within a set radius |
+| Depth Guide | off | Your Y level and which ores are richest there |
+| Fall Warning | off | How far you're falling and the worst-case damage |
+| Inventory Full | off | Warns when there's no free slot left |
+| Saturation | off | The hidden food stat that decides when you get hungry |
+| FPS Graph | off | Frame-time graph in the bottom-right; stutters show as spikes |
+| Elytra Info | off | While gliding: speed, pitch and elytra durability |
+| Mount Info | off | What you're riding, its real speed and health |
+| Movement State | off | Sprinting / sneaking / swimming / flying / gliding |
+| Hunger Warning | off | Tells you to eat; separate warning when you're too hungry to sprint |
+| Armor Points | off | Total armour and armour toughness |
 | Module List | on | Which modules are active |
 
 ### Combat
@@ -91,6 +107,10 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Reach Display | off | How far your last hit landed from |
 | Item Counter | off | Totems, pearls, golden apples and arrows left |
 | Low Health Warning | off | Pulsing red screen edge at low health (threshold in settings) |
+| Bow Charge | off | How drawn your bow is; FULL means a critical shot |
+| Nearby Players | off | Closest players with distance and health |
+| Hit Sound | off | A sound only you hear when a hit lands (three to choose from) |
+| Pearl Cooldown | off | Ender pearl cooldown remaining |
 
 ### Quality of life
 
@@ -108,6 +128,10 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Durability Tooltips | on | Exact durability on damageable items, coloured by wear |
 | Shulker Tooltips | on | Lists a shulker box's contents on its tooltip |
 | Waypoints | off | **B** marks a spot, **N** cycles; the HUD shows an arrow and distance back (all rebindable) |
+| Stopwatch | off | **K** starts and pauses; reset key in settings |
+| Auto Walk | off | Keeps walking forward; bind a key to tap it on and off |
+| Break Reminder | off | A notification every hour of play (interval in settings) |
+| Effect Expiry Warning | off | Notification 10 seconds before a potion effect runs out |
 
 ### Cosmetics
 
@@ -147,6 +171,10 @@ The arrow is which way to turn, then the distance across the ground and how
 far up or down it is (shown once the difference is 3 blocks or more). **N**
 cycles through your waypoints. **Remove key** deletes the one being shown; it
 has no key until you set one, so you can't delete a waypoint by accident.
+
+When you die, a **Death** waypoint is placed where it happened, replacing the
+previous one for that world. Turn this off with **Mark deaths** in the
+module's settings.
 
 Waypoints are saved separately for each server or singleplayer world and
 each dimension. You only cycle through the ones for where you are, so a
