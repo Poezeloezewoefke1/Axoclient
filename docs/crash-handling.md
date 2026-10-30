@@ -45,6 +45,9 @@ runs, not at startup. Errors that mean the JVM itself is in trouble
 (`OutOfMemoryError` and other `VirtualMachineError`s) are deliberately not
 caught.
 
+Tooltip modules run through the same guard via `ModuleManager#guarded`, and
+the chat mention check falls back to showing the line unmarked.
+
 Mixins are outside this guard. Required mixins must apply or the game won't
 start; optional ones live in `axoclient.optional.mixins.json` and fail
 individually (see `client-features.md`).

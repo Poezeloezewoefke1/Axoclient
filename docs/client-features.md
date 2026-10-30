@@ -149,6 +149,8 @@ it off later still restores them.
 | Clear Water & Lava | off | Removes the full-screen liquid overlays |
 | Durability Tooltips | on | Exact durability on damageable items, coloured by wear |
 | Shulker Tooltips | on | Lists a shulker box's contents on its tooltip |
+| Food Tooltips | on | Hunger and saturation restored, on every food |
+| Anvil Cost Tooltips | on | An item's anvil work penalty, red when it's close to Too Expensive |
 | Waypoints | off | **B** marks a spot, **N** cycles, **J** opens the list to rename or delete; the HUD shows an arrow and distance back (all rebindable) |
 | Stopwatch | off | **K** starts and pauses; reset key in settings |
 | Auto Walk | off | Keeps walking forward; bind a key to tap it on and off |

@@ -46,7 +46,13 @@ public final class ChatTweaks {
         if (message == null) {
             return null;
         }
-        Component out = markMention(message);
+        Component out = message;
+        try {
+            out = markMention(message);
+        } catch (Exception | LinkageError e) {
+            // Chat must never break over a cosmetic: show the line unmarked.
+            dev.axoclient.AxoClient.LOGGER.error("Chat Mentions failed on a message", e);
+        }
         if (!enabled(TIMESTAMPS_ID)) {
             return out;
         }

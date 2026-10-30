@@ -1,7 +1,9 @@
 package dev.axoclient.util;
 
 import dev.axoclient.core.ModuleManager;
+import dev.axoclient.modules.qol.AnvilCostTooltipModule;
 import dev.axoclient.modules.qol.DurabilityTooltipModule;
+import dev.axoclient.modules.qol.FoodTooltipModule;
 import dev.axoclient.modules.qol.ShulkerTooltipModule;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 
@@ -23,10 +25,16 @@ public final class Tooltips {
             ModuleManager modules = ModuleManager.get();
             modules.byId("durability_tooltip")
                 .filter(modules::isEnabled)
-                .ifPresent(m -> ((DurabilityTooltipModule) m).appendTo(stack, lines));
+                .ifPresent(m -> modules.guarded(m, "tooltip", () -> ((DurabilityTooltipModule) m).appendTo(stack, lines)));
             modules.byId("shulker_tooltip")
                 .filter(modules::isEnabled)
-                .ifPresent(m -> ((ShulkerTooltipModule) m).appendTo(stack, lines));
+                .ifPresent(m -> modules.guarded(m, "tooltip", () -> ((ShulkerTooltipModule) m).appendTo(stack, lines)));
+            modules.byId("food_tooltip")
+                .filter(modules::isEnabled)
+                .ifPresent(m -> modules.guarded(m, "tooltip", () -> ((FoodTooltipModule) m).appendTo(stack, lines)));
+            modules.byId("anvil_cost_tooltip")
+                .filter(modules::isEnabled)
+                .ifPresent(m -> modules.guarded(m, "tooltip", () -> ((AnvilCostTooltipModule) m).appendTo(stack, lines)));
         });
     }
 }

@@ -122,6 +122,18 @@ public final class ModuleManager {
     }
 
     /**
+     * Runs {@code action} for {@code module} under the same guard as ticks and
+     * HUD frames, for module code called from elsewhere (event callbacks).
+     */
+    public void guarded(AxoModule module, String where, Runnable action) {
+        try {
+            action.run();
+        } catch (Exception | LinkageError e) {
+            quarantine(module, where, e);
+        }
+    }
+
+    /**
      * Turns off a module that threw, instead of letting the exception crash
      * the game. Ticks and HUD frames run every few milliseconds, so one bad
      * module would otherwise take the whole client down — and a module that

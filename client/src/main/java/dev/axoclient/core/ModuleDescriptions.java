@@ -96,6 +96,8 @@ public final class ModuleDescriptions {
         Map.entry("clear_liquids", "Removes the full-screen water and lava overlays."),
         Map.entry("durability_tooltip", "Exact durability on item tooltips, coloured by wear."),
         Map.entry("shulker_tooltip", "Shows what's inside a shulker box on its tooltip."),
+        Map.entry("food_tooltip", "Hunger and saturation each food restores."),
+        Map.entry("anvil_cost_tooltip", "An item's anvil work penalty, before it gets Too Expensive."),
         Map.entry("waypoints", "Mark spots with a key and follow an arrow back."),
         Map.entry("stopwatch", "A start / pause / reset timer on your HUD."),
         Map.entry("auto_walk", "Keeps walking forward for you; bind a key to toggle."),
