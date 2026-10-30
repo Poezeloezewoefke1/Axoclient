@@ -10,6 +10,7 @@ import dev.axoclient.gui.theme.Themes;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
  * An accent-coloured crosshair drawn on top of the vanilla one.
@@ -23,11 +24,15 @@ import net.minecraft.client.gui.GuiGraphics;
  *   style — 0 dot, 1 cross, 2 circle
  *   size  — arm length / radius in pixels
  *   gap   — pixels of empty space at the centre (cross only)
+ *   target_colour — colour while aiming at a mob or player (0 = unchanged)
  */
 public final class CrosshairModule extends AxoModule implements HudRenderable {
     public static final int STYLE_DOT = 0;
     public static final int STYLE_CROSS = 1;
     public static final int STYLE_CIRCLE = 2;
+
+    private static final List<String> TARGET_COLOUR_NAMES = List.of("Unchanged", "Red", "White", "Gold");
+    private static final int[] TARGET_COLOURS = {0, 0xFFEF4444, 0xFFFFFFFF, 0xFFFBBF24};
 
     public CrosshairModule() {
         super("crosshair", "Crosshair", ModuleCategory.HUD, false);
@@ -36,9 +41,11 @@ public final class CrosshairModule extends AxoModule implements HudRenderable {
     @Override
     public List<ModuleSetting> settings() {
         return List.of(
-            ModuleSetting.plain(id(), "style", "Style (0 dot, 1 cross, 2 ring)", 0, 2, STYLE_DOT),
+            // Same indices as the old numeric setting, so saved styles carry over.
+            ModuleSetting.choice(id(), "style", "Style", List.of("Dot", "Cross", "Ring"), STYLE_DOT),
             ModuleSetting.plain(id(), "size", "Size", 1, 12, 4),
-            ModuleSetting.plain(id(), "gap", "Centre gap", 0, 8, 2)
+            ModuleSetting.plain(id(), "gap", "Centre gap", 0, 8, 2),
+            ModuleSetting.choice(id(), "target_colour", "On a mob or player", TARGET_COLOUR_NAMES, 1)
         );
     }
 
@@ -52,6 +59,10 @@ public final class CrosshairModule extends AxoModule implements HudRenderable {
         int cx = graphics.guiWidth() / 2;
         int cy = graphics.guiHeight() / 2;
         int colour = Themes.current().accent;
+        int targetColour = TARGET_COLOURS[settings().get(3).get()];
+        if (targetColour != 0 && minecraft.crosshairPickEntity instanceof LivingEntity) {
+            colour = targetColour;
+        }
         int style = ModuleManager.get().config().getModuleInt(id(), "style", STYLE_DOT);
         int size = clamp(ModuleManager.get().config().getModuleInt(id(), "size", 4), 1, 12);
         int gap = clamp(ModuleManager.get().config().getModuleInt(id(), "gap", 2), 0, 8);

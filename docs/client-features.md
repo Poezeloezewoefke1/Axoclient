@@ -78,12 +78,12 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Durability Warning | off | Warns before a tool breaks, with a one-time sound and notification (can be turned off) |
 | Pickup Log | off | Short list of what you just picked up |
 | Ping Spike | off | Flags the moment latency jumps |
-| Crosshair | off | Dot / cross / circle in your accent colour |
+| Crosshair | off | Dot / cross / ring in your accent colour; turns red (or white/gold) on a mob or player |
 | Light Level | off | Block and sky light where you stand; says when mobs can spawn |
 | Nether Coords | off | Your matching Nether position (or Overworld, in the Nether) |
 | Session Stats | off | Distance travelled and deaths this session |
 | Chunk Info | off | Chunk, position inside it, and region file |
-| Weather | off | Clear / raining / thunderstorm, even underground |
+| Weather | off | Clear / raining / thunderstorm, even underground, with a notification when it changes |
 | Day Cycle | off | Real-time countdown to nightfall or sunrise |
 | Block Info | off | Name and coordinates of the block you're looking at |
 | Hostile Counter | off | Hostile mobs within a set radius |
