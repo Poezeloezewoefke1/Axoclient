@@ -1,5 +1,6 @@
 package dev.axoclient.core;
 
+import dev.axoclient.AxoClient;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -59,7 +60,11 @@ public final class ModuleManager {
     public void enableInitial() {
         for (AxoModule module : modules.values()) {
             if (isEnabled(module)) {
-                module.onEnable();
+                try {
+                    module.onEnable();
+                } catch (Exception | LinkageError e) {
+                    quarantine(module, "startup", e);
+                }
             }
         }
     }
@@ -81,10 +86,15 @@ public final class ModuleManager {
         if (previous != null && previous == state) {
             return;
         }
-        if (state) {
-            module.onEnable();
-        } else {
-            module.onDisable();
+        try {
+            if (state) {
+                module.onEnable();
+            } else {
+                module.onDisable();
+            }
+        } catch (Exception | LinkageError e) {
+            quarantine(module, state ? "enable" : "disable", e);
+            return;
         }
         config.setEnabled(module.id(), state);
         dev.axoclient.gui.notify.Notifications.push(
@@ -102,9 +112,37 @@ public final class ModuleManager {
     public void tickAll() {
         for (AxoModule module : modules.values()) {
             if (isEnabled(module)) {
-                module.onTick();
+                try {
+                    module.onTick();
+                } catch (Exception | LinkageError e) {
+                    quarantine(module, "tick", e);
+                }
             }
         }
+    }
+
+    /**
+     * Turns off a module that threw, instead of letting the exception crash
+     * the game. Ticks and HUD frames run every few milliseconds, so one bad
+     * module would otherwise take the whole client down — and a module that
+     * worked on one Minecraft version can meet a changed method on the next
+     * (a LinkageError, hence that in the catch too). The module is disabled
+     * and that's persisted, so it stays off across a restart until the
+     * player turns it back on.
+     */
+    private void quarantine(AxoModule module, String where, Throwable error) {
+        AxoClient.LOGGER.error("Module '{}' failed during {} and was turned off", module.id(), where, error);
+        enabled.put(module.id(), false);
+        config.setEnabled(module.id(), false);
+        try {
+            module.onDisable();
+        } catch (Exception | LinkageError e) {
+            AxoClient.LOGGER.error("Module '{}' also failed while turning off", module.id(), e);
+        }
+        dev.axoclient.gui.notify.Notifications.push(
+            module.displayName() + " hit an error and was turned off",
+            dev.axoclient.gui.notify.Notification.Type.WARN
+        );
     }
 
     /** Dispatched from {@link dev.axoclient.mixin.GuiMixin} after the vanilla HUD. */
@@ -114,7 +152,11 @@ public final class ModuleManager {
         }
         for (AxoModule module : modules.values()) {
             if (module instanceof HudRenderable hud && isEnabled(module)) {
-                hud.renderHud(graphics);
+                try {
+                    hud.renderHud(graphics);
+                } catch (Exception | LinkageError e) {
+                    quarantine(module, "HUD render", e);
+                }
             }
         }
     }

@@ -26,3 +26,25 @@ Taxonomy of failure modes, how each is detected, what the user sees, and where t
 
 - Case 3 and 7 behavior already exists (pipeline error → Home error card + Retry; sync auto-repair).
 - Cases 1, 2, 4, 5, 6 are P5-02/P5-03 implementation work; case 4's rollback needs P3-05.
+
+## Inside the game: one module can't take the client down
+
+Every module's `onTick`, `renderHud`, `onEnable` and `onDisable` is called
+through `ModuleManager`, which catches `Exception` and `LinkageError` per
+module. A module that throws is:
+
+1. logged once with its stack trace (`Module '<id>' failed during <phase>`),
+2. switched off, and that is saved to `axoclient.json` so it stays off after
+   a restart,
+3. reported in-game with a notification ("<name> hit an error and was turned
+   off").
+
+`LinkageError` is caught on purpose: when a Minecraft update changes a method
+a module calls, that surfaces as `NoSuchMethodError` at the moment the code
+runs, not at startup. Errors that mean the JVM itself is in trouble
+(`OutOfMemoryError` and other `VirtualMachineError`s) are deliberately not
+caught.
+
+Mixins are outside this guard. Required mixins must apply or the game won't
+start; optional ones live in `axoclient.optional.mixins.json` and fail
+individually (see `client-features.md`).
