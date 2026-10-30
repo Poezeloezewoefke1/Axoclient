@@ -102,6 +102,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Armor Points | off | Total armour and armour toughness |
 | HUD Style | off | Restyle all HUD text: colour (six choices), dark background box, shadow on/off |
 | Minimap | off | North-up map of the area around you with your heading and waypoints; corner, zoom and size in settings |
+| Hide Axo HUD | off | While on, hides every Axo HUD element (vanilla HUD untouched); bind a key to flip it for screenshots |
 | Module List | on | Which modules are active |
 
 ### Combat

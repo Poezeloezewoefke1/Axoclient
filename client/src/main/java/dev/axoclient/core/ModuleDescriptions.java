@@ -60,6 +60,7 @@ public final class ModuleDescriptions {
         Map.entry("armor_points", "Total armour and armour toughness."),
         Map.entry("hud_style", "Colour, background box and shadow for all HUD text."),
         Map.entry("minimap", "A north-up map of the area around you, with your waypoints."),
+        Map.entry("hide_hud", "Hides every Axo HUD element at once; bind a key to flip it."),
         // Cosmetic
         Map.entry("trails", "Particle trails and auras; pick one in settings."),
         Map.entry("halo", "A ring turning above your head."),

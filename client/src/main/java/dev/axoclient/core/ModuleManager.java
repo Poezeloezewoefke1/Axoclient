@@ -157,9 +157,14 @@ public final class ModuleManager {
         );
     }
 
+    private boolean hudHidden() {
+        AxoModule hide = modules.get(dev.axoclient.modules.hud.HideHudModule.ID);
+        return hide != null && isEnabled(hide);
+    }
+
     /** Dispatched from {@link dev.axoclient.mixin.GuiMixin} after the vanilla HUD. */
     public void renderHud(GuiGraphics graphics) {
-        if (Minecraft.getInstance().options.hideGui) {
+        if (Minecraft.getInstance().options.hideGui || hudHidden()) {
             return;
         }
         for (AxoModule module : modules.values()) {
