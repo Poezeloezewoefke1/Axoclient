@@ -10,6 +10,7 @@
     "EntityTurnMixin",
     "FovMixin",
     "ScreenEffectMixin",
+    "ScreenPanoramaMixin",
     "ScrollMixin",
     "TitleBackgroundMixin"
   ],
