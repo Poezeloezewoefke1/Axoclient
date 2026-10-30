@@ -57,16 +57,16 @@ Everything is a module. Toggle any of them in the ClickGUI.
 
 | Module | Default | What it does |
 | --- | --- | --- |
-| Coordinates | on | X / Y / Z and facing direction |
+| Coordinates | on | X / Y / Z and facing direction (decimals and facing in settings) |
 | CPS Counter | on | Left/right clicks per second (1s window) |
-| Speed | off | Blocks per second |
+| Speed | off | Blocks per second or km/h |
 | Ping | off | Latency to the server |
 | Health / Hunger / Experience | off | Exact numbers instead of counting icons |
 | XP Progress | off | Percentage to the next level |
 | Direction | off | Facing as N/E/S/W plus yaw |
 | Compass | off | Compass strip across the top of the screen |
 | Biome | off | Biome you're standing in |
-| Clock | on | Real-world time |
+| Clock | on | Real-world time, 24- or 12-hour |
 | Game Clock | off | In-game time of day as a 24-hour clock |
 | Day Counter | off | In-game day number |
 | Session Uptime | off | How long this session has run |
@@ -113,7 +113,7 @@ Everything is a module. Toggle any of them in the ClickGUI.
 | Item Counter | off | Totems, pearls, golden apples and arrows left |
 | Low Health Warning | off | Pulsing red screen edge at low health (threshold in settings) |
 | Bow Charge | off | How drawn your bow is; FULL means a critical shot |
-| Nearby Players | off | Closest players with distance and health |
+| Nearby Players | off | Closest players with distance, health and ping |
 | Hit Sound | off | A sound only you hear when a hit lands (three to choose from) |
 | Pearl Cooldown | off | Ender pearl cooldown remaining |
 | Totem Warning | off | Warns when you carry totems but none is in your hands |

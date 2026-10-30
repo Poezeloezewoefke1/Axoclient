@@ -75,7 +75,7 @@ public final class ModuleDescriptions {
         Map.entry("item_counter", "Totems, pearls, golden apples and arrows left."),
         Map.entry("low_health_warning", "A pulsing red screen edge when your health is low."),
         Map.entry("bow_charge", "How drawn your bow is; FULL means a critical shot."),
-        Map.entry("nearby_players", "The closest players, with distance and health."),
+        Map.entry("nearby_players", "The closest players, with distance, health and ping."),
         Map.entry("hit_sound", "A sound only you hear when your hit lands."),
         Map.entry("pearl_cooldown", "Time left before you can throw another pearl."),
         Map.entry("totem_warning", "Warns when you carry totems but none is in your hand."),

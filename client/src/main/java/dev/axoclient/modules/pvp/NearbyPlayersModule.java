@@ -12,12 +12,13 @@ import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * The closest players the client can see, nearest first, with distance and
- * health. Only players within your render distance are known to the client,
+ * The closest players the client can see, nearest first, with distance,
+ * health and ping. Only players within your render distance are known to the client,
  * so this shows nothing a glance around wouldn't — it just sorts it.
  *
  * The header line is what the HUD editor drags; the list hangs below it.
@@ -48,13 +49,19 @@ public final class NearbyPlayersModule extends HudModule {
         others.sort(Comparator.comparingDouble(self::distanceTo));
         for (int i = 0; i < Math.min(MAX_LISTED, others.size()); i++) {
             Player other = others.get(i);
-            lines.add(String.format(
+            String line = String.format(
                 Locale.ROOT,
                 "%s  %.0fm  %.0f HP",
                 other.getName().getString(),
                 self.distanceTo(other),
                 other.getHealth()
-            ));
+            );
+            // Latency as the tab list shows it; NPCs and some server bots aren't listed.
+            PlayerInfo info = minecraft.getConnection() == null ? null : minecraft.getConnection().getPlayerInfo(other.getUUID());
+            if (info != null) {
+                line += "  " + info.getLatency() + "ms";
+            }
+            lines.add(line);
         }
     }
 
